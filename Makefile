@@ -9,7 +9,6 @@ build-darwin:
 	GOOS=darwin GOARCH=amd64 go build -o build/uvcli-$(version)-osx-amd64 -i main.go
 build-all: build-linux build-linux-arm build-windows build-darwin
 	ls build
-
 build:
 	go build -o build/cli -i main.go
 
