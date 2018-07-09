@@ -11,6 +11,18 @@ build-all: build-linux build-linux-arm build-windows build-darwin
 
 build:
 	go build -o build/cli -i main.go
+
+docker-build:
+	docker run --rm -it -v "$GOPATH":/go -w /go/src/github.com/iron-io/ironcli golang:1.4.2-cross sh -c ' \
+	for GOOS in darwin linux windows; do \
+	for GOARCH in 386 amd64; do \
+		echo "Building $GOOS-$GOARCH" \
+		export GOOS=$GOOS \
+		export GOARCH=$GOARCH \
+		go build -o bin/ironcli-$GOOS-$GOARCH \
+	done \
+	done \
+	'
 run:
 	./build/cli
 
