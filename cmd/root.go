@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gitlab.com/u-v/dash/uv-cli/config"
+	"github.com/uvcloud/uv-cli/config"
 )
 
 // RootCmd represents the base command when called without any subcommands

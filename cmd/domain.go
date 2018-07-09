@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
-	uvApi "gitlab.com/u-v/dash/uv-api-go/proto"
+	uvApi "github.com/uvcloud/uv-api-go/proto"
 )
 
 var (
@@ -57,7 +57,6 @@ func domainInfo(cmd *cobra.Command, args []string) {
 
 func domainCreate(cmd *cobra.Command, args []string) {
 	req := new(uvApi.DomainCreateReq)
-	req.Name = cmd.Flag("name").Value.String()
 	req.Domain = cmd.Flag("domain").Value.String()
 	req.Tls = flagTLS
 
@@ -86,9 +85,8 @@ func init() {
 	domainInfoCmd.MarkFlagRequired("name")
 
 	// domain create:
-	domainCreateCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the domain.")
-	domainCreateCmd.Flags().StringP("domain", "s", "", "the name of domain's spac.")
-	srvCreateCmd.Flags().BoolVarP(&flagTLS, "TLS", "t", false, "enable TLS for domain")
+	domainCreateCmd.Flags().StringP("domain", "d", "", "the name of domain's spac.")
+	domainCreateCmd.Flags().BoolVarP(&flagTLS, "TLS", "t", false, "enable TLS for domain")
 	domainCreateCmd.MarkFlagRequired("domain")
 
 	// domain delete:

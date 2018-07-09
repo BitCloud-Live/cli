@@ -20,7 +20,7 @@
 package main
 
 import (
-	"gitlab.com/u-v/dash/uv-cli/cmd"
+	"github.com/uvcloud/uv-cli/cmd"
 )
 
 func main() {

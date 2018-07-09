@@ -9,8 +9,8 @@ import (
 	"syscall"
 
 	"github.com/spf13/viper"
-	uvApi "gitlab.com/u-v/dash/uv-api-go/proto"
-	"gitlab.com/u-v/dash/uv-cli/config"
+	uvApi "github.com/uvcloud/uv-api-go/proto"
+	"github.com/uvcloud/uv-cli/config"
 	"golang.org/x/crypto/ssh/terminal"
 )
 

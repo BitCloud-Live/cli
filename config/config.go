@@ -1,29 +1,29 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"log"
 	"path/filepath"
+
 	"github.com/mitchellh/go-homedir"
+	"github.com/spf13/viper"
 )
 
-const(
+const (
 	DEFAULTE_CONTOROLLER = "127.0.0.1:8080"
-	HEDER_TOKEN = "x-uv-token"
-	KEY_EMAIL   = "email"
-	KEY_TOKEN   = "token"
-	KEY_LINK    = "link"
-	APP_NAME    = "uv"
-	CONFIG_NAME = "config"
+	KEY_EMAIL            = "email"
+	KEY_TOKEN            = "token"
+	KEY_LINK             = "link"
+	APP_NAME             = "uv"
+	CONFIG_NAME          = "config"
 )
 
 var (
 	// Get config file Path from the flag.
-	ConfigManualAddress = "" 
+	ConfigManualAddress = ""
 
 	// Find home directory for definition of archive folder
 	// configPath == $HOME/.uv/
-	configPath = filepath.Join(getHome(), "." + APP_NAME)
+	configPath = filepath.Join(getHome(), "."+APP_NAME)
 )
 
 // Find home directory.
@@ -35,8 +35,8 @@ func getHome() string {
 	return home
 }
 
-func UpdateVarByConfigFile(){
-	// read config either from Flag --config or Path "$HOME/.uv/config.json" 
+func UpdateVarByConfigFile() {
+	// read config either from Flag --config or Path "$HOME/.uv/config.json"
 	if ConfigManualAddress != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(ConfigManualAddress)
@@ -51,6 +51,6 @@ func UpdateVarByConfigFile(){
 	}
 }
 
-func ResetConfigFile()(err error){
+func ResetConfigFile() (err error) {
 	return viper.WriteConfig()
 }

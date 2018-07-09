@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	//"github.com/spf13/viper"
-	uvApi "gitlab.com/u-v/dash/uv-api-go/proto"
+	uvApi "github.com/uvcloud/uv-api-go/proto"
 )
 
 func reqIndex(cmd *cobra.Command) *uvApi.ListReq {

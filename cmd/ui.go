@@ -3,7 +3,7 @@ package cmd
 import (
 	"log"
 
-	uvApi "gitlab.com/u-v/dash/uv-api-go/proto"
+	uvApi "github.com/uvcloud/uv-api-go/proto"
 )
 
 func uiList(list *uvApi.ListStatusRes) {
