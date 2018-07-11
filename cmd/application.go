@@ -310,13 +310,15 @@ func appSrvUnBind(cmd *cobra.Command, args []string) {
 }
 
 func appAttachVolume(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AttachIdentity)
+	req := new(uvApi.VolumeAttachReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Attachment = cmd.Flag("attachment").Value.String()
+	req.MountPath = cmd.Flag("mount-path").Value.String()
 
 	client := grpcConnect()
+
 	defer client.Close()
-	res, err := client.V1().AppAttachVolumes(client.Context(), req)
+	res, err := client.V1().AppAttachVolume(client.Context(), req)
 	uiCheckErr("Could not Attach the Volume for Application: %v", err)
 	uiApplicationStatus(res)
 }
@@ -451,8 +453,10 @@ func init() {
 	// app Aettach Volume:
 	appAttachVolumeCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
 	appAttachVolumeCmd.Flags().StringP("attachment", "a", "", "name of attachment")
+	appAttachVolumeCmd.Flags().StringP("mount-path", "m", "", "name of attachment")
 	appAttachVolumeCmd.MarkFlagRequired("name")
 	appAttachVolumeCmd.MarkFlagRequired("attachment")
+	appAttachVolumeCmd.MarkFlagRequired("mount-path")
 
 	// app Detach Volume:
 	appDetachVolumeCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")

@@ -109,7 +109,7 @@
   branch = "master"
   name = "github.com/uvcloud/uv-api-go"
   packages = ["proto"]
-  revision = "93ccd9cb3dda9e1dad38e408600ed8ff37ff489b"
+  revision = "45708d401e87ee21b7007a45eeeb2ee0368c4324"
 
 [[projects]]
   branch = "master"
@@ -129,7 +129,7 @@
     "internal/timeseries",
     "trace"
   ]
-  revision = "6f138e0f60713a248abf7046f1014a3ba90f5341"
+  revision = "c21de06aaf072cea07f3a65d6970e5c7d8b6cd6d"
 
 [[projects]]
   branch = "master"
