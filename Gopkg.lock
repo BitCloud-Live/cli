@@ -106,10 +106,10 @@
   version = "v1.0.2"
 
 [[projects]]
-  branch = "master"
   name = "github.com/uvcloud/uv-api-go"
   packages = ["proto"]
-  revision = "45708d401e87ee21b7007a45eeeb2ee0368c4324"
+  revision = "a8b3a62c5ac92b02e9891fa30bc94edc0af0832c"
+  version = "v1.0.0-rc1"
 
 [[projects]]
   branch = "master"
@@ -129,7 +129,7 @@
     "internal/timeseries",
     "trace"
   ]
-  revision = "c21de06aaf072cea07f3a65d6970e5c7d8b6cd6d"
+  revision = "039a4258aec0ad3c79b905677cceeab13b296a77"
 
 [[projects]]
   branch = "master"
@@ -165,7 +165,7 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "8b2cc369ab52e0003a878865c9372afdd6ca5c5a"
+  revision = "e92b116572682a5b432ddd840aeaba2a559eeff1"
 
 [[projects]]
   name = "google.golang.org/grpc"
