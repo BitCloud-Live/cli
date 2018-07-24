@@ -86,7 +86,7 @@ func init() {
 
 	// domain create:
 	domainCreateCmd.Flags().StringP("domain", "d", "", "the name of domain's spac.")
-	domainCreateCmd.Flags().BoolVarP(&flagTLS, "TLS", "t", false, "enable TLS for domain")
+	domainCreateCmd.Flags().BoolVar(&flagTLS, "TLS", false, "enable TLS for domain")
 	domainCreateCmd.MarkFlagRequired("domain")
 
 	// domain delete:

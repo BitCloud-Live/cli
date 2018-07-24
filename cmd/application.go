@@ -446,9 +446,9 @@ func init() {
 
 	// app Detach Domain:
 	appDetachDomainCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
-	appDetachDomainCmd.Flags().StringP("detachment", "d", "", "name of detachment")
+	appDetachDomainCmd.Flags().StringP("attachment", "a", "", "name of detachment")
 	appDetachDomainCmd.MarkFlagRequired("name")
-	appDetachDomainCmd.MarkFlagRequired("detachment")
+	appDetachDomainCmd.MarkFlagRequired("attachment")
 
 	// app Aettach Volume:
 	appAttachVolumeCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
@@ -460,9 +460,9 @@ func init() {
 
 	// app Detach Volume:
 	appDetachVolumeCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
-	appDetachVolumeCmd.Flags().StringP("detachment", "d", "", "name of detachment")
+	appDetachVolumeCmd.Flags().StringP("attachment", "a", "", "name of detachment")
 	appDetachVolumeCmd.MarkFlagRequired("name")
-	appDetachVolumeCmd.MarkFlagRequired("detachment")
+	appDetachVolumeCmd.MarkFlagRequired("attachment")
 
 	rootCmd.AddCommand(
 		appListCmd,
