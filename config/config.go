@@ -14,7 +14,7 @@ const (
 	KEY_TOKEN            = "token"
 	KEY_LINK             = "link"
 	APP_NAME             = "uv"
-	CONFIG_NAME          = "config"
+	CONFIG_NAME          = "config.json"
 )
 
 var (
@@ -42,12 +42,17 @@ func UpdateVarByConfigFile() {
 		viper.SetConfigFile(ConfigManualAddress)
 	} else {
 		// Search config in home directory
-		viper.AddConfigPath(configPath)
-		viper.SetConfigName(CONFIG_NAME)
+		viper.SetConfigFile(filepath.Join(configPath, CONFIG_NAME))
 	}
-
+	viper.SetConfigType("json")
 	if err := viper.ReadInConfig(); err != nil {
-		log.Println("Warning - Can't read config file:", err)
+		log.Printf("Config file not found!")
+		log.Printf("Creating a new config file in %s", viper.ConfigFileUsed())
+		viper.WriteConfig()
+		if err := viper.ReadInConfig(); err != nil {
+			log.Print("Failed!")
+		}
+		log.Print("Succeed")
 	}
 }
 
