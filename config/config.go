@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	DEFAULTE_CONTOROLLER = "127.0.0.1:8080"
+	DEFAULTE_CONTOROLLER = "controller.uvcloud.ir:8443"
 	KEY_EMAIL            = "email"
 	KEY_TOKEN            = "token"
 	KEY_LINK             = "link"

@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"log"
 
 	uvApi "github.com/uvcloud/uv-api-go/proto"
@@ -64,7 +66,9 @@ func uiApplicationStatus(app *uvApi.AppStatusRes) {
 	log.Printf("Service Name: %s \r\n", app.Name)
 	log.Printf("State: %v \r\n", app.State)
 	log.Printf("Config: %v \r\n", app.Config)
-	log.Printf("Token: %v,\t Updated: %v \r\n", app.Created, app.Updated)
+	log.Printf("Created: %v,\t Updated: %v \r\n", app.Created, app.Updated)
+	log.Printf("VCAP_SERVICES: \r\n%v\r\n", jsonPrettyPrint(app.VcapServices))
+	uiMap(app.EnvironmentVariables, "Environment variables")
 }
 
 func uiDomainStatus(dom *uvApi.DomainStatusRes) {
@@ -92,4 +96,13 @@ func uiCheckErr(info string, err error) {
 	if err != nil {
 		log.Fatalf("Could not Start the Service: %v", err)
 	}
+}
+
+func jsonPrettyPrint(in string) string {
+	var out bytes.Buffer
+	err := json.Indent(&out, []byte(in), "", "\t")
+	if err != nil {
+		return in
+	}
+	return out.String()
 }

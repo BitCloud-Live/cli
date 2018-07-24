@@ -27,4 +27,4 @@ run:
 	./build/cli
 
 clean:
-	echo "{}" > ~/.uv/config.json
+	echo "{}" > ~/.uv/config.json && rm -rf build/*
