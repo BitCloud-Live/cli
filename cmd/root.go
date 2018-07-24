@@ -31,7 +31,7 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&config.ConfigManualAddress, "config", "", "Config file (default is $HOME/.uv/config.json)")
 	rootCmd.PersistentFlags().StringP(config.KEY_EMAIL, "e", "", "Provide a Email address for the new account")
-	rootCmd.PersistentFlags().StringP(config.KEY_LINK, "l", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI, e.g. \"http://controller.uvCloud.ir/\"")
+	rootCmd.PersistentFlags().StringP(config.KEY_LINK, "l", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI")
 	rootCmd.PersistentFlags().StringP(config.KEY_TOKEN, "t", "", "Manual Send 'TOKEN' for Authentication")
 
 	viper.BindPFlag(config.KEY_EMAIL, rootCmd.PersistentFlags().Lookup(config.KEY_EMAIL))
