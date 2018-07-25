@@ -3,11 +3,16 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 
+	"github.com/Sirupsen/logrus"
 	uvApi "github.com/uvcloud/uv-api-go/proto"
 )
 
+var log = logrus.New()
+
+func init() {
+	log.Formatter = &logrus.TextFormatter{FullTimestamp: false}
+}
 func uiList(list *uvApi.ListStatusRes) {
 	log.Printf("Count: %d,\t Next: %d,\t  Previous:%d \r\n", list.Count, list.Next, list.Previous)
 	for i, v := range list.Names {
@@ -94,7 +99,7 @@ func uiVolumeStatus(vol *uvApi.VolumeStatusRes) {
 
 func uiCheckErr(info string, err error) {
 	if err != nil {
-		log.Fatalf("Could not Start the Service: %v", err)
+		log.Fatalf("%v", err)
 	}
 }
 

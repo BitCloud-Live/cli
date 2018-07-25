@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 	uvApi "github.com/uvcloud/uv-api-go/proto"
 )
@@ -28,9 +26,9 @@ var (
 		Run: srvCreate}
 
 	srvChangePlaneCmd = &cobra.Command{
-		Use:   "srv:plane",
-		Short: "change the Plane of service",
-		Long: `set Plane for an service.
+		Use:   "srv:plan",
+		Short: "change the Plan of service",
+		Long: `set Plan for an service.
 		This limit isn't applied to each individual pod, 
 		so setting a plan for an service means that 
 		each pod can gets more resourse and overused pay per consume.`,
@@ -158,9 +156,9 @@ func init() {
 	srvCreateCmd.MarkFlagRequired("name")
 	srvCreateCmd.MarkFlagRequired("product")
 
-	// srv Change Plane:
+	// srv Change Plan:
 	srvChangePlaneCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service")
-	srvChangePlaneCmd.Flags().StringP("plan", "p", "", "define the new plane of service")
+	srvChangePlaneCmd.Flags().StringP("plan", "p", "", "define the new plan of service")
 	srvChangePlaneCmd.MarkFlagRequired("name")
 	srvChangePlaneCmd.MarkFlagRequired("plan")
 

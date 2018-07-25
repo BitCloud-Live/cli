@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 	uvApi "github.com/uvcloud/uv-api-go/proto"
 )
@@ -11,6 +9,7 @@ var (
 	flagVarPort     uint64
 	flagVarMinScale uint64
 	minScale        uint64
+	flagVarImage    string
 )
 
 var (
@@ -46,10 +45,10 @@ var (
 		Run:   appConfigUnset}
 
 	appAddEnvCmd = &cobra.Command{
-		Use:   "app:addEV",
+		Use:   "app:envSet",
 		Short: "sets environment variables for an application",
 		Long: `Sets environment variables for an application.
-		Usage: uv app:addEV <var>=<value> [<var>=<value>...] [options]
+		Usage: uv app:envSet <var>=<value> [<var>=<value>...] [options]
 
 		Arguments:
 		  <var>
@@ -59,10 +58,10 @@ var (
 		Run: appAddEnvironmentVariable}
 
 	appRemoveEnvCmd = &cobra.Command{
-		Use:   "app:delEV",
+		Use:   "app:envUnset",
 		Short: "unset environment variables for an application",
-		Long: `Unset environment variables for an application.appAttachVolumeCmd
-		Usage: deis app:delEV <key>... [options]
+		Long: `Unset environment variables for an application.
+		Usage: deis app:envUnset <key>... [options]
 
 		Arguments:
 		  <key>
@@ -70,9 +69,9 @@ var (
 		Run: appRemoveEnvironmentVariable}
 
 	appChangePlaneCmd = &cobra.Command{
-		Use:   "app:plane",
-		Short: "change the Plane of application",
-		Long: `set Plane for an application.
+		Use:   "app:plan",
+		Short: "change the Plan of application",
+		Long: `set Plan for an application.
 		This limit isn't applied to each individual pod, 
 		so setting a plan for an application means that 
 		each pod can gets more resourse and overused pay per consume.`,
@@ -233,7 +232,10 @@ func appChangePlane(cmd *cobra.Command, args []string) {
 func appConfigSet(cmd *cobra.Command, args []string) {
 	req := new(uvApi.ConfigSetReg)
 	req.Name = cmd.Flag("name").Value.String()
-
+	req.Config = new(uvApi.AppConfig)
+	req.Config.MinScale = flagVarMinScale
+	req.Config.Port = flagVarPort
+	req.Config.Image = flagVarImage
 	client := grpcConnect()
 	defer client.Close()
 
@@ -370,16 +372,16 @@ func init() {
 	// app Create:
 	appCreateCmd.Flags().StringP("plan", "s", "", "name of plan")
 	appCreateCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
-	appCreateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 8080, "port of application")
-	appCreateCmd.Flags().StringP("image", "i", "", "image of application")
+	appCreateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
+	appCreateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
 	appCreateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 1, "min scale of application")
 	appCreateCmd.MarkFlagRequired("image")
 
 	// app Config Set:
 	appConfigSetCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
-	appConfigSetCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 8080, "port of application")
-	appConfigSetCmd.Flags().StringP("image", "i", "", "image of application")
-	appConfigSetCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 1, "min scale of application")
+	appConfigSetCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
+	appConfigSetCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
+	appConfigSetCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 0, "min scale of application")
 	appConfigSetCmd.MarkFlagRequired("name")
 
 	// app Config Unset:
@@ -389,9 +391,9 @@ func init() {
 	appConfigUnsetCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 1, "min scale of application")
 	appConfigUnsetCmd.MarkFlagRequired("name")
 
-	// app Change Plane:
+	// app Change Plan:
 	appChangePlaneCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
-	appChangePlaneCmd.Flags().StringP("plan", "p", "", "define the new plane of application")
+	appChangePlaneCmd.Flags().StringP("plan", "p", "", "define the new plan of application")
 	appChangePlaneCmd.MarkFlagRequired("name")
 
 	// app Portforward:

@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 	uvApi "github.com/uvcloud/uv-api-go/proto"
 )
