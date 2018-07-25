@@ -41,7 +41,7 @@ func domainList(cmd *cobra.Command, args []string) {
 	req := reqIndex(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().AppList(client.Context(), req)
+	res, err := client.V1().DomainList(client.Context(), req)
 	uiCheckErr("Could not List the domain: %v", err)
 	uiList(res)
 }

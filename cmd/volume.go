@@ -67,7 +67,7 @@ func volumeList(cmd *cobra.Command, args []string) {
 	req := reqIndex(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().AppList(client.Context(), req)
+	res, err := client.V1().VolumeList(client.Context(), req)
 	uiCheckErr("Could not List the volume: %v", err)
 	uiList(res)
 }
