@@ -14,16 +14,11 @@ build:
 	CGO_ENABLED=0 go build -o build/cli -i main.go
 
 docker-build:
-	docker run --rm -it -v "$GOPATH":/go -w /go/src/github.com/iron-io/ironcli golang:1.4.2-cross sh -c ' \
-	for GOOS in darwin linux windows; do \
-	for GOARCH in 386 amd64; do \
-		echo "Building $GOOS-$GOARCH" \
-		export GOOS=$GOOS \
-		export GOARCH=$GOARCH \
-		go build -o bin/ironcli-$GOOS-$GOARCH \
-	done \
-	done \
-	'
+	docker build -t uv-cli:$(version) . && docker tag uv-cli:$(version) hub.uvcloud.ir/uvcloud/uv-cli:$(version)
+
+docker-push:
+	docker push hub.uvcloud.ir/uvcloud/uv-cli:$(version)
+
 run:
 	./build/cli
 
