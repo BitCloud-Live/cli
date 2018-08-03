@@ -22,12 +22,12 @@ var (
 )
 
 func login(cmd *cobra.Command, args []string) {
-	email := viper.GetString(config.KEY_EMAIL)
+	email := viper.GetString(config.KEY_USER)
 
 	if len(email) < 5 {
-		email = readFromConsole("Enter Your Email: ")
+		email = readFromConsole("Username: ")
 	}
-	password := readPasswordFromConsole("Enter Password: ")
+	password := readPasswordFromConsole("Password: ")
 	client := grpcConnect()
 	defer client.Close()
 	req := &uvApi.LoginReq{Email: email, Password: password}

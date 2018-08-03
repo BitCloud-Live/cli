@@ -54,7 +54,7 @@ func readPasswordFromConsole(inputAnswr string) (val string) {
 }
 
 func grpcConnect() uvApi.Client {
-	return uvApi.Connect(viper.GetString(config.KEY_LINK), uvApi.NewJwtAccess(func() string {
+	return uvApi.Connect(viper.GetString(config.KEY_HOST), uvApi.NewJwtAccess(func() string {
 		return viper.GetString(config.KEY_TOKEN)
 	}))
 }

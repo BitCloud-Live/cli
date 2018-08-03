@@ -29,12 +29,12 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&config.ConfigManualAddress, "config", "", "Config file (default is $HOME/.uv/config.json)")
-	rootCmd.PersistentFlags().StringP(config.KEY_EMAIL, "e", "", "Provide a Email address for the new account")
-	rootCmd.PersistentFlags().StringP(config.KEY_LINK, "l", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI")
+	rootCmd.PersistentFlags().StringP(config.KEY_USER, "u", "", "Provide a Email address for the new account")
+	rootCmd.PersistentFlags().StringP(config.KEY_HOST, "h", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI")
 	rootCmd.PersistentFlags().StringP(config.KEY_TOKEN, "t", "", "Manual Send 'TOKEN' for Authentication")
 
-	viper.BindPFlag(config.KEY_EMAIL, rootCmd.PersistentFlags().Lookup(config.KEY_EMAIL))
-	viper.BindPFlag(config.KEY_LINK, rootCmd.PersistentFlags().Lookup(config.KEY_LINK))
+	viper.BindPFlag(config.KEY_USER, rootCmd.PersistentFlags().Lookup(config.KEY_USER))
+	viper.BindPFlag(config.KEY_HOST, rootCmd.PersistentFlags().Lookup(config.KEY_HOST))
 	viper.BindPFlag(config.KEY_TOKEN, rootCmd.PersistentFlags().Lookup(config.KEY_TOKEN))
 }
 

@@ -10,9 +10,9 @@ import (
 
 const (
 	DEFAULTE_CONTOROLLER = "controller.uvcloud.ir:8443"
-	KEY_EMAIL            = "email"
+	KEY_USER             = "uv_user"
 	KEY_TOKEN            = "token"
-	KEY_LINK             = "link"
+	KEY_HOST             = "host"
 	APP_NAME             = "uv"
 	CONFIG_NAME          = "config.json"
 )
