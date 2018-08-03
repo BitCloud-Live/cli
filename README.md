@@ -14,8 +14,8 @@ See [Releases](https://github.com/uvcloud/uv-cli/releases).
 See [Documentations](http://docs.uvcloud.ir/quickstart/) for more details.
 
 # Gitlab integration
-Test, build & deploy can be automated using gitlab ci.
-An example of .gitlab-ci.yaml file:
+Test, build & deploy can be automated using gitlab ci.  
+An example of .gitlab-ci.yaml configuration file is as follow:
 ```yaml
 # This file is a template, and might need editing before it works on your project.
 # Official docker image.
