@@ -10,7 +10,7 @@ import (
 
 const (
 	DEFAULTE_CONTOROLLER = "controller.uvcloud.ir:8443"
-	KEY_USER             = "uv_user"
+	KEY_USER             = "uv-user"
 	KEY_TOKEN            = "token"
 	KEY_HOST             = "host"
 	APP_NAME             = "uv"

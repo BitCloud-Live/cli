@@ -8,12 +8,17 @@ import (
 	"github.com/uvcloud/uv-cli/config"
 )
 
+//version parameter parsing from compiler ldflags
+var version string
+
 // RootCmd represents the base command when called without any subcommands
 var (
 	rootCmd = &cobra.Command{
-		Use:   config.APP_NAME,
-		Short: "UVCloud cli",
-		Long:  `UVCloud cli for client side usage`}
+		Use:     config.APP_NAME,
+		Short:   "UVCloud cli",
+		Long:    `UVCloud cli for client side usage`,
+		Version: version,
+	}
 )
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -29,8 +34,8 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&config.ConfigManualAddress, "config", "", "Config file (default is $HOME/.uv/config.json)")
-	rootCmd.PersistentFlags().StringP(config.KEY_USER, "u", "", "Provide a Email address for the new account")
-	rootCmd.PersistentFlags().StringP(config.KEY_HOST, "h", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI")
+	rootCmd.PersistentFlags().StringP(config.KEY_USER, "u", "", "Provide a username for the new account")
+	rootCmd.PersistentFlags().StringP(config.KEY_HOST, "l", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI")
 	rootCmd.PersistentFlags().StringP(config.KEY_TOKEN, "t", "", "Manual Send 'TOKEN' for Authentication")
 
 	viper.BindPFlag(config.KEY_USER, rootCmd.PersistentFlags().Lookup(config.KEY_USER))

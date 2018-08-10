@@ -7,6 +7,7 @@ $ make clean
 $ make -B build
 ```
 # Prebuilt binaries
+Common platform binaries are published on the releases page. this includes linux, osx, windows and even arm binary for arm  linux platforms such as raspbian.
 See [Releases](https://github.com/uvcloud/uv-cli/releases).
 
 # Quickstart
@@ -64,7 +65,7 @@ build-master:
     - master # use `tags` for build when ever a new tag pushed to the repository
 
 deploy: 
-  image: hub.uvcloud.ir/uvcloud/uv-cli:v1.0.0-rc6
+  image: hub.uvcloud.ir/uvcloud/uv-cli:v1.0.0-rc7
   stage: deploy
   before_script:
     - echo $UVCLOUD_PASSWORD | uv-cli login -u $UVCLOUD_USER
