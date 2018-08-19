@@ -8,6 +8,13 @@ $ make -B build
 ```
 # Prebuilt binaries
 Common platform binaries are published on the releases page. this includes linux, osx, windows and even arm binary for arm  linux platforms such as raspbian.
+## Quick installation
+OSX:  
+`wget https://github.com/uvcloud/uv-cli/releases/download/v1.0.0-rc7/uvcli-v1.0.0-rc7-darwin-amd64 -O /usr/local/bin/uvcli`   
+Linux:  
+`wget https://github.com/uvcloud/uv-cli/releases/download/v1.0.0-rc7/uvcli-v1.0.0-rc7-linux-amd64 -O /usr/local/bin/uvcli`  
+Windows:  
+Just grap the latest executive file in release page and run it from cmd.  
 See [Releases](https://github.com/uvcloud/uv-cli/releases).
 
 # Quickstart
