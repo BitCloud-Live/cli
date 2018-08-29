@@ -7,10 +7,8 @@ WORKDIR $GOPATH/src/github.com/uvcloud/uv-cli
 # COPY Gopkg.toml Gopkg.lock ./
 # RUN dep ensure --vendor-only
 COPY . ./
-WORKDIR $GOPATH/src
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o uv-cli github.com/uvcloud/uv-cli/main.go
-
+RUN make
 FROM alpine:latest
 WORKDIR /usr/bin/
-COPY --from=builder /go/src/uv-cli uv-cli
+COPY --from=builder /go/src/github.com/uvcloud/uv-cli/build/cli uv-cli
 

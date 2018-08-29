@@ -1,0 +1,333 @@
+syntax = "proto3";
+package uv;
+
+
+service UV {
+    // Authentication
+    rpc Login (LoginReq) returns (AuthenticationRes) { }
+    rpc Logout (Empty) returns (Empty) { }
+
+    // Domain
+    rpc DomainList (ListReq) returns (ListStatusRes) { }
+    rpc DomainInfo (Identity) returns (DomainStatusRes) { }
+    rpc DomainCreate (DomainCreateReq) returns (DomainStatusRes) { }
+    rpc DomainDelete (Identity) returns (Empty) { }
+
+    // Volume
+    rpc VolumeSpecList (ListReq) returns (ListStatusRes) { }
+    rpc VolumeSpecInfo (Identity) returns (VolumeSpec) { }
+    rpc VolumeList (ListReq) returns (ListStatusRes) { }
+    rpc VolumeInfo (Identity) returns (VolumeStatusRes) { }
+    rpc VolumeCreate (VolumeCreateReq) returns (VolumeStatusRes) { }
+    rpc VolumeDelete (Identity) returns (Empty) { }
+
+    // Image
+    rpc ImgBuild (stream ImgBuildReq) returns (ImgStatusRes) { }
+    rpc ImgList (ListReq) returns (ListStatusRes) { }
+    rpc ImgDelete (Identity) returns (Empty) { }
+
+    // Product
+    rpc PrdList (ListReq) returns (ListStatusRes) { }
+    rpc PrdInfo (Identity) returns (ProductRes) { }
+
+    // Settig
+    rpc SetList (SettingListReq) returns (ListStatusRes) { }
+    rpc SetInfo (SettingInfoReq) returns (SettingRes) { }
+    rpc SetAdd (SettingReq) returns (SettingRes) { }
+    rpc SetUpdate (SettingReq) returns (SettingRes) { }
+    rpc SetDelete (SettingInfoReq) returns (Empty) { }
+    
+    // Service
+    rpc SrvList (ListReq) returns (ListStatusRes) { }
+    rpc SrvCreate (SrvCreateReq) returns (SrvStatusRes) { }
+    rpc SrvChangePlan (ChangePlanReq) returns (SrvStatusRes) { }
+    rpc SrvPortforward (Identity) returns (PortforwardRes) { }
+    rpc SrvStart (Identity) returns (SrvStatusRes) { }
+    rpc SrvStop (Identity) returns (SrvStatusRes) { }
+    rpc SrvDestroy (Identity) returns (Empty) { }
+    rpc SrvInfo (Identity) returns (SrvStatusRes) { }
+
+    // Application
+    rpc AppList (ListReq) returns (ListStatusRes) { }
+    rpc AppCreate (AppCreateReq) returns (AppStatusRes) { }
+    //TODO maybe splits to some functions 
+    rpc AppConfigSet (ConfigSetReg) returns (AppStatusRes) { }
+    rpc AppConfigUnset (UnsetReq) returns (AppStatusRes) { }
+    rpc AppChangePlan (ChangePlanReq) returns (AppStatusRes) { }
+    rpc AppAddEnvironmentVariable (AppAddEnvironmentVariableReq) returns (AppStatusRes) { }
+    rpc AppRemoveEnvironmentVariable (UnsetReq) returns (AppStatusRes) { }
+    // Reserved for later
+    // rpc AppPortforward (Identity) returns (PortforwardRes) { }
+    rpc AppReset (Identity) returns (AppStatusRes) { }
+    rpc AppAttachVolume (VolumeAttachReq) returns (AppStatusRes) { }
+    rpc AppDetachVolume (AttachIdentity) returns (AppStatusRes) { }
+    rpc AppListDomains (AttachIdentity) returns (ListStatusRes) { }
+    rpc AppStatusDomain (AttachIdentity) returns (DomainStatusRes) { }
+    rpc AppAttachDomain (AttachIdentity) returns (AppStatusRes) { }
+    rpc AppDetachDomain (AttachIdentity) returns (AppStatusRes) { }
+    rpc AppStop (Identity) returns (AppStatusRes) { }
+    rpc AppStart (Identity) returns (AppStatusRes) { }
+    rpc AppDestroy (Identity) returns (Empty) { }
+    rpc AppInfo (Identity) returns (AppStatusRes) { }
+    rpc AppLog (Identity) returns (stream Chunk) { }
+    rpc AppSrvBind (AppSrvBindReq) returns (AppStatusRes) { }
+    rpc AppSrvUnBind (AppSrvBindReq) returns (AppStatusRes) {
+    }
+}
+
+
+// Authentication ////////////////////////////////////////////////////////////////////
+
+message LoginReq {
+    string email = 1;
+    string password = 2;
+}
+
+message AuthenticationRes {
+    string token = 1;
+}
+
+// Genral messages  //////////////////////////////////////////////////////////////////
+
+message PortforwardRes {
+    string svc = 1;
+    repeated string ports = 2;
+    bytes token = 3;
+    string proxyHost = 4;
+}
+
+message Chunk {
+    bytes chunk = 1;
+}
+
+
+message Empty {
+}
+
+// ID for select [service, application, image]
+message Identity {
+    string name = 1;
+}
+
+message AttachIdentity{
+    string name = 1;
+    string attachment = 2;
+}
+
+
+message ListReq {
+    int32 index = 1; // [default = 0]
+}
+
+message Timestamp {
+    // Represents seconds of UTC time since Unix epoch
+    // 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
+    // 9999-12-31T23:59:59Z inclusive.
+    int64 seconds = 1;
+
+    // Non-negative fractions of a second at nanosecond resolution. Negative
+    // second values with fractions must still have non-negative nanos values
+    // that count forward in time. Must be from 0 to 999,999,999
+    // inclusive.
+    int32 nanos = 2;
+}
+
+enum ServiceState {
+    Err = 0;
+    UpPending = 1;
+    Up = 2;
+    PayPending = 3;
+    StopPending = 4;
+    Stop = 5;
+}
+
+message ListStatusRes {
+    repeated string names = 1;
+    int32 count = 2;
+    int32 next = 3; // [default = -1]
+    int32 previous = 4; // [default = -1]
+}
+
+// Domain ////////////////////////////////////////////////////////////////////////////
+
+message DomainCreateReq {
+    string domain = 1;
+    bool tls = 2;
+}
+
+message DomainStatusRes {
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    string name = 3;
+    string domain = 4;
+    string tls = 5;
+    string attachedTo = 6;
+}
+
+// Volume ////////////////////////////////////////////////////////////////////////////
+
+message VolumeCreateReq {
+    string name = 1;
+    string spec = 2;
+}
+message VolumeAttachReq{
+    string name = 1;
+    string attachment = 2;
+    string mountPath = 3;
+}
+
+message VolumeSpec {
+    string name = 1;
+    string class = 2;
+    string size = 4;
+}
+
+message VolumeStatusRes {
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    string name = 3;
+    VolumeSpec spec = 4;
+    string attachedTo = 5;
+}
+
+// Image /////////////////////////////////////////////////////////////////////////////
+
+message ImgStatusRes {
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    string name = 3;
+}
+
+
+message ImgBuildReq {
+    message Meta {
+         string name = 1;
+    }
+    message Chunk {
+          bytes data = 1;
+          int64 position = 2;
+    }
+    oneof value {
+        Meta meta = 1;
+        Chunk chunk = 2;
+    }
+}
+
+// Setting ///////////////////////////////////////////////////////////////////////////
+
+message SettingListReq {
+    int32 index = 1; // [default = 0]
+    string app = 2;
+}
+
+message SettingInfoReq {
+    string name = 1;
+    string app = 2;
+}
+
+message SettingReq{
+    string name = 1;
+    string app = 2;
+    string path = 3;
+    bytes file = 4;
+}
+
+message SettingRes{
+    string name = 1;
+    string app = 2;
+    string path = 3;
+    bytes file = 4;
+}
+
+// Service ///////////////////////////////////////////////////////////////////////////
+
+message ProductRes {
+    string name = 1;
+    string description = 2;
+    repeated Plan plan = 3;
+    map<string, string> variable_hints = 4;
+}
+
+message Plan {
+    string name = 1;
+    string description = 2;
+    uint64 price = 3;
+    uint64 off = 4;
+}
+
+message SrvStatusRes {
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    ServiceState state = 3;
+    string name = 4;
+    string plan = 5;
+    string vcapServices = 6;
+    // used for information of service like: [ports, uri, username, ...]
+    map<string, string> variable = 7;
+}
+
+message SrvCreateReq {
+    string productName = 1;
+    string name = 2;
+    string plan = 3;
+    map<string, string> variable = 4;
+}
+
+message SrvUpgradeReq {
+    string name = 1;
+    map<string, string> variable = 2;
+}
+
+// Application  //////////////////////////////////////////////////////////////////////
+
+message AppStatusRes {
+
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    ServiceState state = 3;
+    string name = 4;
+    string plan = 5;
+    AppConfig config = 6;
+    map<string, string> environmentVariables = 7;
+    string vcapServices = 8;
+
+}
+
+message AppCreateReq {
+    string name = 1;
+    string plan = 2;
+    AppConfig config = 3;
+}
+
+message ConfigSetReg {
+    string name = 1;
+    AppConfig config = 2; 
+}
+
+message AppConfig {
+    string image = 1;
+    uint64 minScale = 2;
+    uint64 port = 3;
+    //
+    repeated string routes = 4;
+}
+
+message UnsetReq {
+    string name = 1;
+    repeated string variables = 2;
+}
+
+message ChangePlanReq {
+    string name = 1;
+    string plan = 2;
+}
+
+message AppAddEnvironmentVariableReq {
+    string name = 1;
+    map<string, string> variables = 2;
+}
+
+message AppSrvBindReq {
+    string name = 1;
+    string service = 2;
+}

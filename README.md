@@ -11,11 +11,11 @@ Common platform binaries are published on the releases page. this includes linux
 ## Quick installation
 ### OSX 
 ```sh
-$ wget https://github.com/uvcloud/uv-cli/releases/download/v1.0.0-rc7/uv-v1.0.0-rc7-darwin-amd64 -O /usr/local/bin/uv
+$ wget https://github.com/uvcloud/uv-cli/releases/download/v1.1.0/uv-v1.1.0-darwin-amd64 -O /usr/local/bin/uv
 ```
 ### Linux
 ```sh
-$ wget https://github.com/uvcloud/uv-cli/releases/download/v1.0.0-rc7/uv-v1.0.0-rc7-linux-amd64 -O /usr/local/bin/uv
+$ wget https://github.com/uvcloud/uv-cli/releases/download/v1.1.0/uv-v1.1.0-linux-amd64 -O /usr/local/bin/uv
 ```  
 ### Windows 
 Just grap the latest executive file in release page and run it from cmd.  

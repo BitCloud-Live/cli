@@ -3,9 +3,18 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/url"
+	"os"
+	"os/signal"
 
 	"github.com/Sirupsen/logrus"
 	uvApi "github.com/uvcloud/uv-api-go/proto"
+
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/portforward"
+	"k8s.io/client-go/transport/spdy"
 )
 
 var log = logrus.New()
@@ -28,10 +37,44 @@ func uiServicStatus(srv *uvApi.SrvStatusRes) {
 	uiMap(srv.Variable, "Variable")
 }
 
-func uiPortforward(pf *uvApi.PortforwardRes) {
-	log.Printf("SVC: %s \r\n", pf.Svc)
-	log.Printf("Port: %v \r\n", pf.Port)
-	log.Printf("Token: %v \r\n", pf.Token)
+func uiPortforward(in *uvApi.PortforwardRes) {
+	bearer := string(in.Token)
+	proxyURL, _ := url.Parse(in.ProxyHost)
+	conf := &rest.Config{
+		BearerToken:     bearer,
+		Host:            fmt.Sprintf("%s://%s", proxyURL.Scheme, proxyURL.Host),
+		TLSClientConfig: rest.TLSClientConfig{Insecure: true},
+	}
+	transport, upgrader, err := spdy.RoundTripperFor(conf)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var done = make(chan struct{}, 1)
+	var rdy = make(chan struct{})
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt)
+	defer signal.Stop(signals)
+
+	go func() {
+		fmt.Printf("Forwarding ports: %s", in.Ports)
+		<-signals
+		if done != nil {
+			close(done)
+		}
+	}()
+	dialer := spdy.NewDialer(upgrader, &http.Client{Transport: transport}, http.MethodPost, proxyURL)
+	pf, err := portforward.New(dialer, in.Ports, done, rdy, &stdout, &stderr)
+	if err != nil {
+		panic(err.Error())
+	}
+	err = pf.ForwardPorts()
+	if err != nil {
+		panic(err.Error())
+	}
 }
 
 func uiPlan(plan []*uvApi.Plan) {

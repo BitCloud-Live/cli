@@ -77,13 +77,6 @@ var (
 		each pod can gets more resourse and overused pay per consume.`,
 		Run: appChangePlane}
 
-	appPortforwardCmd = &cobra.Command{
-		Use:   "app:portforward",
-		Short: "port-forward to connect to an application running in a cluster",
-		Long: `Port-forward to connect to an application running in a cluster.
-		This type of connection can be useful for database debugging`,
-		Run: appPortforward}
-
 	appResetCmd = &cobra.Command{
 		Use:   "app:reset",
 		Short: "restart of application",
@@ -163,15 +156,6 @@ func appInfo(cmd *cobra.Command, args []string) {
 	res, err := client.V1().AppInfo(client.Context(), req)
 	uiCheckErr("Could not Get Application: %v", err)
 	uiApplicationStatus(res)
-}
-
-func appPortforward(cmd *cobra.Command, args []string) {
-	req := reqIdentity(cmd)
-	client := grpcConnect()
-	defer client.Close()
-	res, err := client.V1().AppPortforward(client.Context(), req)
-	uiCheckErr("Could not Portforward the Application: %v", err)
-	uiPortforward(res)
 }
 
 func appStart(cmd *cobra.Command, args []string) {
@@ -396,10 +380,6 @@ func init() {
 	appChangePlaneCmd.Flags().StringP("plan", "p", "", "define the new plan of application")
 	appChangePlaneCmd.MarkFlagRequired("name")
 
-	// app Portforward:
-	appPortforwardCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
-	appPortforwardCmd.MarkFlagRequired("name")
-
 	// app Start:
 	appStartCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
 	appStartCmd.MarkFlagRequired("name")
@@ -475,7 +455,6 @@ func init() {
 		appAddEnvCmd,
 		appRemoveEnvCmd,
 		appChangePlaneCmd,
-		appPortforwardCmd,
 		appResetCmd,
 		appStartCmd,
 		appStopCmd,
