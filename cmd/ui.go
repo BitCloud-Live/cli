@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -117,6 +118,21 @@ func uiApplicationStatus(app *uvApi.AppStatusRes) {
 	log.Printf("Created: %v,\t Updated: %v \r\n", app.Created, app.Updated)
 	log.Printf("VCAP_SERVICES: \r\n%v\r\n", jsonPrettyPrint(app.VcapServices))
 	uiMap(app.EnvironmentVariables, "Environment variables")
+}
+
+func uiApplicationLog(client uvApi.UV_AppLogClient) {
+	var blob []byte
+	for {
+		c, err := client.Recv()
+		if err != nil {
+			if err == io.EOF {
+				log.Printf("Transfer of %d bytes successful", len(blob))
+				return
+			}
+			panic(err)
+		}
+		log.Printf(string(c.Chunk))
+	}
 }
 
 func uiDomainStatus(dom *uvApi.DomainStatusRes) {

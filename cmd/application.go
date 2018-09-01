@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/spf13/cobra"
 	uvApi "github.com/uvcloud/uv-api-go/proto"
 )
@@ -24,6 +26,12 @@ var (
 		Short: "view info about an application",
 		Long:  `This subcommand prints info about the current application`,
 		Run:   appInfo}
+
+	appLogCmd = &cobra.Command{
+		Use:   "app:log",
+		Short: "tail application log",
+		Long:  `This subcommand tails the current application logs`,
+		Run:   appLog}
 
 	appCreateCmd = &cobra.Command{
 		Use:   "app:create",
@@ -156,6 +164,18 @@ func appInfo(cmd *cobra.Command, args []string) {
 	res, err := client.V1().AppInfo(client.Context(), req)
 	uiCheckErr("Could not Get Application: %v", err)
 	uiApplicationStatus(res)
+}
+
+func appLog(cmd *cobra.Command, args []string) {
+	req := reqIdentity(cmd)
+	client := grpcConnect()
+	defer client.Close()
+	logClient, err := client.V1().AppLog(context.Background(), req)
+	if err != nil {
+		panic(err)
+	}
+	uiCheckErr("Could not Get Application log: %v", err)
+	uiApplicationLog(logClient)
 }
 
 func appStart(cmd *cobra.Command, args []string) {
@@ -353,6 +373,10 @@ func init() {
 	appInfoCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
 	appInfoCmd.MarkFlagRequired("name")
 
+	// app log:
+	appLogCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
+	appLogCmd.MarkFlagRequired("name")
+
 	// app Create:
 	appCreateCmd.Flags().StringP("plan", "s", "", "name of plan")
 	appCreateCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
@@ -449,6 +473,7 @@ func init() {
 	rootCmd.AddCommand(
 		appListCmd,
 		appInfoCmd,
+		appLogCmd,
 		appCreateCmd,
 		appConfigSetCmd,
 		appConfigUnsetCmd,
