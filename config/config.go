@@ -1,7 +1,10 @@
 package config
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
@@ -35,24 +38,59 @@ func getHome() string {
 	return home
 }
 
+func isJSON(in []byte) bool {
+	var js map[string]interface{}
+	return json.Unmarshal(in, &js) == nil
+
+}
+
+func ensureConfigFile(filename string) {
+	var err error
+	var f *os.File
+	if _, err := os.Stat(filename); !os.IsNotExist(err) {
+		configRaw, err := ioutil.ReadFile(filename)
+		if err != nil {
+			log.Panicf("Failed to read the config file: %v", err)
+		}
+		if isJSON(configRaw) {
+			return
+		}
+		flags := os.O_WRONLY
+		f, err = os.OpenFile(filename, flags, os.FileMode(0644))
+	} else {
+		err = os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+		if err != nil {
+			log.Panicf("Failed to create the config directory: %v", err)
+		}
+		flags := os.O_CREATE | os.O_TRUNC | os.O_WRONLY
+		f, err = os.OpenFile(filename, flags, os.FileMode(0644))
+		if err != nil {
+			log.Panicf("Failed to create the config file: %v", err)
+		}
+
+	}
+	defer f.Close()
+	_, err = f.Write([]byte("{}"))
+	if err != nil {
+		log.Panicf("Failed to write to the config file: %v", err)
+	}
+}
+
 func UpdateVarByConfigFile() {
 	// read config either from Flag --config or Path "$HOME/.uv/config.json"
+	var filename string
 	if ConfigManualAddress != "" {
 		// Use config file from the flag.
-		viper.SetConfigFile(ConfigManualAddress)
+		filename = ConfigManualAddress
 	} else {
 		// Search config in home directory
-		viper.SetConfigFile(filepath.Join(configPath, CONFIG_NAME))
+		filename = filepath.Join(configPath, CONFIG_NAME)
 	}
+	ensureConfigFile(filename)
+	viper.SetConfigFile(filename)
 	viper.SetConfigType("json")
 	if err := viper.ReadInConfig(); err != nil {
-		log.Printf("Config file not found!")
-		log.Printf("Creating a new config file in %s", viper.ConfigFileUsed())
-		viper.WriteConfig()
-		if err := viper.ReadInConfig(); err != nil {
-			log.Print("Failed!")
-		}
-		log.Print("Succeed")
+		log.Panicf("Failed to read the config file: %v", err)
 	}
 }
 
