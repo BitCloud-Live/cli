@@ -33,15 +33,15 @@ func login(cmd *cobra.Command, args []string) {
 	req := &uvApi.LoginReq{Email: email, Password: password}
 	res, err := client.V1().Login(client.Context(), req)
 	if err != nil {
-		log.Fatalf("Could not Login: %v", err)
+		log.Fatalf("\r\nCould not Login: %v", err)
 	}
 
-	log.Printf("Login successful!")
+	log.Printf("\r\nLogin successful!")
 	viper.Set(config.KEY_TOKEN, res.Token)
 
 	// Save TOKEN to config file
 	if err = config.ResetConfigFile(); err != nil {
-		log.Fatalf("Could not Save ConfigFile: %v", err)
+		log.Fatalf("\r\nCould not Save ConfigFile: %v", err)
 	}
 }
 

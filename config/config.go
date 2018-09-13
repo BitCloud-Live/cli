@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	// Get config file Path from the flag.
+	//ConfigManualAddress Get config file Path from the flag.
 	ConfigManualAddress = ""
 
 	// Find home directory for definition of archive folder
@@ -44,6 +44,7 @@ func isJSON(in []byte) bool {
 
 }
 
+//ensureConfigFile Ensure that a valid config file exists
 func ensureConfigFile(filename string) {
 	var err error
 	var f *os.File
@@ -76,6 +77,7 @@ func ensureConfigFile(filename string) {
 	}
 }
 
+//UpdateVarByConfigFile read config file into viper
 func UpdateVarByConfigFile() {
 	// read config either from Flag --config or Path "$HOME/.uv/config.json"
 	var filename string
@@ -94,6 +96,7 @@ func UpdateVarByConfigFile() {
 	}
 }
 
+//ResetConfigFile wipes config file
 func ResetConfigFile() (err error) {
 	return viper.WriteConfig()
 }
