@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -57,4 +58,15 @@ func grpcConnect() uvApi.Client {
 	return uvApi.Connect(viper.GetString(config.KEY_HOST), uvApi.NewJwtAccess(func() string {
 		return viper.GetString(config.KEY_TOKEN)
 	}))
+}
+
+func endpointTypeValid(etype string) error {
+	switch etype {
+	case "http":
+		return nil
+	case "grpc":
+		return nil
+	default:
+		return errors.New("Endpoint type is invalid, valid values are http, grpc")
+	}
 }

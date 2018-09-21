@@ -23,6 +23,18 @@ var log = logrus.New()
 func init() {
 	log.Formatter = &logrus.TextFormatter{FullTimestamp: false}
 }
+
+func uiStringArray(title string, arr []string) {
+	if len(arr) == 0 {
+		log.Printf("%s: None", title)
+		return
+	}
+	log.Printf("%s:", title)
+	for _, stri := range arr {
+		log.Printf("\t %s\r\n", stri)
+	}
+}
+
 func uiList(list *uvApi.ListStatusRes) {
 	log.Printf("Count: %d,\t Next: %d,\t  Previous:%d \r\n", list.Count, list.Next, list.Previous)
 	for i, v := range list.Names {
@@ -36,6 +48,8 @@ func uiServicStatus(srv *uvApi.SrvStatusRes) {
 	log.Printf("State: %v \r\n", srv.State.String())
 	log.Printf("Created: %v,\t Updated: %v \r\n", srv.Created, srv.Updated)
 	uiMap(srv.Variable, "Variable")
+	uiStringArray("List of endpoints", srv.Endpoints)
+	uiAttachedDomains(srv.Domains)
 }
 
 func uiPortforward(in *uvApi.PortforwardRes) {
@@ -61,11 +75,13 @@ func uiPortforward(in *uvApi.PortforwardRes) {
 	defer signal.Stop(signals)
 
 	go func() {
-		fmt.Printf("Forwarding ports: %s", in.Ports)
+		fmt.Printf("Forwarding ports: %s\r\n", in.Ports)
 		<-signals
+		fmt.Print("closing the opened ports...\r\n")
 		if done != nil {
 			close(done)
 		}
+		os.Exit(1)
 	}()
 	dialer := spdy.NewDialer(upgrader, &http.Client{Transport: transport}, http.MethodPost, proxyURL)
 	pf, err := portforward.New(dialer, in.Ports, done, rdy, &stdout, &stderr)
@@ -83,11 +99,16 @@ func uiPlan(plan []*uvApi.Plan) {
 	for i, p := range plan {
 		log.Printf("%d. \r\n", i)
 		log.Printf("\t name: %s \r\n", p.Name)
-		log.Printf("\t price: %v, off: %v \r\n", p.Price, p.Off)
+		//Deprecated
+		// log.Printf("\t price: %v, off: %v \r\n", p.Price, p.Off)
 		log.Printf("\t Description: %v \r\n", p.Description)
 	}
 }
 func uiMap(mapVar map[string]string, name string) {
+	if len(mapVar) == 0 {
+		log.Printf("%s: None", name)
+		return
+	}
 	log.Printf("%s:", name)
 	for k, v := range mapVar {
 		log.Printf("\t %s: %s \r\n", k, v)
@@ -118,6 +139,19 @@ func uiApplicationStatus(app *uvApi.AppStatusRes) {
 	log.Printf("Created: %v,\t Updated: %v \r\n", app.Created, app.Updated)
 	log.Printf("VCAP_SERVICES: \r\n%v\r\n", jsonPrettyPrint(app.VcapServices))
 	uiMap(app.EnvironmentVariables, "Environment variables")
+	uiAttachedDomains(app.Domains)
+}
+
+func uiAttachedDomains(domains []*uvApi.AttachedDomainInfo) {
+	if len(domains) == 0 {
+		log.Println("Attached domains: None")
+		return
+	}
+	log.Println("Attached domains:")
+	log.Println("Domain | Endpoint | Type")
+	for i, d := range domains {
+		log.Printf("%d. %s | %s | %s \r\n", i, d.Domain, d.Endpoint, d.EndpointType)
+	}
 }
 
 func uiApplicationLog(client uvApi.UV_AppLogClient) {
@@ -136,9 +170,8 @@ func uiApplicationLog(client uvApi.UV_AppLogClient) {
 }
 
 func uiDomainStatus(dom *uvApi.DomainStatusRes) {
-	log.Printf("Domain Name: %s \r\n", dom.Name)
+	log.Printf("Domain Name: %s \r\n", dom.Domain)
 	log.Printf("Created: %v ,Update: %v\r\n", dom.Created, dom.Updated)
-	log.Printf("Address: %s \r\n", dom.Domain)
 	log.Printf("AttachedTo: %s \r\n", dom.AttachedTo)
 	log.Printf("TLS: %s \r\n", dom.Tls)
 }

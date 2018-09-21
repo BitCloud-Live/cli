@@ -8,10 +8,11 @@ import (
 )
 
 var (
-	flagVarPort     uint64
-	flagVarMinScale uint64
-	minScale        uint64
-	flagVarImage    string
+	flagVarPort         uint64
+	flagVarMinScale     uint64
+	minScale            uint64
+	flagVarImage        string
+	flagVarEndpointType string
 )
 
 var (
@@ -202,15 +203,19 @@ func appDestroy(cmd *cobra.Command, args []string) {
 	defer client.Close()
 	_, err := client.V1().AppDestroy(client.Context(), req)
 	uiCheckErr("Could not Destroy the Application: %v", err)
-	log.Println("Work is done!")
+	log.Printf("app %s deleted", req.Name)
 }
 
 func appCreate(cmd *cobra.Command, args []string) {
+	if err := endpointTypeValid(flagVarEndpointType); err != nil {
+		log.Panic(err)
+	}
 	req := new(uvApi.AppCreateReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Plan = cmd.Flag("plan").Value.String()
 	req.Config = new(uvApi.AppConfig)
 	req.Config.Port = flagVarPort
+	req.Config.EndpointType = flagVarEndpointType
 	req.Config.MinScale = flagVarMinScale
 	req.Config.Image = cmd.Flag("image").Value.String()
 
@@ -382,6 +387,7 @@ func init() {
 	appCreateCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
 	appCreateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
 	appCreateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
+	appCreateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc, default to http")
 	appCreateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 1, "min scale of application")
 	appCreateCmd.MarkFlagRequired("image")
 

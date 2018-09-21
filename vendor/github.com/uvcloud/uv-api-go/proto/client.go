@@ -59,6 +59,6 @@ func Connect(host string, perRPC credentials.PerRPCCredentials) Client {
 
 	client.Conn = conn
 	client.UV = NewUVClient(client.Conn)
-	client.Ctx, client.Cancel = context.WithTimeout(context.Background(), time.Second)
+	client.Ctx, client.Cancel = context.WithTimeout(context.Background(), 10*time.Second)
 	return client
 }

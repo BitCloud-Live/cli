@@ -46,6 +46,8 @@ service UV {
     rpc SrvStop (Identity) returns (SrvStatusRes) { }
     rpc SrvDestroy (Identity) returns (Empty) { }
     rpc SrvInfo (Identity) returns (SrvStatusRes) { }
+    rpc SrvAttachDomain (SrvDomainAttachReq) returns (SrvStatusRes) { }
+    rpc SrvDetachDomain (AttachIdentity) returns (SrvStatusRes) { }
 
     // Application
     rpc AppList (ListReq) returns (ListStatusRes) { }
@@ -61,7 +63,9 @@ service UV {
     rpc AppReset (Identity) returns (AppStatusRes) { }
     rpc AppAttachVolume (VolumeAttachReq) returns (AppStatusRes) { }
     rpc AppDetachVolume (AttachIdentity) returns (AppStatusRes) { }
+    //Deprecated will be deleted in v2.0 api
     rpc AppListDomains (AttachIdentity) returns (ListStatusRes) { }
+    //Deprecated will be deleted in v2.0 api
     rpc AppStatusDomain (AttachIdentity) returns (DomainStatusRes) { }
     rpc AppAttachDomain (AttachIdentity) returns (AppStatusRes) { }
     rpc AppDetachDomain (AttachIdentity) returns (AppStatusRes) { }
@@ -134,11 +138,22 @@ message Timestamp {
 
 enum ServiceState {
     Err = 0;
+
+    //Deprecated and will be deleted in v2.0
     UpPending = 1;
+    ////////////////////////////////////////
+
     Up = 2;
+
+    //Deprecated and will be deleted in v2.0
     PayPending = 3;
     StopPending = 4;
+    ////////////////////////////////////////
+
     Stop = 5;
+    Suspend = 6;
+    Unknown = 7;
+    Pending = 8;
 }
 
 message ListStatusRes {
@@ -162,6 +177,13 @@ message DomainStatusRes {
     string domain = 4;
     string tls = 5;
     string attachedTo = 6;
+}
+
+//For embedded response
+message AttachedDomainInfo{
+    string domain = 1;
+    string endpoint = 2;
+    string endpointType = 3;
 }
 
 // Volume ////////////////////////////////////////////////////////////////////////////
@@ -264,6 +286,14 @@ message SrvStatusRes {
     string vcapServices = 6;
     // used for information of service like: [ports, uri, username, ...]
     map<string, string> variable = 7;
+    repeated AttachedDomainInfo domains = 8;
+    repeated string endpoints = 9;
+
+}
+
+message SrvDomainAttachReq{
+    AttachIdentity attachIdentity = 1;
+    string endpoint = 2;
 }
 
 message SrvCreateReq {
@@ -281,7 +311,6 @@ message SrvUpgradeReq {
 // Application  //////////////////////////////////////////////////////////////////////
 
 message AppStatusRes {
-
     Timestamp created = 1;
     Timestamp updated = 2;
     ServiceState state = 3;
@@ -290,7 +319,7 @@ message AppStatusRes {
     AppConfig config = 6;
     map<string, string> environmentVariables = 7;
     string vcapServices = 8;
-
+    repeated AttachedDomainInfo domains = 9;
 }
 
 message AppCreateReq {
@@ -308,8 +337,8 @@ message AppConfig {
     string image = 1;
     uint64 minScale = 2;
     uint64 port = 3;
-    //
     repeated string routes = 4;
+    string endpointType = 5;
 }
 
 message UnsetReq {

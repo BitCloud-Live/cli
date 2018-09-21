@@ -64,7 +64,7 @@ func imgDelete(cmd *cobra.Command, args []string) {
 	defer client.Close()
 	_, err := client.V1().ImgDelete(client.Context(), req)
 	uiCheckErr("Could not Destroy the Image: %v", err)
-	log.Println("Work is done!")
+	log.Printf("image %s deleted", req.Name)
 }
 
 func init() {

@@ -58,6 +58,18 @@ var (
 		Short: "destroy an service",
 		Long:  `This subcommand destroy an service.`,
 		Run:   srvDestroy}
+
+	srvAttachDomainCmd = &cobra.Command{
+		Use:   "srv:attachDomain",
+		Short: "attach domain to service",
+		Long:  `This subcommand attach domain to a service`,
+		Run:   srvAttachDomain}
+
+	srvDetachDomainCmd = &cobra.Command{
+		Use:   "srv:detachDomain",
+		Short: "detach domain of the service",
+		Long:  `This subcommand detach domain of the service`,
+		Run:   srvDetachDomain}
 )
 
 func srvList(cmd *cobra.Command, args []string) {
@@ -111,7 +123,7 @@ func srvDestroy(cmd *cobra.Command, args []string) {
 	defer client.Close()
 	_, err := client.V1().SrvDestroy(client.Context(), req)
 	uiCheckErr("Could not Destroy the Service: %v", err)
-	log.Println("Work is done!")
+	log.Printf("service %s deleted", req.Name)
 }
 
 func srvCreate(cmd *cobra.Command, args []string) {
@@ -137,6 +149,32 @@ func srvChangePlane(cmd *cobra.Command, args []string) {
 	defer client.Close()
 	res, err := client.V1().SrvChangePlan(client.Context(), req)
 	uiCheckErr("Could not Change the Plan: %v", err)
+	uiServicStatus(res)
+}
+
+func srvAttachDomain(cmd *cobra.Command, args []string) {
+	req := new(uvApi.SrvDomainAttachReq)
+	req.AttachIdentity = new(uvApi.AttachIdentity)
+	req.AttachIdentity.Name = cmd.Flag("name").Value.String()
+	req.AttachIdentity.Attachment = cmd.Flag("attachment").Value.String()
+	req.Endpoint = cmd.Flag("endpoint").Value.String()
+
+	client := grpcConnect()
+	defer client.Close()
+	res, err := client.V1().SrvAttachDomain(client.Context(), req)
+	uiCheckErr("Could not Attach the Domain for Service: %v", err)
+	uiServicStatus(res)
+}
+
+func srvDetachDomain(cmd *cobra.Command, args []string) {
+	req := new(uvApi.AttachIdentity)
+	req.Name = cmd.Flag("name").Value.String()
+	req.Attachment = cmd.Flag("attachment").Value.String()
+
+	client := grpcConnect()
+	defer client.Close()
+	res, err := client.V1().SrvDetachDomain(client.Context(), req)
+	uiCheckErr("Could not Detach the Domain for Service: %v", err)
 	uiServicStatus(res)
 }
 
@@ -178,6 +216,20 @@ func init() {
 	srvDestroyCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service")
 	srvDestroyCmd.MarkFlagRequired("name")
 
+	// srv Attach Domain:
+	srvAttachDomainCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service.")
+	srvAttachDomainCmd.Flags().StringP("attachment", "a", "", "name of attachment")
+	srvAttachDomainCmd.Flags().StringP("endpoint", "e", "", "name of the service endpoint")
+	srvAttachDomainCmd.MarkFlagRequired("name")
+	srvAttachDomainCmd.MarkFlagRequired("endpoint")
+	srvAttachDomainCmd.MarkFlagRequired("attachment")
+
+	// srv Detach Domain:
+	srvDetachDomainCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service.")
+	srvDetachDomainCmd.Flags().StringP("attachment", "a", "", "name of attachment")
+	srvDetachDomainCmd.MarkFlagRequired("name")
+	srvDetachDomainCmd.MarkFlagRequired("attachment")
+
 	// add service subcommands to root
 	rootCmd.AddCommand(
 		srvListCmd,
@@ -187,5 +239,7 @@ func init() {
 		srvPortforwardCmd,
 		srvStartCmd,
 		srvStopCmd,
-		srvDestroyCmd)
+		srvDestroyCmd,
+		srvAttachDomainCmd,
+		srvDetachDomainCmd)
 }
