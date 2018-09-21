@@ -8,14 +8,14 @@ $ make -B build
 ```
 # Prebuilt binaries
 Common platform binaries are published on the releases page. this includes linux, osx, windows and even arm binary for arm  linux platforms such as raspbian.
-## Quick installation
+## Quick installationgit rebase
 ### OSX 
 ```sh
-$ wget https://github.com/uvcloud/uv-cli/releases/download/v1.0.1/uv-v1.0.1-darwin-amd64 -O /usr/local/bin/uv
+$ wget https://github.com/uvcloud/uv-cli/releases/download/v1.1.0/uv-v1.1.0-darwin-amd64 -O /usr/local/bin/uv
 ```
 ### Linux
 ```sh
-$ sudo wget https://github.com/uvcloud/uv-cli/releases/download/v1.0.1/uv-v1.0.1-linux-amd64 -O /usr/local/bin/uv
+$ sudo wget https://github.com/uvcloud/uv-cli/releases/download/v1.1.0/uv-v1.1.0-linux-amd64 -O /usr/local/bin/uv
 $ sudo chmod +x /usr/local/bin/uv
 ```  
 ### Windows 
