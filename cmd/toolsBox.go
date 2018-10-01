@@ -18,6 +18,7 @@ import (
 var (
 	flagVariableArray = make([]string, 0, 8)
 	flagIndex         int32
+	flagAppName       string
 )
 
 func arrayFlagToMap(flags []string) map[string]string {

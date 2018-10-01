@@ -13,7 +13,7 @@ import (
 //Client wrapper for UV
 type Client interface {
 	Close()
-	V1() UVClient
+	V2() UVClient
 	Context() context.Context
 }
 type grpcClient struct {
@@ -29,7 +29,7 @@ func (client *grpcClient) Close() {
 	client.Cancel()
 }
 
-func (client *grpcClient) V1() UVClient {
+func (client *grpcClient) V2() UVClient {
 	return client.UV
 }
 

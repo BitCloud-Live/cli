@@ -1,44 +1,48 @@
 syntax = "proto3";
 package uv;
 
-
 service UV {
     // Authentication
     rpc Login (LoginReq) returns (AuthenticationRes) { }
     rpc Logout (Empty) returns (Empty) { }
 
+    // Activity
+    rpc ActivityList(ActivityReq) returns (ActivityListRes) { }
+
     // Domain
-    rpc DomainList (ListReq) returns (ListStatusRes) { }
+    rpc DomainList (AppListReq) returns (DomainListRes) { }
     rpc DomainInfo (Identity) returns (DomainStatusRes) { }
     rpc DomainCreate (DomainCreateReq) returns (DomainStatusRes) { }
     rpc DomainDelete (Identity) returns (Empty) { }
 
     // Volume
-    rpc VolumeSpecList (ListReq) returns (ListStatusRes) { }
+    rpc VolumeSpecList (ListReq) returns (VolumeSpecListRes) { }
     rpc VolumeSpecInfo (Identity) returns (VolumeSpec) { }
-    rpc VolumeList (ListReq) returns (ListStatusRes) { }
+    rpc VolumeList (AppListReq) returns (VolumeListRes) { }
     rpc VolumeInfo (Identity) returns (VolumeStatusRes) { }
     rpc VolumeCreate (VolumeCreateReq) returns (VolumeStatusRes) { }
     rpc VolumeDelete (Identity) returns (Empty) { }
 
     // Image
-    rpc ImgBuild (stream ImgBuildReq) returns (ImgStatusRes) { }
-    rpc ImgList (ListReq) returns (ListStatusRes) { }
+    rpc ImgList (AppListReq) returns (ImgListRes) { }
+    rpc ImgInfo (Identity) returns (ImgStatusRes) { }
+    // TODO: Reserved for later
+    // rpc ImgBuild (stream ImgBuildReq) returns (ImgStatusRes) { }
     rpc ImgDelete (Identity) returns (Empty) { }
 
     // Product
     rpc PrdList (ListReq) returns (ListStatusRes) { }
     rpc PrdInfo (Identity) returns (ProductRes) { }
 
-    // Settig
-    rpc SetList (SettingListReq) returns (ListStatusRes) { }
+    // Setting
+    rpc SetList (AppListReq) returns (ListStatusRes) { }
     rpc SetInfo (SettingInfoReq) returns (SettingRes) { }
     rpc SetAdd (SettingReq) returns (SettingRes) { }
     rpc SetUpdate (SettingReq) returns (SettingRes) { }
     rpc SetDelete (SettingInfoReq) returns (Empty) { }
     
     // Service
-    rpc SrvList (ListReq) returns (ListStatusRes) { }
+    rpc SrvList (AppListReq) returns (SrvListRes) { }
     rpc SrvCreate (SrvCreateReq) returns (SrvStatusRes) { }
     rpc SrvChangePlan (ChangePlanReq) returns (SrvStatusRes) { }
     rpc SrvPortforward (Identity) returns (PortforwardRes) { }
@@ -50,35 +54,26 @@ service UV {
     rpc SrvDetachDomain (AttachIdentity) returns (SrvStatusRes) { }
 
     // Application
-    rpc AppList (ListReq) returns (ListStatusRes) { }
+    rpc AppInfo (Identity) returns (AppStatusRes) { }
+    rpc AppList (ListReq) returns (SrvListRes) { }
     rpc AppCreate (AppCreateReq) returns (AppStatusRes) { }
-    //TODO maybe splits to some functions 
-    rpc AppConfigSet (ConfigSetReg) returns (AppStatusRes) { }
-    rpc AppConfigUnset (UnsetReq) returns (AppStatusRes) { }
     rpc AppChangePlan (ChangePlanReq) returns (AppStatusRes) { }
+    rpc AppLog (Identity) returns (stream Chunk) { }
+    rpc AppConfigSet (ConfigSetReq) returns (AppStatusRes) { } //TODO: maybe splits to some functions
+    rpc AppConfigUnset (UnsetReq) returns (AppStatusRes) { }
     rpc AppAddEnvironmentVariable (AppAddEnvironmentVariableReq) returns (AppStatusRes) { }
     rpc AppRemoveEnvironmentVariable (UnsetReq) returns (AppStatusRes) { }
-    // Reserved for later
-    // rpc AppPortforward (Identity) returns (PortforwardRes) { }
     rpc AppReset (Identity) returns (AppStatusRes) { }
     rpc AppAttachVolume (VolumeAttachReq) returns (AppStatusRes) { }
     rpc AppDetachVolume (AttachIdentity) returns (AppStatusRes) { }
-    //Deprecated will be deleted in v2.0 api
-    rpc AppListDomains (AttachIdentity) returns (ListStatusRes) { }
-    //Deprecated will be deleted in v2.0 api
-    rpc AppStatusDomain (AttachIdentity) returns (DomainStatusRes) { }
     rpc AppAttachDomain (AttachIdentity) returns (AppStatusRes) { }
     rpc AppDetachDomain (AttachIdentity) returns (AppStatusRes) { }
     rpc AppStop (Identity) returns (AppStatusRes) { }
     rpc AppStart (Identity) returns (AppStatusRes) { }
     rpc AppDestroy (Identity) returns (Empty) { }
-    rpc AppInfo (Identity) returns (AppStatusRes) { }
-    rpc AppLog (Identity) returns (stream Chunk) { }
     rpc AppSrvBind (AppSrvBindReq) returns (AppStatusRes) { }
-    rpc AppSrvUnBind (AppSrvBindReq) returns (AppStatusRes) {
-    }
+    rpc AppSrvUnBind (AppSrvBindReq) returns (AppStatusRes) { }
 }
-
 
 // Authentication ////////////////////////////////////////////////////////////////////
 
@@ -93,34 +88,20 @@ message AuthenticationRes {
 
 // Genral messages  //////////////////////////////////////////////////////////////////
 
-message PortforwardRes {
-    string svc = 1;
-    repeated string ports = 2;
-    bytes token = 3;
-    string proxyHost = 4;
+enum ServiceState {
+    Err = 0;
+    Up = 1;
+    Stop = 2;
+    Suspend = 3;
+    Pending = 4;
+    Unknown = 5;
 }
 
-message Chunk {
-    bytes chunk = 1;
-}
-
-
-message Empty {
-}
+message Empty { }
 
 // ID for select [service, application, image]
 message Identity {
     string name = 1;
-}
-
-message AttachIdentity{
-    string name = 1;
-    string attachment = 2;
-}
-
-
-message ListReq {
-    int32 index = 1; // [default = 0]
 }
 
 message Timestamp {
@@ -136,31 +117,34 @@ message Timestamp {
     int32 nanos = 2;
 }
 
-enum ServiceState {
-    Err = 0;
+message AttachIdentity{
+    string name = 1;
+    string attachment = 2;
+}
 
-    //Deprecated and will be deleted in v2.0
-    UpPending = 1;
-    ////////////////////////////////////////
+message AppListReq {
+    int32 index = 1; // [default = 0]
+    string app = 2; // To get a list of all the applications, dont sent application name
+}
 
-    Up = 2;
-
-    //Deprecated and will be deleted in v2.0
-    PayPending = 3;
-    StopPending = 4;
-    ////////////////////////////////////////
-
-    Stop = 5;
-    Suspend = 6;
-    Unknown = 7;
-    Pending = 8;
+message ListReq {
+    int32 index = 1; // [default = 0]
 }
 
 message ListStatusRes {
-    repeated string names = 1;
-    int32 count = 2;
-    int32 next = 3; // [default = -1]
-    int32 previous = 4; // [default = -1]
+    int32 index = 1; // [default = 0]
+    repeated string names = 2;
+}
+
+message Chunk {
+    bytes chunk = 1;
+}
+
+message PortforwardRes {
+    string svc = 1;
+    repeated string ports = 2;
+    bytes token = 3;
+    string proxyHost = 4;
 }
 
 // Domain ////////////////////////////////////////////////////////////////////////////
@@ -179,6 +163,11 @@ message DomainStatusRes {
     string attachedTo = 6;
 }
 
+message DomainListRes {
+    int32 index = 1; // [default = 0]
+    repeated DomainStatusRes domains = 2;
+}
+
 //For embedded response
 message AttachedDomainInfo{
     string domain = 1;
@@ -192,6 +181,7 @@ message VolumeCreateReq {
     string name = 1;
     string spec = 2;
 }
+
 message VolumeAttachReq{
     string name = 1;
     string attachment = 2;
@@ -204,12 +194,23 @@ message VolumeSpec {
     string size = 4;
 }
 
+message VolumeSpecListRes {
+    int32 index = 1; // [default = 0]
+    repeated VolumeSpec volumeSpecs = 2;
+}
+
 message VolumeStatusRes {
     Timestamp created = 1;
     Timestamp updated = 2;
     string name = 3;
     VolumeSpec spec = 4;
     string attachedTo = 5;
+    string mountPath = 6;
+}
+
+message VolumeListRes{
+    int32 index = 1; // [default = 0]
+    repeated VolumeStatusRes volumes = 2;
 }
 
 // Image /////////////////////////////////////////////////////////////////////////////
@@ -218,29 +219,30 @@ message ImgStatusRes {
     Timestamp created = 1;
     Timestamp updated = 2;
     string name = 3;
+    repeated string tags = 4;
 }
 
-
-message ImgBuildReq {
-    message Meta {
-         string name = 1;
-    }
-    message Chunk {
-          bytes data = 1;
-          int64 position = 2;
-    }
-    oneof value {
-        Meta meta = 1;
-        Chunk chunk = 2;
-    }
+message ImgListRes {
+    int32 index = 1; // [default = 0]
+    repeated ImgStatusRes imgs = 2;
 }
+
+// TODO: Reserved for later
+// message ImgBuildReq {
+//     message Meta {
+//          string name = 1;
+//     }
+//     message Chunk {
+//           bytes data = 1;
+//           int64 position = 2;
+//     }
+//     oneof value {
+//         Meta meta = 1;
+//         Chunk chunk = 2;
+//     }
+// }
 
 // Setting ///////////////////////////////////////////////////////////////////////////
-
-message SettingListReq {
-    int32 index = 1; // [default = 0]
-    string app = 2;
-}
 
 message SettingInfoReq {
     string name = 1;
@@ -255,10 +257,12 @@ message SettingReq{
 }
 
 message SettingRes{
-    string name = 1;
-    string app = 2;
-    string path = 3;
-    bytes file = 4;
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    string name = 3;
+    string app = 4;
+    string path = 5;
+    bytes file = 6;
 }
 
 // Service ///////////////////////////////////////////////////////////////////////////
@@ -291,6 +295,18 @@ message SrvStatusRes {
 
 }
 
+//For embedded response
+message ServiceRes {
+    Timestamp updated = 1;
+    ServiceState state = 2;
+    string name = 3;
+}
+
+message SrvListRes {
+    int32 index = 1; // [default = 0]
+    repeated ServiceRes services = 2;
+}
+
 message SrvDomainAttachReq{
     AttachIdentity attachIdentity = 1;
     string endpoint = 2;
@@ -301,11 +317,6 @@ message SrvCreateReq {
     string name = 2;
     string plan = 3;
     map<string, string> variable = 4;
-}
-
-message SrvUpgradeReq {
-    string name = 1;
-    map<string, string> variable = 2;
 }
 
 // Application  //////////////////////////////////////////////////////////////////////
@@ -319,7 +330,6 @@ message AppStatusRes {
     AppConfig config = 6;
     map<string, string> environmentVariables = 7;
     string vcapServices = 8;
-    repeated AttachedDomainInfo domains = 9;
 }
 
 message AppCreateReq {
@@ -328,7 +338,7 @@ message AppCreateReq {
     AppConfig config = 3;
 }
 
-message ConfigSetReg {
+message ConfigSetReq {
     string name = 1;
     AppConfig config = 2; 
 }
@@ -359,4 +369,36 @@ message AppAddEnvironmentVariableReq {
 message AppSrvBindReq {
     string name = 1;
     string service = 2;
+}
+
+// API Activity //////////////////////////////////////////////////////////////////////
+
+enum ActivityTag {
+    User = 0; // User_Authentication, User_Setting, ...
+    Payment = 1;
+    Application = 2;
+    Service = 3;
+    Image = 4;
+    ObjectStorage = 5;
+    BlockStorage = 6;
+}
+
+message Activity {
+    Timestamp time = 1;
+    ActivityTag tag = 2;
+    string type = 3;
+    string email = 4;
+    string description = 5;
+    string attachIdentity = 6; // Application.name, Service.name, ...
+}
+
+message ActivityReq {
+    int32 index = 1; // [default = 0]
+    ActivityTag tag = 2;
+    string attachIdentity = 3; // Application.name, Service.name, ...
+}
+
+message ActivityListRes {
+    int32 index = 1; // [default = 0]
+    repeated Activity activity = 2;
 }

@@ -38,13 +38,11 @@ var (
 )
 
 func setList(cmd *cobra.Command, args []string) {
-	req := new(uvApi.SettingListReq)
-	req.Index = flagIndex
-	req.App = cmd.Flag("application").Value.String()
+	req := reqIndexForApp(cmd)
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SetList(client.Context(), req)
+	res, err := client.V2().SetList(client.Context(), req)
 	uiCheckErr("Could not List the Settings: %v", err)
 	uiList(res)
 }
@@ -56,7 +54,7 @@ func setInfo(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SetInfo(client.Context(), req)
+	res, err := client.V2().SetInfo(client.Context(), req)
 	uiCheckErr("Could not Get the Setting Info: %v", err)
 	uiSettingByDetail(res)
 }
@@ -75,7 +73,7 @@ func setAdd(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SetAdd(client.Context(), req)
+	res, err := client.V2().SetAdd(client.Context(), req)
 	uiCheckErr("Could not Add the Setting: %v", err)
 	uiSettingByDetail(res)
 }
@@ -95,7 +93,7 @@ func setUpdate(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SetUpdate(client.Context(), req)
+	res, err := client.V2().SetUpdate(client.Context(), req)
 	uiCheckErr("Could not Update the Setting: %v", err)
 	uiSettingByDetail(res)
 }
@@ -107,16 +105,15 @@ func setDelete(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
-	_, err := client.V1().SetDelete(client.Context(), req)
+	_, err := client.V2().SetDelete(client.Context(), req)
 	uiCheckErr("Could not Delete the Setting Info: %v", err)
 	log.Println("Task is done.")
 }
 
 func init() {
 	// setting list:
-	setListCmd.Flags().Int32Var(&flagIndex, "index", 0, "page number list")
-	setListCmd.Flags().StringP("application", "a", "", "name of Application")
-	setListCmd.MarkFlagRequired("application")
+	setListCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number list")
+	setListCmd.Flags().StringVarP(&flagAppName, "app", "n", "", "page number list")
 
 	// setting info:
 	setInfoCmd.Flags().StringP("name", "n", "", "name of Setting")

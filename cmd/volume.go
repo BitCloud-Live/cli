@@ -47,7 +47,7 @@ func volumeSpecList(cmd *cobra.Command, args []string) {
 	req := reqIndex(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().VolumeSpecList(client.Context(), req)
+	res, err := client.V2().VolumeSpecList(client.Context(), req)
 	uiCheckErr("Could not List the Volumes Spec: %v", err)
 	uiList(res)
 }
@@ -56,16 +56,16 @@ func volumeSpecInfo(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().VolumeSpecInfo(client.Context(), req)
+	res, err := client.V2().VolumeSpecInfo(client.Context(), req)
 	uiCheckErr("Could not get the Volumes Spec: %v", err)
 	uiVolumeSpec(res)
 }
 
 func volumeList(cmd *cobra.Command, args []string) {
-	req := reqIndex(cmd)
+	req := reqIndexForApp(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().VolumeList(client.Context(), req)
+	res, err := client.V2().VolumeList(client.Context(), req)
 	uiCheckErr("Could not List the volume: %v", err)
 	uiList(res)
 }
@@ -74,7 +74,7 @@ func volumeInfo(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().VolumeInfo(client.Context(), req)
+	res, err := client.V2().VolumeInfo(client.Context(), req)
 	uiCheckErr("Could not get the Volumes: %v", err)
 	//TODO
 	log.Println(res)
@@ -87,7 +87,7 @@ func volumeCreate(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().VolumeCreate(client.Context(), req)
+	res, err := client.V2().VolumeCreate(client.Context(), req)
 	uiCheckErr("Could not Create the Volume: %v", err)
 	//TODO
 	log.Println(res)
@@ -97,21 +97,23 @@ func volumeDelete(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	_, err := client.V1().VolumeDelete(client.Context(), req)
+	_, err := client.V2().VolumeDelete(client.Context(), req)
 	uiCheckErr("Could not Delete the Volume: %v", err)
 	log.Println("Task is done.")
 }
 
 func init() {
 	// volume Spec list:
-	volumeSpecListCmd.Flags().Int32Var(&flagIndex, "index", 0, "page number list")
+	volumeSpecListCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number list")
+	volumeSpecListCmd.Flags().StringVarP(&flagAppName, "app", "n", "", "page number list")
 
 	// volume Spec info:
 	volumeSpecInfoCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the volume.")
 	volumeSpecInfoCmd.MarkFlagRequired("name")
 
 	// volume list:
-	volumeListCmd.Flags().Int32("index", 0, "page number list")
+	volumeListCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number list")
+	volumeListCmd.Flags().StringVarP(&flagAppName, "app", "n", "", "page number list")
 
 	// volume info:
 	volumeInfoCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the volume.")

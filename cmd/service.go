@@ -73,10 +73,10 @@ var (
 )
 
 func srvList(cmd *cobra.Command, args []string) {
-	req := reqIndex(cmd)
+	req := reqIndexForApp(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SrvList(client.Context(), req)
+	res, err := client.V2().SrvList(client.Context(), req)
 	uiCheckErr("Could not List the Services: %v", err)
 	uiList(res)
 }
@@ -85,7 +85,7 @@ func srvInfo(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SrvInfo(client.Context(), req)
+	res, err := client.V2().SrvInfo(client.Context(), req)
 	uiCheckErr("Could not Get Service: %v", err)
 	uiServicStatus(res)
 }
@@ -94,7 +94,7 @@ func srvPortforward(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SrvPortforward(client.Context(), req)
+	res, err := client.V2().SrvPortforward(client.Context(), req)
 	uiCheckErr("Could not Portforward the Service: %v", err)
 	uiPortforward(res)
 }
@@ -103,7 +103,7 @@ func srvStart(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SrvStart(client.Context(), req)
+	res, err := client.V2().SrvStart(client.Context(), req)
 	uiCheckErr("Could not Start the Service: %v", err)
 	uiServicStatus(res)
 }
@@ -112,7 +112,7 @@ func srvStop(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SrvStop(client.Context(), req)
+	res, err := client.V2().SrvStop(client.Context(), req)
 	uiCheckErr("Could not Stop the Service: %v", err)
 	uiServicStatus(res)
 }
@@ -121,7 +121,7 @@ func srvDestroy(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	_, err := client.V1().SrvDestroy(client.Context(), req)
+	_, err := client.V2().SrvDestroy(client.Context(), req)
 	uiCheckErr("Could not Destroy the Service: %v", err)
 	log.Printf("service %s deleted", req.Name)
 }
@@ -135,7 +135,7 @@ func srvCreate(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SrvCreate(client.Context(), req)
+	res, err := client.V2().SrvCreate(client.Context(), req)
 	uiCheckErr("Could not Create the Service: %v", err)
 	uiServicStatus(res)
 }
@@ -147,7 +147,7 @@ func srvChangePlane(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SrvChangePlan(client.Context(), req)
+	res, err := client.V2().SrvChangePlan(client.Context(), req)
 	uiCheckErr("Could not Change the Plan: %v", err)
 	uiServicStatus(res)
 }
@@ -161,7 +161,7 @@ func srvAttachDomain(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SrvAttachDomain(client.Context(), req)
+	res, err := client.V2().SrvAttachDomain(client.Context(), req)
 	uiCheckErr("Could not Attach the Domain for Service: %v", err)
 	uiServicStatus(res)
 }
@@ -173,14 +173,15 @@ func srvDetachDomain(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().SrvDetachDomain(client.Context(), req)
+	res, err := client.V2().SrvDetachDomain(client.Context(), req)
 	uiCheckErr("Could not Detach the Domain for Service: %v", err)
 	uiServicStatus(res)
 }
 
 func init() {
 	// srv List:
-	srvListCmd.Flags().Int32Var(&flagIndex, "index", 0, "page number list")
+	srvListCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number list")
+	srvListCmd.Flags().StringVarP(&flagAppName, "app", "n", "", "page number list")
 
 	// srv Info:
 	srvInfoCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service")

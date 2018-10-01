@@ -31,7 +31,7 @@ func login(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	req := &uvApi.LoginReq{Email: email, Password: password}
-	res, err := client.V1().Login(client.Context(), req)
+	res, err := client.V2().Login(client.Context(), req)
 	if err != nil {
 		log.Fatalf("\r\nCould not Login: %v", err)
 	}
@@ -49,7 +49,7 @@ func logout(cmd *cobra.Command, args []string) {
 	req := &uvApi.Empty{}
 	client := grpcConnect()
 	defer client.Close()
-	_, err := client.V1().Logout(client.Context(), req)
+	_, err := client.V2().Logout(client.Context(), req)
 	if err != nil {
 		log.Fatalf("Could not Logout: %v", err)
 	}

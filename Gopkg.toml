@@ -43,7 +43,7 @@
 
 [[constraint]]
   name = "github.com/uvcloud/uv-api-go"
-  version = "1.2.2"
+  version = "v2.0.0"
 
 [[constraint]]
   branch = "master"

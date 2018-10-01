@@ -36,10 +36,10 @@ var (
 )
 
 func domainList(cmd *cobra.Command, args []string) {
-	req := reqIndex(cmd)
+	req := reqIndexForApp(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().DomainList(client.Context(), req)
+	res, err := client.V2().DomainList(client.Context(), req)
 	uiCheckErr("Could not List the domain: %v", err)
 	uiList(res)
 }
@@ -48,7 +48,7 @@ func domainInfo(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().DomainInfo(client.Context(), req)
+	res, err := client.V2().DomainInfo(client.Context(), req)
 	uiCheckErr("Could not get the Domains: %v", err)
 	uiDomainStatus(res)
 }
@@ -60,7 +60,7 @@ func domainCreate(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().DomainCreate(client.Context(), req)
+	res, err := client.V2().DomainCreate(client.Context(), req)
 	uiCheckErr("Could not Create the Domain: %v", err)
 	uiDomainStatus(res)
 }
@@ -69,14 +69,15 @@ func domainDelete(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	_, err := client.V1().DomainDelete(client.Context(), req)
+	_, err := client.V2().DomainDelete(client.Context(), req)
 	uiCheckErr("Could not Delete the Domain: %v", err)
 	log.Println("Task is done.")
 }
 
 func init() {
 	// domain list:
-	domainListCmd.Flags().Int32Var(&flagIndex, "index", 0, "page number list")
+	domainListCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number list")
+	domainListCmd.Flags().StringVarP(&flagAppName, "app", "n", "", "page number list")
 
 	// domain info:
 	domainInfoCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the domain.")

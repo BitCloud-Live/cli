@@ -37,21 +37,21 @@ var (
 )
 
 func imgList(cmd *cobra.Command, args []string) {
-	req := reqIndex(cmd)
+	req := reqIndexForApp(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V1().ImgList(client.Context(), req)
+	res, err := client.V2().ImgList(client.Context(), req)
 	uiCheckErr("Could not List the Products: %v", err)
 	uiList(res)
 }
 
-// TODO add to UV.proto
 func imgInfo(cmd *cobra.Command, args []string) {
-
-	//	req := reqIdentity(cmd)
-	//	res, err := grpcClinet.UV.ImgInfo(grpcClinet.Ctx, req)
-	//	uiCheckErr("Could not Get the Image Info: %v", err)
-	//	uiImageInfo(res)
+	req := reqIdentity(cmd)
+	client := grpcConnect()
+	defer client.Close()
+	res, err := client.V2().ImgInfo(client.Context(), req)
+	uiCheckErr("Could not Get the Image Info: %v", err)
+	uiImageInfo(res)
 }
 
 func imgImport(cmd *cobra.Command, args []string) {} //TODO
@@ -62,14 +62,15 @@ func imgDelete(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	_, err := client.V1().ImgDelete(client.Context(), req)
+	_, err := client.V2().ImgDelete(client.Context(), req)
 	uiCheckErr("Could not Destroy the Image: %v", err)
 	log.Printf("image %s deleted", req.Name)
 }
 
 func init() {
 	// imgage List:
-	imgListCmd.Flags().Int32Var(&flagIndex, "index", 0, "page number list")
+	imgListCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number list")
+	imgListCmd.Flags().StringVarP(&flagAppName, "app", "n", "", "page number list")
 
 	// imgage Info:
 	imgInfoCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the image")

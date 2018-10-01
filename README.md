@@ -11,11 +11,11 @@ Common platform binaries are published on the releases page. this includes linux
 ## Quick installationgit rebase
 ### OSX 
 ```sh
-$ wget https://github.com/uvcloud/uv-cli/releases/download/v1.1.0/uv-v1.1.0-darwin-amd64 -O /usr/local/bin/uv
+$ wget https://github.com/uvcloud/uv-cli/releases/download/V2.1.0/uv-V2.1.0-darwin-amd64 -O /usr/local/bin/uv
 ```
 ### Linux
 ```sh
-$ sudo wget https://github.com/uvcloud/uv-cli/releases/download/v1.1.0/uv-v1.1.0-linux-amd64 -O /usr/local/bin/uv
+$ sudo wget https://github.com/uvcloud/uv-cli/releases/download/V2.1.0/uv-V2.1.0-linux-amd64 -O /usr/local/bin/uv
 $ sudo chmod +x /usr/local/bin/uv
 ```  
 ### Windows 
@@ -77,7 +77,7 @@ build-master:
     - master # use `tags` for build when ever a new tag pushed to the repository
 
 deploy: 
-  image: hub.uvcloud.ir/uvcloud/uv-cli:v1.0.0-rc7
+  image: hub.uvcloud.ir/uvcloud/uv-cli:V2.0.0-rc7
   stage: deploy
   before_script:
     - echo $UVCLOUD_PASSWORD | uv-cli login -u $UVCLOUD_USER

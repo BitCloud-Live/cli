@@ -4,15 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
 
+	"google.golang.org/grpc/codes"
+
 	"github.com/Sirupsen/logrus"
 	uvApi "github.com/uvcloud/uv-api-go/proto"
 
+	"google.golang.org/grpc/status"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/portforward"
 	"k8s.io/client-go/transport/spdy"
@@ -35,11 +37,18 @@ func uiStringArray(title string, arr []string) {
 	}
 }
 
-func uiList(list *uvApi.ListStatusRes) {
-	log.Printf("Count: %d,\t Next: %d,\t  Previous:%d \r\n", list.Count, list.Next, list.Previous)
-	for i, v := range list.Names {
-		log.Printf("%d. %s\r\n", i, v)
-	}
+//FIXME:
+func uiList(list interface{}) {
+	log.Printf("%v", list)
+	// log.Printf("Count: %d,\t Next: %d,\t  Previous:%d \r\n", list.Count, list.Next, list.Previous)
+	// for i, v := range list.Names {
+	// 	log.Printf("%d. %s\r\n", i, v)
+	// }
+}
+
+//FIXME:
+func uiImageInfo(res *uvApi.ImgStatusRes) {
+	log.Printf("%v", res)
 }
 
 func uiServicStatus(srv *uvApi.SrvStatusRes) {
@@ -139,7 +148,7 @@ func uiApplicationStatus(app *uvApi.AppStatusRes) {
 	log.Printf("Created: %v,\t Updated: %v \r\n", app.Created, app.Updated)
 	log.Printf("VCAP_SERVICES: \r\n%v\r\n", jsonPrettyPrint(app.VcapServices))
 	uiMap(app.EnvironmentVariables, "Environment variables")
-	uiAttachedDomains(app.Domains)
+	// uiAttachedDomains(app.Domains)
 }
 
 func uiAttachedDomains(domains []*uvApi.AttachedDomainInfo) {
@@ -155,16 +164,17 @@ func uiAttachedDomains(domains []*uvApi.AttachedDomainInfo) {
 }
 
 func uiApplicationLog(client uvApi.UV_AppLogClient) {
-	var blob []byte
+	var byteRecieved = 0
 	for {
 		c, err := client.Recv()
 		if err != nil {
-			if err == io.EOF {
-				log.Printf("Transfer of %d bytes successful", len(blob))
+			if status.Code(err) == codes.OutOfRange {
+				log.Printf("Transfer of %d bytes done", byteRecieved)
 				return
 			}
-			panic(err)
+			log.Fatal(err)
 		}
+		byteRecieved += len(c.Chunk)
 		log.Printf(string(c.Chunk))
 	}
 }
