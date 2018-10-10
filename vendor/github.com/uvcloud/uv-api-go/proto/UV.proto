@@ -374,31 +374,40 @@ message AppSrvBindReq {
 // API Activity //////////////////////////////////////////////////////////////////////
 
 enum ActivityTag {
-    User = 0; // User_Authentication, User_Setting, ...
-    Payment = 1;
-    Application = 2;
-    Service = 3;
-    Image = 4;
-    ObjectStorage = 5;
-    BlockStorage = 6;
+    None = 0; //No tag
+    User = 1; // User_Authentication, User_Setting, ...
+    Payment = 2;
+    Application = 3;
+    Domain = 4;
+    Service = 5;
+    Image = 6;
+    ObjectStorage = 7;
+    BlockStorage = 8;
+
+    //‌Bindings
+    AppSrvBinding = 9;
+    AppDomBinding = 10;
+    AppVolBinding = 11;
+    SrvDomBinding = 12;
 }
 
 message Activity {
     Timestamp time = 1;
     ActivityTag tag = 2;
-    string type = 3;
-    string email = 4;
-    string description = 5;
-    string attachIdentity = 6; // Application.name, Service.name, ...
+    string name = 3;
+    string attachment = 4; //When tag is binding, otherwise empty
+    string type = 5;
+    string email = 6;
+    string description = 7;
 }
 
 message ActivityReq {
     int32 index = 1; // [default = 0]
-    ActivityTag tag = 2;
-    string attachIdentity = 3; // Application.name, Service.name, ...
+    ActivityTag tag = 2;//tag for filter
+    string name = 3; //name for filter
 }
 
 message ActivityListRes {
     int32 index = 1; // [default = 0]
-    repeated Activity activity = 2;
+    repeated Activity activities = 2;
 }

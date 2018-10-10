@@ -8,7 +8,7 @@ endef
 all: clean build
 
 clean:
-	echo "{}" > ~/.uv/config.json && rm -rf build/*
+	rm -rf build/*
 
 build: 
 	CGO_ENABLED=0 go build --tags netgo -ldflags '$(LD_FLAGS)' -o build/cli -i main.go
