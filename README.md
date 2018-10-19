@@ -21,7 +21,8 @@ $ sudo chmod +x /usr/local/bin/uv
 ### Windows 
 Just grap the latest executive file in release page and run it from cmd.  
 See [Releases](https://github.com/uvcloud/uv-cli/releases).
-### Update
+
+## Update
 UVCloud cli can be updated in place using the following command:  
 ```sh
 $ uv update
