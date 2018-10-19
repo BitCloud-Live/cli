@@ -18,12 +18,22 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/portforward"
 	"k8s.io/client-go/transport/spdy"
+	//For windows support
+	"github.com/mattn/go-colorable"
 )
 
 var log = logrus.New()
 
 func init() {
-	log.Formatter = &logrus.TextFormatter{FullTimestamp: false}
+	//Configure logging formatter
+	customFormatter := new(logrus.TextFormatter)
+	customFormatter.ForceColors = true
+	customFormatter.FullTimestamp = false
+	customFormatter.DisableColors = false
+	log.Formatter = customFormatter
+	
+	//Windows color support
+	log.SetOutput(colorable.NewColorableStdout())
 }
 
 func uiStringArray(title string, arr []string) {
@@ -33,16 +43,16 @@ func uiStringArray(title string, arr []string) {
 	}
 	log.Printf("%s:", title)
 	for _, stri := range arr {
-		log.Printf("\t %s\r\n", stri)
+		log.Printf("\t %s", stri)
 	}
 }
 
 //FIXME:
 func uiList(list interface{}) {
 	log.Printf("%v", list)
-	// log.Printf("Count: %d,\t Next: %d,\t  Previous:%d \r\n", list.Count, list.Next, list.Previous)
+	// log.Printf("Count: %d,\t Next: %d,\t  Previous:%d ", list.Count, list.Next, list.Previous)
 	// for i, v := range list.Names {
-	// 	log.Printf("%d. %s\r\n", i, v)
+	// 	log.Printf("%d. %s", i, v)
 	// }
 }
 
@@ -52,10 +62,10 @@ func uiImageInfo(res *uvApi.ImgStatusRes) {
 }
 
 func uiServicStatus(srv *uvApi.SrvStatusRes) {
-	log.Printf("Service Name: %s \r\n", srv.Name)
-	log.Printf("Plan Name: %s \r\n", srv.Plan)
-	log.Printf("State: %v \r\n", srv.State.String())
-	log.Printf("Created: %v,\t Updated: %v \r\n", srv.Created, srv.Updated)
+	log.Printf("Service Name: %s ", srv.Name)
+	log.Printf("Plan Name: %s ", srv.Plan)
+	log.Printf("State: %v ", srv.State.String())
+	log.Printf("Created: %v,\t Updated: %v ", srv.Created, srv.Updated)
 	uiMap(srv.Variable, "Variable")
 	uiStringArray("List of endpoints", srv.Endpoints)
 	uiAttachedDomains(srv.Domains)
@@ -84,9 +94,9 @@ func uiPortforward(in *uvApi.PortforwardRes) {
 	defer signal.Stop(signals)
 
 	go func() {
-		fmt.Printf("Forwarding ports: %s\r\n", in.Ports)
+		fmt.Printf("Forwarding ports: %s", in.Ports)
 		<-signals
-		fmt.Print("closing the opened ports...\r\n")
+		fmt.Print("closing the opened ports...")
 		if done != nil {
 			close(done)
 		}
@@ -106,11 +116,11 @@ func uiPortforward(in *uvApi.PortforwardRes) {
 func uiPlan(plan []*uvApi.Plan) {
 	log.Println("Plan:")
 	for i, p := range plan {
-		log.Printf("%d. \r\n", i)
-		log.Printf("\t name: %s \r\n", p.Name)
+		log.Printf("%d. ", i)
+		log.Printf("\t name: %s ", p.Name)
 		//Deprecated
-		// log.Printf("\t price: %v, off: %v \r\n", p.Price, p.Off)
-		log.Printf("\t Description: %v \r\n", p.Description)
+		// log.Printf("\t price: %v, off: %v ", p.Price, p.Off)
+		log.Printf("\t Description: %v ", p.Description)
 	}
 }
 func uiMap(mapVar map[string]string, name string) {
@@ -120,21 +130,22 @@ func uiMap(mapVar map[string]string, name string) {
 	}
 	log.Printf("%s:", name)
 	for k, v := range mapVar {
-		log.Printf("\t %s: %s \r\n", k, v)
+		log.Printf("\t %s: %s ", k, v)
 	}
 }
 
 func uiProduct(prd *uvApi.ProductRes) {
-	log.Printf("Product Name: %s \r\n", prd.Name)
-	log.Printf("Description: %s \r\n", prd.Description)
+	log.Printf("Product Name: %s ", prd.Name)
+	log.Printf("Description: %s ", prd.Description)
 	uiPlan(prd.Plan)
 	uiMap(prd.VariableHints, "Variable Hints")
 }
 
 func uiSettingByDetail(set *uvApi.SettingRes) {
-	log.Printf("Setting Name: %s \r\n", set.Name)
-	log.Printf("Application: %s Path: %s\r\n", set.App, set.Path)
-	log.Printf("value: \r\n%s", set.File)
+	log.Printf("Setting Name: %s ", set.Name)
+	log.Printf("Application: %s Path: %s", set.App, set.Path)
+	log.Print("value: ")
+	log.Print(set.File)
 }
 
 func uiSetting(set *uvApi.SettingRes) {
@@ -142,11 +153,12 @@ func uiSetting(set *uvApi.SettingRes) {
 }
 
 func uiApplicationStatus(app *uvApi.AppStatusRes) {
-	log.Printf("Service Name: %s \r\n", app.Name)
-	log.Printf("State: %v \r\n", app.State)
-	log.Printf("Config: %v \r\n", app.Config)
-	log.Printf("Created: %v,\t Updated: %v \r\n", app.Created, app.Updated)
-	log.Printf("VCAP_SERVICES: \r\n%v\r\n", jsonPrettyPrint(app.VcapServices))
+	log.Printf("Service Name: %s ", app.Name)
+	log.Printf("State: %v ", app.State)
+	log.Printf("Config: %v ", app.Config)
+	log.Printf("Created: %v,\t Updated: %v ", app.Created, app.Updated)
+	log.Printf("VCAP_SERVICES: ")
+	log.Print(jsonPrettyPrint(app.VcapServices))
 	uiMap(app.EnvironmentVariables, "Environment variables")
 	// uiAttachedDomains(app.Domains)
 }
@@ -159,7 +171,7 @@ func uiAttachedDomains(domains []*uvApi.AttachedDomainInfo) {
 	log.Println("Attached domains:")
 	log.Println("Domain | Endpoint | Type")
 	for i, d := range domains {
-		log.Printf("%d. %s | %s | %s \r\n", i, d.Domain, d.Endpoint, d.EndpointType)
+		log.Printf("%d. %s | %s | %s ", i, d.Domain, d.Endpoint, d.EndpointType)
 	}
 }
 
@@ -180,22 +192,22 @@ func uiApplicationLog(client uvApi.UV_AppLogClient) {
 }
 
 func uiDomainStatus(dom *uvApi.DomainStatusRes) {
-	log.Printf("Domain Name: %s \r\n", dom.Domain)
-	log.Printf("Created: %v ,Update: %v\r\n", dom.Created, dom.Updated)
-	log.Printf("AttachedTo: %s \r\n", dom.AttachedTo)
-	log.Printf("TLS: %s \r\n", dom.Tls)
+	log.Printf("Domain Name: %s ", dom.Domain)
+	log.Printf("Created: %v ,Update: %v", dom.Created, dom.Updated)
+	log.Printf("AttachedTo: %s ", dom.AttachedTo)
+	log.Printf("TLS: %s ", dom.Tls)
 }
 
 func uiVolumeSpec(vol *uvApi.VolumeSpec) {
-	log.Printf("Volume Spec Name: %s \r\n", vol.Name)
-	log.Printf("\t Spec Class: %s \r\n", vol.Class)
-	log.Printf("\t Spec Size: %v \r\n", vol.Size)
+	log.Printf("Volume Spec Name: %s ", vol.Name)
+	log.Printf("\t Spec Class: %s ", vol.Class)
+	log.Printf("\t Spec Size: %v ", vol.Size)
 }
 
 func uiVolumeStatus(vol *uvApi.VolumeStatusRes) {
-	log.Printf("Volume Name: %s \r\n", vol.Name)
-	log.Printf("Created: %v ,Update: %v\r\n", vol.Created, vol.Updated)
-	log.Printf("AttachedTo: %s \r\n", vol.AttachedTo)
+	log.Printf("Volume Name: %s ", vol.Name)
+	log.Printf("Created: %v ,Update: %v", vol.Created, vol.Updated)
+	log.Printf("AttachedTo: %s ", vol.AttachedTo)
 	uiVolumeSpec(vol.Spec)
 }
 

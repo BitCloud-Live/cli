@@ -8,8 +8,6 @@ import (
 	"github.com/uvcloud/uv-cli/config"
 )
 
-//version parameter parsing from compiler ldflags
-var version string
 
 // RootCmd represents the base command when called without any subcommands
 var (
