@@ -11,11 +11,11 @@ Common platform binaries are published on the releases page. this includes linux
 ## Quick installation
 ### OSX 
 ```sh
-$ wget https://github.com/uvcloud/uv-cli/releases/download/V2.1.0/uv-v2.0.0-alpha.2-darwin-amd64 -O /usr/local/bin/uv
+$ wget https://github.com/uvcloud/uv-cli/releases/download/v2.0.0-alpha.2/uv-v2.0.0-alpha.2-darwin-amd64 -O /usr/local/bin/uv
 ```
 ### Linux
 ```sh
-$ sudo wget https://github.com/uvcloud/uv-cli/releases/download/V2.1.0/uv-v2.0.0-alpha.2-linux-amd64 -O /usr/local/bin/uv
+$ sudo wget https://github.com/uvcloud/uv-cli/releases/download/v2.0.0-alpha.2/uv-v2.0.0-alpha.2-linux-amd64 -O /usr/local/bin/uv
 $ sudo chmod +x /usr/local/bin/uv
 ```  
 ### Windows 
