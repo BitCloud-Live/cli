@@ -7,13 +7,13 @@ import (
 
 var (
 	volumeSpecListCmd = &cobra.Command{
-		Use:   "vol:specList",
+		Use:   "vol:type-list",
 		Short: "",
 		Long:  ``,
 		Run:   volumeSpecList}
 
 	volumeSpecInfoCmd = &cobra.Command{
-		Use:   "vol:spec",
+		Use:   "vol:type",
 		Short: "",
 		Long:  ``,
 		Run:   volumeSpecInfo}

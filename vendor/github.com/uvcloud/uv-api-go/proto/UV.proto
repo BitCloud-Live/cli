@@ -31,7 +31,7 @@ service UV {
     rpc ImgDelete (Identity) returns (Empty) { }
 
     // Product
-    rpc PrdList (ListReq) returns (ListStatusRes) { }
+    rpc PrdList (ListReq) returns (PrdListRes) { }
     rpc PrdInfo (Identity) returns (ProductRes) { }
 
     // Setting
@@ -52,6 +52,9 @@ service UV {
     rpc SrvInfo (Identity) returns (SrvStatusRes) { }
     rpc SrvAttachDomain (SrvDomainAttachReq) returns (SrvStatusRes) { }
     rpc SrvDetachDomain (AttachIdentity) returns (SrvStatusRes) { }
+    //Added in v2.1 patch
+    rpc SrvConfigSet (SrvConfigSetReq) returns (SrvStatusRes) { } 
+    rpc SrvConfigUnset (UnsetReq) returns (SrvStatusRes) { } 
 
     // Application
     rpc AppInfo (Identity) returns (AppStatusRes) { }
@@ -73,6 +76,13 @@ service UV {
     rpc AppDestroy (Identity) returns (Empty) { }
     rpc AppSrvBind (AppSrvBindReq) returns (AppStatusRes) { }
     rpc AppSrvUnBind (AppSrvBindReq) returns (AppStatusRes) { }
+    //Added in v2.1 patch
+    rpc AppNFSPortforward (Identity) returns (PortforwardRes) { }
+    rpc AppListWorkers (Identity) returns (WorkerListRes) { }
+    rpc AppAddWorker (WorkerReq) returns (WorkerListRes) { }
+    rpc AppRemoveWorker (AttachIdentity) returns (WorkerListRes) { }
+    rpc AppWorkerInfo (AttachIdentity) returns (WorkerRes) { }
+    rpc AppWorkerPortforward (AttachIdentity) returns (PortforwardRes) { }
 }
 
 // Authentication ////////////////////////////////////////////////////////////////////
@@ -271,7 +281,38 @@ message ProductRes {
     string name = 1;
     string description = 2;
     repeated Plan plan = 3;
+    //Deprecated: will be deleted in v3.0
+    //Keep this for backward compatibilty
     map<string, string> variable_hints = 4;
+    //Added in v2.1 patch
+    map<string, ProductVariable> variables = 5;
+}
+
+//Added in v2.1 patch
+message ProductListRow {
+    string name = 1;
+    string description = 2;
+}
+
+//Added in v2.1 patch
+message PrdListRes {
+    int32 index = 1; // [default = 0]
+    repeated ProductListRow rows = 2;
+}
+
+//Added in v2.1 patch
+message ProductVariable{
+       string name = 1;
+       string defaultValue = 2;
+       bool isRequired = 3;
+       string type = 4;
+       string description = 5;
+}
+
+//Added in v2.1 patch
+message SrvConfigSetReq{
+    string name = 1; 
+    map<string, string> variables = 2;
 }
 
 message Plan {
@@ -293,6 +334,10 @@ message SrvStatusRes {
     repeated AttachedDomainInfo domains = 8;
     repeated string endpoints = 9;
 
+    //Added in v2.1 patch
+    string serviceRefrence = 10;
+    //Name(s) of the peer(s) that this service instance bounded to
+    repeated string boundTo = 11;
 }
 
 //For embedded response
@@ -300,6 +345,8 @@ message ServiceRes {
     Timestamp updated = 1;
     ServiceState state = 2;
     string name = 3;
+    //Added in v2.1 patch
+    string serviceRefrence = 4;
 }
 
 message SrvListRes {
@@ -317,6 +364,29 @@ message SrvCreateReq {
     string name = 2;
     string plan = 3;
     map<string, string> variable = 4;
+}
+
+//Added in v2.1 patch
+// Worker  //////////////////////////////////////////////////////////////////////
+
+message WorkerRes{
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    ServiceState state = 3;
+    string name = 4;
+    WorkerConfig config = 5;
+}
+message WorkerConfig{
+    string image = 1;
+    uint64 port = 2;
+}
+message WorkerReq{
+    AttachIdentity identities = 4;
+    WorkerConfig config = 5;
+}
+message WorkerListRes {
+    int32 index = 1; // [default = 0]
+    repeated WorkerRes services = 2;
 }
 
 // Application  //////////////////////////////////////////////////////////////////////

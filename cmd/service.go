@@ -35,7 +35,7 @@ var (
 		Run: srvChangePlane}
 
 	srvPortforwardCmd = &cobra.Command{
-		Use:   "srv:portforward",
+		Use:   "srv:port-forward",
 		Short: "port-forward to connect to an application running in a cluster",
 		Long: `Port-forward to connect to an application running in a cluster.
 		This type of connection can be useful for database debugging`,
@@ -60,16 +60,28 @@ var (
 		Run:   srvDestroy}
 
 	srvAttachDomainCmd = &cobra.Command{
-		Use:   "srv:attachDomain",
+		Use:   "dom:srv-attach",
 		Short: "attach domain to service",
 		Long:  `This subcommand attach domain to a service`,
 		Run:   srvAttachDomain}
 
 	srvDetachDomainCmd = &cobra.Command{
-		Use:   "srv:detachDomain",
+		Use:   "dom:srv-detach",
 		Short: "detach domain of the service",
 		Long:  `This subcommand detach domain of the service`,
 		Run:   srvDetachDomain}
+
+	srvConfigSetCmd = &cobra.Command{
+		Use:   "srv:cfg-set",
+		Short: "sets configuration variables for a service",
+		Long:  `This subcommand sets configuration variables for a service.`,
+		Run:   srvConfigSet}
+
+	srvConfigUnsetCmd = &cobra.Command{
+		Use:   "srv:cfg-unset",
+		Short: "unsets configuration variables for a service",
+		Long:  `This subcommand unsets configuration variables for a service.`,
+		Run:   srvConfigUnset}
 )
 
 func srvList(cmd *cobra.Command, args []string) {
@@ -140,6 +152,30 @@ func srvCreate(cmd *cobra.Command, args []string) {
 	uiServicStatus(res)
 }
 
+func srvConfigSet(cmd *cobra.Command, args []string) {
+	req := new(uvApi.SrvConfigSetReq)
+	req.Name = cmd.Flag("name").Value.String()
+	req.Variables = arrayFlagToMap(flagVariableArray)
+	client := grpcConnect()
+	defer client.Close()
+
+	res, err := client.V2().SrvConfigSet(client.Context(), req)
+	uiCheckErr("Could not Set the Config for Service: %v", err)
+	uiServicStatus(res)
+}
+
+func srvConfigUnset(cmd *cobra.Command, args []string) {
+	req := new(uvApi.UnsetReq)
+	req.Name = cmd.Flag("name").Value.String()
+	req.Variables = flagVariableArray
+
+	client := grpcConnect()
+	defer client.Close()
+	res, err := client.V2().SrvConfigUnset(client.Context(), req)
+	uiCheckErr("Could not Unset the Config for Service: %v", err)
+	uiServicStatus(res)
+}
+
 func srvChangePlane(cmd *cobra.Command, args []string) {
 	req := new(uvApi.ChangePlanReq)
 	req.Name = cmd.Flag("name").Value.String()
@@ -201,6 +237,18 @@ func init() {
 	srvChangePlaneCmd.MarkFlagRequired("name")
 	srvChangePlaneCmd.MarkFlagRequired("plan")
 
+	// srv Config Set:
+	srvConfigSetCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service.")
+	srvConfigSetCmd.Flags().StringArrayVarP(&flagVariableArray, "variable", "v", nil, "Environment Variable of the service")
+	srvConfigSetCmd.MarkFlagRequired("name")
+	srvConfigSetCmd.MarkFlagRequired("variable")
+
+	// srv Config Unset:
+	srvConfigUnsetCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service.")
+	srvConfigUnsetCmd.Flags().StringArrayVarP(&flagVariableArray, "variable", "v", nil, "Environment Variable of the service")
+	srvConfigUnsetCmd.MarkFlagRequired("name")
+	srvConfigUnsetCmd.MarkFlagRequired("variable")
+
 	// srv Portforward:
 	srvPortforwardCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service")
 	srvPortforwardCmd.MarkFlagRequired("name")
@@ -237,6 +285,8 @@ func init() {
 		srvInfoCmd,
 		srvCreateCmd,
 		srvChangePlaneCmd,
+		srvConfigSetCmd,
+		srvConfigUnsetCmd,
 		srvPortforwardCmd,
 		srvStartCmd,
 		srvStopCmd,

@@ -34,6 +34,12 @@ var (
 		Long:  `This subcommand tails the current application logs`,
 		Run:   appLog}
 
+	appNFSMountCmd = &cobra.Command{
+		Use:   "app:nfs-mount",
+		Short: "Connect to the remote file system using nfs protocol",
+		Long:  `This subcommand connects to the remote file system using nfs protocol`,
+		Run:   appNFSMount}
+
 	appCreateCmd = &cobra.Command{
 		Use:   "app:create",
 		Short: "creates a new application",
@@ -42,22 +48,22 @@ var (
 		Run: appCreate}
 
 	appConfigSetCmd = &cobra.Command{
-		Use:   "app:configSet",
+		Use:   "app:cfg-set",
 		Short: "sets configuration variables for an application",
 		Long:  `This subcommand sets configuration variables for an application.`,
 		Run:   appConfigSet}
 
 	appConfigUnsetCmd = &cobra.Command{
-		Use:   "app:configUnset",
+		Use:   "app:cfg-unset",
 		Short: "unsets configuration variables for an application",
 		Long:  `This subcommand unsets configuration variables for an application.`,
 		Run:   appConfigUnset}
 
 	appAddEnvCmd = &cobra.Command{
-		Use:   "app:envSet",
+		Use:   "app:env-set",
 		Short: "sets environment variables for an application",
 		Long: `Sets environment variables for an application.
-		Usage: uv app:envSet <var>=<value> [<var>=<value>...] [options]
+		Usage: uv app:env-set <var>=<value> [<var>=<value>...] [options]
 
 		Arguments:
 		  <var>
@@ -67,10 +73,10 @@ var (
 		Run: appAddEnvironmentVariable}
 
 	appRemoveEnvCmd = &cobra.Command{
-		Use:   "app:envUnset",
+		Use:   "app:env-unset",
 		Short: "unset environment variables for an application",
 		Long: `Unset environment variables for an application.
-		Usage: deis app:envUnset <key>... [options]
+		Usage: deis app:env-unset <key>... [options]
 
 		Arguments:
 		  <key>
@@ -125,25 +131,25 @@ var (
 		Run:   appSrvUnBind}
 
 	appAttachVolumeCmd = &cobra.Command{
-		Use:   "app:attachVolume",
+		Use:   "vol:attach",
 		Short: "attach volume to application",
 		Long:  `This subcommand attach mounted volume.`,
 		Run:   appAttachVolume}
 
 	appDetachVolumeCmd = &cobra.Command{
-		Use:   "app:detachVolume",
+		Use:   "vol:detach",
 		Short: "detach volume of the application",
 		Long:  `This subcommand detach volume of the application.`,
 		Run:   appDetachVolume}
 
 	appAttachDomainCmd = &cobra.Command{
-		Use:   "app:attachDomain",
+		Use:   "dom:attach",
 		Short: "attach domain to application",
 		Long:  `This subcommand attach domain to application`,
 		Run:   appAttachDomain}
 
 	appDetachDomainCmd = &cobra.Command{
-		Use:   "app:detachDomain",
+		Use:   "dom:detach",
 		Short: "detach domain of the application",
 		Long:  `This subcommand detach domain of the application`,
 		Run:   appDetachDomain}
@@ -177,6 +183,16 @@ func appLog(cmd *cobra.Command, args []string) {
 	}
 	uiCheckErr("Could not Get Application log: %v", err)
 	uiApplicationLog(logClient)
+}
+
+func appNFSMount(cmd *cobra.Command, args []string) {
+	req := reqIdentity(cmd)
+	client := grpcConnect()
+	defer client.Close()
+	res, err := client.V2().AppNFSPortforward(client.Context(), req)
+	uiCheckErr("Could not Portforward the Service: %v", err)
+	uiPortforward(res)
+	uiNFSMount(res)
 }
 
 func appStart(cmd *cobra.Command, args []string) {
@@ -382,6 +398,10 @@ func init() {
 	appLogCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
 	appLogCmd.MarkFlagRequired("name")
 
+	// app nfs mount:
+	appNFSMountCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
+	appNFSMountCmd.MarkFlagRequired("name")
+
 	// app Create:
 	appCreateCmd.Flags().StringP("plan", "s", "", "name of plan")
 	appCreateCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
@@ -480,6 +500,7 @@ func init() {
 		appListCmd,
 		appInfoCmd,
 		appLogCmd,
+		appNFSMountCmd,
 		appCreateCmd,
 		appConfigSetCmd,
 		appConfigUnsetCmd,

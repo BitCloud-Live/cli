@@ -31,7 +31,7 @@ func init() {
 	customFormatter.FullTimestamp = false
 	customFormatter.DisableColors = false
 	log.Formatter = customFormatter
-	
+
 	//Windows color support
 	log.SetOutput(colorable.NewColorableStdout())
 }
@@ -69,6 +69,25 @@ func uiServicStatus(srv *uvApi.SrvStatusRes) {
 	uiMap(srv.Variable, "Variable")
 	uiStringArray("List of endpoints", srv.Endpoints)
 	uiAttachedDomains(srv.Domains)
+}
+
+func uiNFSMount(in *uvApi.PortforwardRes) {
+	log.Printf("NFS portforwarding is READY!")
+	log.Printf("NFSv4 now is available at host 127.0.0.1, port 2049")
+	log.Printf(`How to mount:
+				On archlinux: see https://wiki.archlinux.org/index.php/NFS
+				On Ubuntu: see https://help.ubuntu.com/community/SettingUpNFSHowTo#NFSv4_client
+				On OSX operating systems, you can connect using cmd+k in the Finder application
+				On Windows operating systems use the following steps:
+				Go to Control Panel → Programs → Programs and Features
+				Select: Turn Windows features on or off" from the left hand navigation.
+				Scroll down to "Services for NFS" and click the "plus" on the left
+				Check "Client for NFS"
+				Select "Ok"
+				Windows should install the client. Once the client package is install you will have the "mount" command available.
+				For example you can use the following cmd command to mount to "L" drive:
+				mount \127.0.0.1\ L:`)
+
 }
 
 func uiPortforward(in *uvApi.PortforwardRes) {
@@ -138,7 +157,13 @@ func uiProduct(prd *uvApi.ProductRes) {
 	log.Printf("Product Name: %s ", prd.Name)
 	log.Printf("Description: %s ", prd.Description)
 	uiPlan(prd.Plan)
-	uiMap(prd.VariableHints, "Variable Hints")
+	log.Print("Variables")
+	for _, vari := range prd.Variables {
+		log.Printf("\tName: %s", vari.Name)
+		log.Printf("\t\ttype: %s, default: %s", vari.Type, vari.DefaultValue)
+		log.Printf("\t\tDescription: %s", vari.Description)
+		log.Printf("\t\tIs required: %v", vari.IsRequired)
+	}
 }
 
 func uiSettingByDetail(set *uvApi.SettingRes) {
@@ -161,6 +186,13 @@ func uiApplicationStatus(app *uvApi.AppStatusRes) {
 	log.Print(jsonPrettyPrint(app.VcapServices))
 	uiMap(app.EnvironmentVariables, "Environment variables")
 	// uiAttachedDomains(app.Domains)
+}
+
+func uiWorkerStatus(worker *uvApi.WorkerRes) {
+	log.Printf("Service Name: %s ", worker.Name)
+	log.Printf("State: %v ", worker.State)
+	log.Printf("Config: %v ", worker.Config)
+	log.Printf("Created: %v,\t Updated: %v ", worker.Created, worker.Updated)
 }
 
 func uiAttachedDomains(domains []*uvApi.AttachedDomainInfo) {
