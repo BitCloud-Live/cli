@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	uvApi "github.com/uvcloud/uv-api-go/proto"
+	ybApi "github.com/yottab/proto-api/proto"
 )
 
 var (
@@ -54,7 +54,7 @@ func domainInfo(cmd *cobra.Command, args []string) {
 }
 
 func domainCreate(cmd *cobra.Command, args []string) {
-	req := new(uvApi.DomainCreateReq)
+	req := new(ybApi.DomainCreateReq)
 	req.Domain = cmd.Flag("domain").Value.String()
 	req.Tls = flagTLS
 

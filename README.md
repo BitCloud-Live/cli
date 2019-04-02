@@ -1,5 +1,5 @@
-# uv-cli
-UVCloud cli 
+# yb-cli
+YOTTAb cli 
 
 # How to build using make
 ```sh
@@ -11,25 +11,25 @@ Common platform binaries are published on the releases page. this includes linux
 ## Quick installation
 ### OSX 
 ```sh
-$ wget https://github.com/uvcloud/uv-cli/releases/download/v2.0.0-alpha.2/uv-v2.0.0-alpha.2-darwin-amd64 -O /usr/local/bin/uv
+$ wget https://github.com/yottab/cli/releases/download/v2.2.0/yb-v2.2.0-darwin-amd64 -O /usr/local/bin/yb
 ```
 ### Linux
 ```sh
-$ sudo wget https://github.com/uvcloud/uv-cli/releases/download/v2.0.0-alpha.2/uv-v2.0.0-alpha.2-linux-amd64 -O /usr/local/bin/uv
-$ sudo chmod +x /usr/local/bin/uv
+$ sudo wget https://github.com/yottab/cli/releases/download/v2.2.0/yb-v2.2.0-linux-amd64 -O /usr/local/bin/yb
+$ sudo chmod +x /usr/local/bin/yb
 ```  
 ### Windows 
 Just grap the latest executive file in release page and run it from cmd.  
-See [Releases](https://github.com/uvcloud/uv-cli/releases).
+See [Releases](https://github.com/yottab/cli/releases).
 
 ## Update
-UVCloud cli can be updated in place using the following command:  
+YOTTAb cli can be updated in place using the following command:  
 ```sh
-$ uv update
+$ yb update
 ```  
 # Quickstart
 [![asciicast](https://asciinema.org/a/193296.png)](https://asciinema.org/a/193296)
-See [Documentations](http://docs.uvcloud.ir/quickstart/) for more details.
+See [Documentations](http://docs.yottab.io/quickstart/) for more details.
 
 # Gitlab integration
 Test, build & deploy can be automated using gitlab ci.  
@@ -47,12 +47,12 @@ stages:
   - deploy
 
 variables:
-  LINK: controller.uvcloud.ir:8443
+  LINK: controller.yottab.io:443
   #Configure this variable in Secure Variables:
-  UVCLOUD_USER: <username>
-  # UVCLOUD_PASSWORD:  ----> It's more secure to be setted from settings -> ci/cd -> variables. 
+  YOTTAb_USER: <username>
+  # YOTTAb_PASSWORD:  ----> It's more secure to be setted from settings -> ci/cd -> variables. 
   APP: rec
-  IMAGE: "hub.uvcloud.ir/$UVCLOUD_USER/$APP:$CI_COMMIT_REF_NAME"
+  IMAGE: "hub.yottab.io/$YOTTAb_USER/$APP:$CI_COMMIT_REF_NAME"
 
 # Test stages
 test1:
@@ -70,7 +70,7 @@ test2:
 
 # Build stages
 before_script:
-   - docker login -u "$UVCLOUD_USER" -p "$UVCLOUD_PASSWORD" hub.uvcloud.ir
+   - docker login -u "$YOTTAB_USER" -p "$YOTTAB_PASSWORD" hub.yottab.io
 
 build-master:
 
@@ -82,12 +82,12 @@ build-master:
     - master # use `tags` for build when ever a new tag pushed to the repository
 
 deploy: 
-  image: hub.uvcloud.ir/uvcloud/uv-cli:V2.0.0-rc7
+  image: hub.yottab.io/yottab/cli:V2.0.0-rc7
   stage: deploy
   before_script:
-    - echo $UVCLOUD_PASSWORD | uv-cli login -u $UVCLOUD_USER
-    - uv-cli app:info -n $APP
+    - echo $YOTTAB_PASSWORD | yb login -u $YOTTAB_USER
+    - yb app:info -n $APP
   script:
-    - "uv-cli app:configSet -n $APP  -i $IMAGE"
-    - "uv-cli app:info -n $APP"
+    - "yb app:configSet -n $APP  -i $IMAGE"
+    - "yb app:info -n $APP"
 ```

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	uvApi "github.com/uvcloud/uv-api-go/proto"
+	ybApi "github.com/yottab/proto-api/proto"
 )
 
 var (
@@ -48,9 +48,9 @@ func workerList(cmd *cobra.Command, args []string) {
 }
 
 func workerInfo(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AttachIdentity)
+	req := new(ybApi.AttachIdentity)
 	req.Name = cmd.Flag("name").Value.String()
-	req.Attachment = cmd.Flag("attachment").Value.String()
+	req.Attachment = cmd.Flag("worker").Value.String()
 
 	client := grpcConnect()
 	defer client.Close()
@@ -60,9 +60,9 @@ func workerInfo(cmd *cobra.Command, args []string) {
 }
 
 func workerPortforward(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AttachIdentity)
+	req := new(ybApi.AttachIdentity)
 	req.Name = cmd.Flag("name").Value.String()
-	req.Attachment = cmd.Flag("attachment").Value.String()
+	req.Attachment = cmd.Flag("worker").Value.String()
 
 	client := grpcConnect()
 	defer client.Close()
@@ -72,9 +72,9 @@ func workerPortforward(cmd *cobra.Command, args []string) {
 }
 
 func workerDestroy(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AttachIdentity)
+	req := new(ybApi.AttachIdentity)
 	req.Name = cmd.Flag("name").Value.String()
-	req.Attachment = cmd.Flag("attachment").Value.String()
+	req.Attachment = cmd.Flag("worker").Value.String()
 
 	client := grpcConnect()
 	defer client.Close()
@@ -85,11 +85,11 @@ func workerDestroy(cmd *cobra.Command, args []string) {
 }
 
 func workerCreate(cmd *cobra.Command, args []string) {
-	req := new(uvApi.WorkerReq)
-	req.Identities = new(uvApi.AttachIdentity)
+	req := new(ybApi.WorkerReq)
+	req.Identities = new(ybApi.AttachIdentity)
 	req.Identities.Name = cmd.Flag("name").Value.String()
-	req.Identities.Attachment = cmd.Flag("attachment").Value.String()
-	req.Config = new(uvApi.WorkerConfig)
+	req.Identities.Attachment = cmd.Flag("worker").Value.String()
+	req.Config = new(ybApi.WorkerConfig)
 	req.Config.Port = flagVarPort
 	req.Config.Image = cmd.Flag("image").Value.String()
 
@@ -101,38 +101,38 @@ func workerCreate(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	// app List:
+	// worker List:
 	workerListCmd.Flags().Int32Var(&flagIndex, "index", 0, "page number list")
 	workerListCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
 	workerListCmd.MarkFlagRequired("name")
 
-	// app Info:
+	// worker Info:
 	workerInfoCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
-	workerInfoCmd.Flags().StringP("attachment", "a", "", "name of attachment")
+	workerInfoCmd.Flags().StringP("worker", "w", "", "name of worker")
 	workerInfoCmd.MarkFlagRequired("name")
-	workerInfoCmd.MarkFlagRequired("attachment")
+	workerInfoCmd.MarkFlagRequired("worker")
 
 	// worker portforward:
 	workerPortforwardCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
-	workerPortforwardCmd.Flags().StringP("attachment", "a", "", "name of attachment")
+	workerPortforwardCmd.Flags().StringP("worker", "w", "", "name of worker")
 	workerPortforwardCmd.MarkFlagRequired("name")
-	workerPortforwardCmd.MarkFlagRequired("attachment")
+	workerPortforwardCmd.MarkFlagRequired("worker")
 
 	// worker Create:
 	workerCreateCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
-	workerCreateCmd.Flags().StringP("attachment", "a", "", "name of attachment")
+	workerCreateCmd.Flags().StringP("worker", "w", "", "name of worker")
 	workerCreateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
 	workerCreateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
 	workerCreateCmd.MarkFlagRequired("image")
 	workerCreateCmd.MarkFlagRequired("port")
 	workerCreateCmd.MarkFlagRequired("name")
-	workerCreateCmd.MarkFlagRequired("attachment")
+	workerCreateCmd.MarkFlagRequired("worker")
 
 	// worker Destroy:
 	workerDestroyCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
-	workerDestroyCmd.Flags().StringP("attachment", "a", "", "name of attachment")
+	workerDestroyCmd.Flags().StringP("worker", "w", "", "name of worker")
 	workerDestroyCmd.MarkFlagRequired("name")
-	workerDestroyCmd.MarkFlagRequired("attachment")
+	workerDestroyCmd.MarkFlagRequired("worker")
 
 	rootCmd.AddCommand(
 		workerListCmd,

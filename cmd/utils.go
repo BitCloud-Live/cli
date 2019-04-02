@@ -10,8 +10,8 @@ import (
 	"syscall"
 
 	"github.com/spf13/viper"
-	uvApi "github.com/uvcloud/uv-api-go/proto"
-	"github.com/uvcloud/uv-cli/config"
+	"github.com/yottab/cli/config"
+	ybApi "github.com/yottab/proto-api/proto"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -55,8 +55,8 @@ func readPasswordFromConsole(inputAnswr string) (val string) {
 	return strings.TrimSpace(password)
 }
 
-func grpcConnect() uvApi.Client {
-	return uvApi.Connect(viper.GetString(config.KEY_HOST), uvApi.NewJwtAccess(func() string {
+func grpcConnect() ybApi.Client {
+	return ybApi.Connect(viper.GetString(config.KEY_HOST), ybApi.NewJwtAccess(func() string {
 		return viper.GetString(config.KEY_TOKEN)
 	}))
 }

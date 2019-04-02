@@ -1,4 +1,4 @@
-package uv
+package yb
 
 import (
 	"crypto/tls"
@@ -10,17 +10,17 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-//Client wrapper for UV
+//Client wrapper for YB
 type Client interface {
 	Close()
-	V2() UVClient
+	V2() YBClient
 	Context() context.Context
 }
 type grpcClient struct {
 	Controller string
 	Conn       *grpc.ClientConn
 	Cancel     context.CancelFunc
-	UV         UVClient
+	YB         YBClient
 	Ctx        context.Context
 }
 
@@ -29,8 +29,8 @@ func (client *grpcClient) Close() {
 	client.Cancel()
 }
 
-func (client *grpcClient) V2() UVClient {
-	return client.UV
+func (client *grpcClient) V2() YBClient {
+	return client.YB
 }
 
 func (client *grpcClient) Context() context.Context {
@@ -58,7 +58,7 @@ func Connect(host string, perRPC credentials.PerRPCCredentials) Client {
 	}
 
 	client.Conn = conn
-	client.UV = NewUVClient(client.Conn)
+	client.YB = NewYBClient(client.Conn)
 	client.Ctx, client.Cancel = context.WithTimeout(context.Background(), 10*time.Second)
 	return client
 }

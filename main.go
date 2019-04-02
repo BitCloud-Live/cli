@@ -20,7 +20,7 @@
 package main
 
 import (
-	"github.com/uvcloud/uv-cli/cmd"
+	"github.com/yottab/cli/cmd"
 )
 
 func main() {

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	uvApi "github.com/uvcloud/uv-api-go/proto"
+	ybApi "github.com/yottab/proto-api/proto"
 )
 
 var (
@@ -139,7 +139,7 @@ func srvDestroy(cmd *cobra.Command, args []string) {
 }
 
 func srvCreate(cmd *cobra.Command, args []string) {
-	req := new(uvApi.SrvCreateReq)
+	req := new(ybApi.SrvCreateReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.ProductName = cmd.Flag("product").Value.String()
 	req.Plan = cmd.Flag("plan").Value.String()
@@ -153,7 +153,7 @@ func srvCreate(cmd *cobra.Command, args []string) {
 }
 
 func srvConfigSet(cmd *cobra.Command, args []string) {
-	req := new(uvApi.SrvConfigSetReq)
+	req := new(ybApi.SrvConfigSetReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Variables = arrayFlagToMap(flagVariableArray)
 	client := grpcConnect()
@@ -165,7 +165,7 @@ func srvConfigSet(cmd *cobra.Command, args []string) {
 }
 
 func srvConfigUnset(cmd *cobra.Command, args []string) {
-	req := new(uvApi.UnsetReq)
+	req := new(ybApi.UnsetReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Variables = flagVariableArray
 
@@ -177,7 +177,7 @@ func srvConfigUnset(cmd *cobra.Command, args []string) {
 }
 
 func srvChangePlane(cmd *cobra.Command, args []string) {
-	req := new(uvApi.ChangePlanReq)
+	req := new(ybApi.ChangePlanReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Plan = cmd.Flag("plan").Value.String()
 
@@ -189,8 +189,8 @@ func srvChangePlane(cmd *cobra.Command, args []string) {
 }
 
 func srvAttachDomain(cmd *cobra.Command, args []string) {
-	req := new(uvApi.SrvDomainAttachReq)
-	req.AttachIdentity = new(uvApi.AttachIdentity)
+	req := new(ybApi.SrvDomainAttachReq)
+	req.AttachIdentity = new(ybApi.AttachIdentity)
 	req.AttachIdentity.Name = cmd.Flag("name").Value.String()
 	req.AttachIdentity.Attachment = cmd.Flag("attachment").Value.String()
 	req.Endpoint = cmd.Flag("endpoint").Value.String()
@@ -203,7 +203,7 @@ func srvAttachDomain(cmd *cobra.Command, args []string) {
 }
 
 func srvDetachDomain(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AttachIdentity)
+	req := new(ybApi.AttachIdentity)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Attachment = cmd.Flag("attachment").Value.String()
 

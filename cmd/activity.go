@@ -4,7 +4,7 @@ import (
 	"sort"
 
 	"github.com/spf13/cobra"
-	uvApi "github.com/uvcloud/uv-api-go/proto"
+	ybApi "github.com/yottab/proto-api/proto"
 )
 
 var (
@@ -25,9 +25,9 @@ var (
 )
 
 func actList(cmd *cobra.Command, args []string) {
-	req := &uvApi.ActivityReq{}
+	req := &ybApi.ActivityReq{}
 	req.Name = cmd.Flag("name").Value.String()
-	req.Tag = uvApi.ActivityTag(flagTag)
+	req.Tag = ybApi.ActivityTag(flagTag)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().ActivityList(client.Context(), req)
@@ -36,14 +36,14 @@ func actList(cmd *cobra.Command, args []string) {
 }
 
 func actTags(cmd *cobra.Command, args []string) {
-	// To store the keys in uvApi.ActivityTag_name in sorted order
+	// To store the keys in ybApi.ActivityTag_name in sorted order
 	var keys []int
-	for k := range uvApi.ActivityTag_name {
+	for k := range ybApi.ActivityTag_name {
 		keys = append(keys, int(k))
 	}
 	sort.Ints(keys)
 	for _, k := range keys {
-		log.Printf("%d: %s", k, uvApi.ActivityTag_name[int32(k)])
+		log.Printf("%d: %s", k, ybApi.ActivityTag_name[int32(k)])
 	}
 
 }

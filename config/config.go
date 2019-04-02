@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	DEFAULTE_CONTOROLLER = "controller.uvcloud.ir:8443"
-	KEY_USER             = "uv-user"
+	DEFAULTE_CONTOROLLER = "controller.yottab.io:443"
+	KEY_USER             = "yb-user"
 	KEY_TOKEN            = "token"
 	KEY_HOST             = "host"
-	APP_NAME             = "uv"
+	APP_NAME             = "yb"
 	CONFIG_NAME          = "config.json"
 )
 
@@ -25,7 +25,7 @@ var (
 	ConfigManualAddress = ""
 
 	// Find home directory for definition of archive folder
-	// configPath == $HOME/.uv/
+	// configPath == $HOME/.yb/
 	configPath = filepath.Join(getHome(), "."+APP_NAME)
 )
 
@@ -79,7 +79,7 @@ func ensureConfigFile(filename string) {
 
 //UpdateVarByConfigFile read config file into viper
 func UpdateVarByConfigFile() {
-	// read config either from Flag --config or Path "$HOME/.uv/config.json"
+	// read config either from Flag --config or Path "$HOME/.yb/config.json"
 	var filename string
 	if ConfigManualAddress != "" {
 		// Use config file from the flag.

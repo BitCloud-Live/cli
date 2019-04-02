@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	uvApi "github.com/uvcloud/uv-api-go/proto"
+	ybApi "github.com/yottab/proto-api/proto"
 )
 
 var (
@@ -81,9 +81,9 @@ func volumeInfo(cmd *cobra.Command, args []string) {
 }
 
 func volumeCreate(cmd *cobra.Command, args []string) {
-	req := new(uvApi.VolumeCreateReq)
+	req := new(ybApi.VolumeCreateReq)
 	req.Name = cmd.Flag("name").Value.String()
-	req.Spec = cmd.Flag("spec").Value.String()
+	req.Spec = cmd.Flag("volume-type").Value.String()
 
 	client := grpcConnect()
 	defer client.Close()
@@ -121,9 +121,9 @@ func init() {
 
 	// volume create:
 	volumeCreateCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the volume.")
-	volumeCreateCmd.Flags().StringP("spec", "s", "", "the name of volume's spac.")
+	volumeCreateCmd.Flags().StringP("volume-type", "v", "", "the type of volume")
 	volumeCreateCmd.MarkFlagRequired("name")
-	volumeCreateCmd.MarkFlagRequired("spec")
+	volumeCreateCmd.MarkFlagRequired("volume-type")
 
 	// volume delete:
 	volumeDeleteCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the volume.")

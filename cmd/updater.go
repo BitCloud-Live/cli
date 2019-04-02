@@ -18,12 +18,12 @@ var (
 	updateCmd = &cobra.Command{
 		Use:   "update",
 		Short: "Self update cli to latest stable release",
-		Long:  `Self update cli to latest stable release from github release page of uvcloud cli`,
+		Long:  `Self update cli to latest stable release from github release page of YOTTAb cli`,
 		Run:   confirmAndSelfUpdate}
 )
 
 func confirmAndSelfUpdate(cmd *cobra.Command, args []string) {
-	latest, found, err := selfupdate.DetectLatest("uvcloud/uv-cli")
+	latest, found, err := selfupdate.DetectLatest("yottab/cli")
 	if err != nil {
 		log.Println("Error occurred while detecting version:", err)
 		return

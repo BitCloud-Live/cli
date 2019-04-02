@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/spf13/cobra"
-	uvApi "github.com/uvcloud/uv-api-go/proto"
+	ybApi "github.com/yottab/proto-api/proto"
 )
 
 var (
@@ -63,7 +63,7 @@ var (
 		Use:   "app:env-set",
 		Short: "sets environment variables for an application",
 		Long: `Sets environment variables for an application.
-		Usage: uv app:env-set <var>=<value> [<var>=<value>...] [options]
+		Usage: yb app:env-set <var>=<value> [<var>=<value>...] [options]
 
 		Arguments:
 		  <var>
@@ -226,10 +226,10 @@ func appCreate(cmd *cobra.Command, args []string) {
 	if err := endpointTypeValid(flagVarEndpointType); err != nil {
 		log.Panic(err)
 	}
-	req := new(uvApi.AppCreateReq)
+	req := new(ybApi.AppCreateReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Plan = cmd.Flag("plan").Value.String()
-	req.Config = new(uvApi.AppConfig)
+	req.Config = new(ybApi.AppConfig)
 	req.Config.Port = flagVarPort
 	req.Config.EndpointType = flagVarEndpointType
 	req.Config.MinScale = flagVarMinScale
@@ -243,7 +243,7 @@ func appCreate(cmd *cobra.Command, args []string) {
 }
 
 func appChangePlane(cmd *cobra.Command, args []string) {
-	req := new(uvApi.ChangePlanReq)
+	req := new(ybApi.ChangePlanReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Plan = cmd.Flag("plan").Value.String()
 
@@ -255,9 +255,9 @@ func appChangePlane(cmd *cobra.Command, args []string) {
 }
 
 func appConfigSet(cmd *cobra.Command, args []string) {
-	req := new(uvApi.ConfigSetReq)
+	req := new(ybApi.ConfigSetReq)
 	req.Name = cmd.Flag("name").Value.String()
-	req.Config = new(uvApi.AppConfig)
+	req.Config = new(ybApi.AppConfig)
 	req.Config.MinScale = flagVarMinScale
 	req.Config.Port = flagVarPort
 	req.Config.Image = flagVarImage
@@ -270,7 +270,7 @@ func appConfigSet(cmd *cobra.Command, args []string) {
 }
 
 func appConfigUnset(cmd *cobra.Command, args []string) {
-	req := new(uvApi.UnsetReq)
+	req := new(ybApi.UnsetReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Variables = flagVariableArray
 
@@ -282,7 +282,7 @@ func appConfigUnset(cmd *cobra.Command, args []string) {
 }
 
 func appAddEnvironmentVariable(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AppAddEnvironmentVariableReq)
+	req := new(ybApi.AppAddEnvironmentVariableReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Variables = arrayFlagToMap(flagVariableArray)
 
@@ -294,7 +294,7 @@ func appAddEnvironmentVariable(cmd *cobra.Command, args []string) {
 }
 
 func appRemoveEnvironmentVariable(cmd *cobra.Command, args []string) {
-	req := new(uvApi.UnsetReq)
+	req := new(ybApi.UnsetReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Variables = flagVariableArray
 
@@ -315,7 +315,7 @@ func appReset(cmd *cobra.Command, args []string) {
 }
 
 func appSrvBind(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AppSrvBindReq)
+	req := new(ybApi.AppSrvBindReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Service = cmd.Flag("service").Value.String()
 	client := grpcConnect()
@@ -326,7 +326,7 @@ func appSrvBind(cmd *cobra.Command, args []string) {
 }
 
 func appSrvUnBind(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AppSrvBindReq)
+	req := new(ybApi.AppSrvBindReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Service = cmd.Flag("service").Value.String()
 	client := grpcConnect()
@@ -337,7 +337,7 @@ func appSrvUnBind(cmd *cobra.Command, args []string) {
 }
 
 func appAttachVolume(cmd *cobra.Command, args []string) {
-	req := new(uvApi.VolumeAttachReq)
+	req := new(ybApi.VolumeAttachReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Attachment = cmd.Flag("attachment").Value.String()
 	req.MountPath = cmd.Flag("mount-path").Value.String()
@@ -351,7 +351,7 @@ func appAttachVolume(cmd *cobra.Command, args []string) {
 }
 
 func appDetachVolume(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AttachIdentity)
+	req := new(ybApi.AttachIdentity)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Attachment = cmd.Flag("attachment").Value.String()
 
@@ -363,7 +363,7 @@ func appDetachVolume(cmd *cobra.Command, args []string) {
 }
 
 func appAttachDomain(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AttachIdentity)
+	req := new(ybApi.AttachIdentity)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Attachment = cmd.Flag("attachment").Value.String()
 
@@ -375,7 +375,7 @@ func appAttachDomain(cmd *cobra.Command, args []string) {
 }
 
 func appDetachDomain(cmd *cobra.Command, args []string) {
-	req := new(uvApi.AttachIdentity)
+	req := new(ybApi.AttachIdentity)
 	req.Name = cmd.Flag("name").Value.String()
 	req.Attachment = cmd.Flag("attachment").Value.String()
 

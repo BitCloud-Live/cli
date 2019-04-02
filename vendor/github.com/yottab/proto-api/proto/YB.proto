@@ -1,7 +1,7 @@
 syntax = "proto3";
-package uv;
+package yb;
 
-service UV {
+service YB {
     // Authentication
     rpc Login (LoginReq) returns (AuthenticationRes) { }
     rpc Logout (Empty) returns (Empty) { }

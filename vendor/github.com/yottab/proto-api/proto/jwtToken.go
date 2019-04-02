@@ -1,11 +1,11 @@
-package uv
+package yb
 
 import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/credentials"
 )
 
-const KEY_TOKEN = "x-uv-token"
+const KEY_TOKEN = "x-yb-token"
 
 // oauthAccess supplies PerRPCCredentials from a given token.
 type jwtToken struct {

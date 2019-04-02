@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/Sirupsen/logrus"
-	uvApi "github.com/uvcloud/uv-api-go/proto"
+	ybApi "github.com/yottab/proto-api/proto"
 
 	"google.golang.org/grpc/status"
 	"k8s.io/client-go/rest"
@@ -57,11 +57,11 @@ func uiList(list interface{}) {
 }
 
 //FIXME:
-func uiImageInfo(res *uvApi.ImgStatusRes) {
+func uiImageInfo(res *ybApi.ImgStatusRes) {
 	log.Printf("%v", res)
 }
 
-func uiServicStatus(srv *uvApi.SrvStatusRes) {
+func uiServicStatus(srv *ybApi.SrvStatusRes) {
 	log.Printf("Service Name: %s ", srv.Name)
 	log.Printf("Plan Name: %s ", srv.Plan)
 	log.Printf("State: %v ", srv.State.String())
@@ -71,7 +71,7 @@ func uiServicStatus(srv *uvApi.SrvStatusRes) {
 	uiAttachedDomains(srv.Domains)
 }
 
-func uiNFSMount(in *uvApi.PortforwardRes) {
+func uiNFSMount(in *ybApi.PortforwardRes) {
 	log.Printf("NFS portforwarding is READY!")
 	log.Printf("NFSv4 now is available at host 127.0.0.1, port 2049")
 	log.Printf(`How to mount:
@@ -90,7 +90,7 @@ func uiNFSMount(in *uvApi.PortforwardRes) {
 
 }
 
-func uiPortforward(in *uvApi.PortforwardRes) {
+func uiPortforward(in *ybApi.PortforwardRes) {
 	bearer := string(in.Token)
 	proxyURL, _ := url.Parse(in.ProxyHost)
 	conf := &rest.Config{
@@ -132,7 +132,7 @@ func uiPortforward(in *uvApi.PortforwardRes) {
 	}
 }
 
-func uiPlan(plan []*uvApi.Plan) {
+func uiPlan(plan []*ybApi.Plan) {
 	log.Println("Plan:")
 	for i, p := range plan {
 		log.Printf("%d. ", i)
@@ -153,7 +153,7 @@ func uiMap(mapVar map[string]string, name string) {
 	}
 }
 
-func uiProduct(prd *uvApi.ProductRes) {
+func uiProduct(prd *ybApi.ProductRes) {
 	log.Printf("Product Name: %s ", prd.Name)
 	log.Printf("Description: %s ", prd.Description)
 	uiPlan(prd.Plan)
@@ -166,18 +166,18 @@ func uiProduct(prd *uvApi.ProductRes) {
 	}
 }
 
-func uiSettingByDetail(set *uvApi.SettingRes) {
+func uiSettingByDetail(set *ybApi.SettingRes) {
 	log.Printf("Setting Name: %s ", set.Name)
 	log.Printf("Application: %s Path: %s", set.App, set.Path)
 	log.Print("value: ")
 	log.Print(set.File)
 }
 
-func uiSetting(set *uvApi.SettingRes) {
+func uiSetting(set *ybApi.SettingRes) {
 	log.Println(set.File)
 }
 
-func uiApplicationStatus(app *uvApi.AppStatusRes) {
+func uiApplicationStatus(app *ybApi.AppStatusRes) {
 	log.Printf("Service Name: %s ", app.Name)
 	log.Printf("State: %v ", app.State)
 	log.Printf("Config: %v ", app.Config)
@@ -188,14 +188,14 @@ func uiApplicationStatus(app *uvApi.AppStatusRes) {
 	// uiAttachedDomains(app.Domains)
 }
 
-func uiWorkerStatus(worker *uvApi.WorkerRes) {
+func uiWorkerStatus(worker *ybApi.WorkerRes) {
 	log.Printf("Service Name: %s ", worker.Name)
 	log.Printf("State: %v ", worker.State)
 	log.Printf("Config: %v ", worker.Config)
 	log.Printf("Created: %v,\t Updated: %v ", worker.Created, worker.Updated)
 }
 
-func uiAttachedDomains(domains []*uvApi.AttachedDomainInfo) {
+func uiAttachedDomains(domains []*ybApi.AttachedDomainInfo) {
 	if len(domains) == 0 {
 		log.Println("Attached domains: None")
 		return
@@ -207,7 +207,7 @@ func uiAttachedDomains(domains []*uvApi.AttachedDomainInfo) {
 	}
 }
 
-func uiApplicationLog(client uvApi.UV_AppLogClient) {
+func uiApplicationLog(client ybApi.YB_AppLogClient) {
 	var byteRecieved = 0
 	for {
 		c, err := client.Recv()
@@ -223,20 +223,20 @@ func uiApplicationLog(client uvApi.UV_AppLogClient) {
 	}
 }
 
-func uiDomainStatus(dom *uvApi.DomainStatusRes) {
+func uiDomainStatus(dom *ybApi.DomainStatusRes) {
 	log.Printf("Domain Name: %s ", dom.Domain)
 	log.Printf("Created: %v ,Update: %v", dom.Created, dom.Updated)
 	log.Printf("AttachedTo: %s ", dom.AttachedTo)
 	log.Printf("TLS: %s ", dom.Tls)
 }
 
-func uiVolumeSpec(vol *uvApi.VolumeSpec) {
+func uiVolumeSpec(vol *ybApi.VolumeSpec) {
 	log.Printf("Volume Spec Name: %s ", vol.Name)
 	log.Printf("\t Spec Class: %s ", vol.Class)
 	log.Printf("\t Spec Size: %v ", vol.Size)
 }
 
-func uiVolumeStatus(vol *uvApi.VolumeStatusRes) {
+func uiVolumeStatus(vol *ybApi.VolumeStatusRes) {
 	log.Printf("Volume Name: %s ", vol.Name)
 	log.Printf("Created: %v ,Update: %v", vol.Created, vol.Updated)
 	log.Printf("AttachedTo: %s ", vol.AttachedTo)

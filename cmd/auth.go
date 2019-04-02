@@ -3,8 +3,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	uvApi "github.com/uvcloud/uv-api-go/proto"
-	"github.com/uvcloud/uv-cli/config"
+	ybApi "github.com/yottab/proto-api/proto"
+	"github.com/yottab/cli/config"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 
 	logoutCmd = &cobra.Command{
 		Use:   "logout",
-		Short: "logout from the uvCloud",
+		Short: "logout from the YOTTAb",
 		Long:  `This subcommand logs out from a controller and clears the user session.`,
 		Run:   logout}
 )
@@ -30,7 +30,7 @@ func login(cmd *cobra.Command, args []string) {
 	password := readPasswordFromConsole("Password: ")
 	client := grpcConnect()
 	defer client.Close()
-	req := &uvApi.LoginReq{Email: email, Password: password}
+	req := &ybApi.LoginReq{Email: email, Password: password}
 	res, err := client.V2().Login(client.Context(), req)
 	if err != nil {
 		log.Fatalf("Could not Login: %v", err)
@@ -46,7 +46,7 @@ func login(cmd *cobra.Command, args []string) {
 }
 
 func logout(cmd *cobra.Command, args []string) {
-	req := &uvApi.Empty{}
+	req := &ybApi.Empty{}
 	client := grpcConnect()
 	defer client.Close()
 	_, err := client.V2().Logout(client.Context(), req)

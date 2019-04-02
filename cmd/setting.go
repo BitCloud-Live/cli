@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	uvApi "github.com/uvcloud/uv-api-go/proto"
+	ybApi "github.com/yottab/proto-api/proto"
 )
 
 var (
@@ -48,7 +48,7 @@ func setList(cmd *cobra.Command, args []string) {
 }
 
 func setInfo(cmd *cobra.Command, args []string) {
-	req := new(uvApi.SettingInfoReq)
+	req := new(ybApi.SettingInfoReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.App = cmd.Flag("application").Value.String()
 
@@ -62,7 +62,7 @@ func setInfo(cmd *cobra.Command, args []string) {
 func setAdd(cmd *cobra.Command, args []string) {
 	var (
 		err error
-		req = new(uvApi.SettingReq)
+		req = new(ybApi.SettingReq)
 	)
 	req.Name = cmd.Flag("name").Value.String()
 	req.App = cmd.Flag("application").Value.String()
@@ -81,7 +81,7 @@ func setAdd(cmd *cobra.Command, args []string) {
 func setUpdate(cmd *cobra.Command, args []string) {
 	var (
 		err error
-		req = new(uvApi.SettingReq)
+		req = new(ybApi.SettingReq)
 	)
 	req.Name = cmd.Flag("name").Value.String()
 	req.App = cmd.Flag("application").Value.String()
@@ -99,7 +99,7 @@ func setUpdate(cmd *cobra.Command, args []string) {
 }
 
 func setDelete(cmd *cobra.Command, args []string) {
-	req := new(uvApi.SettingInfoReq)
+	req := new(ybApi.SettingInfoReq)
 	req.Name = cmd.Flag("name").Value.String()
 	req.App = cmd.Flag("application").Value.String()
 

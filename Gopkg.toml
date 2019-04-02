@@ -42,8 +42,8 @@
   version = "1.1.0"
 
 [[constraint]]
-  name = "github.com/uvcloud/uv-api-go"
-  version = "2.1.0"
+  name = "github.com/yottab/proto-api"
+  version = "2.2.0"
 
 [[constraint]]
   branch = "master"

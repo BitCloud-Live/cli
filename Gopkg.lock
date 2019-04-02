@@ -295,12 +295,12 @@
   version = "v0.5.6"
 
 [[projects]]
-  digest = "1:fbb53414b934b41a3b65238b4deadd73f59bc4d3f97cba1965ec7f1b3fe9ad3b"
-  name = "github.com/uvcloud/uv-api-go"
+  digest = "1:56f0f4357be97a95ca544bf8de083ba0966b1938a1cf8505dc9e589e93888bff"
+  name = "github.com/yottab/proto-api"
   packages = ["proto"]
   pruneopts = "UT"
-  revision = "91dbda2fc2bda47965cc708d0ebabb9dcd3084f1"
-  version = "v2.1.0"
+  revision = "7d2ab2a7d9a015b1e03dd7c1deb47562dac6ee3e"
+  version = "v2.2.0"
 
 [[projects]]
   branch = "master"
@@ -542,7 +542,7 @@
     "github.com/rhysd/go-github-selfupdate/selfupdate",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
-    "github.com/uvcloud/uv-api-go/proto",
+    "github.com/yottab/proto-api/proto",
     "golang.org/x/crypto/ssh/terminal",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/status",
