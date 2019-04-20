@@ -80,7 +80,7 @@ func workerDestroy(cmd *cobra.Command, args []string) {
 	defer client.Close()
 	res, err := client.V2().AppRemoveWorker(client.Context(), req)
 	uiCheckErr("Could not Destroy the Application: %v", err)
-	log.Printf("app %s deleted", req.Name)
+	log.Printf("worker %s deleted", req.Attachment)
 	uiList(res)
 }
 
