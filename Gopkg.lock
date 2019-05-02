@@ -215,6 +215,14 @@
   version = "V2.2.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:635ac9478e783f09b2945663e359ebf74bc225b37f9845795d1b247285b458a2"
+  name = "github.com/pkg/browser"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0a3d74bf9ce488f035cf5bc36f753a711bc74334"
+
+[[projects]]
   digest = "1:01bb0a58b86f4f816be2bcf0ae68dffd042b2d1c356b97b14dc1cd12a53fc731"
   name = "github.com/rhysd/go-github-selfupdate"
   packages = ["selfupdate"]
@@ -539,6 +547,7 @@
     "github.com/blang/semver",
     "github.com/mattn/go-colorable",
     "github.com/mitchellh/go-homedir",
+    "github.com/pkg/browser",
     "github.com/rhysd/go-github-selfupdate/selfupdate",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",

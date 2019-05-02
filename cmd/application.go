@@ -28,6 +28,12 @@ var (
 		Long:  `This subcommand prints info about the current application`,
 		Run:   appInfo}
 
+	appOpenCmd = &cobra.Command{
+		Use:   "app:open",
+		Short: "Open an application in the default browser",
+		Long:  `This subcommand will open an application in the default browser in every os.`,
+		Run:   appOpen}
+
 	appLogCmd = &cobra.Command{
 		Use:   "app:log",
 		Short: "tail application log",
@@ -171,6 +177,15 @@ func appInfo(cmd *cobra.Command, args []string) {
 	res, err := client.V2().AppInfo(client.Context(), req)
 	uiCheckErr("Could not Get Application: %v", err)
 	uiApplicationStatus(res)
+}
+
+func appOpen(cmd *cobra.Command, args []string) {
+	req := reqIdentity(cmd)
+	client := grpcConnect()
+	defer client.Close()
+	res, err := client.V2().AppInfo(client.Context(), req)
+	uiCheckErr("Could not Get Application: %v", err)
+	uiApplicationOpen(res)
 }
 
 func appLog(cmd *cobra.Command, args []string) {
@@ -394,6 +409,10 @@ func init() {
 	appInfoCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
 	appInfoCmd.MarkFlagRequired("name")
 
+	// app Open:
+	appOpenCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
+	appOpenCmd.MarkFlagRequired("name")
+
 	// app log:
 	appLogCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
 	appLogCmd.MarkFlagRequired("name")
@@ -499,6 +518,7 @@ func init() {
 	rootCmd.AddCommand(
 		appListCmd,
 		appInfoCmd,
+		appOpenCmd,
 		appLogCmd,
 		appNFSMountCmd,
 		appCreateCmd,
