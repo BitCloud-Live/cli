@@ -62,8 +62,8 @@ func grpcConnect() ybApi.Client {
 	}))
 }
 
-func toTime(t *ybApi.Timestamp) time.Time {
-	return time.Unix(t.Seconds, 0)
+func toTime(t *ybApi.Timestamp) string {
+	return time.Unix(t.Seconds, 0).Format(time.RFC3339)
 }
 
 func endpointTypeValid(etype string) error {
