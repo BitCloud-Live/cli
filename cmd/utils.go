@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/spf13/viper"
 	"github.com/yottab/cli/config"
@@ -59,6 +60,10 @@ func grpcConnect() ybApi.Client {
 	return ybApi.Connect(viper.GetString(config.KEY_HOST), ybApi.NewJwtAccess(func() string {
 		return viper.GetString(config.KEY_TOKEN)
 	}))
+}
+
+func toTime(t *ybApi.Timestamp) string {
+	return time.Unix(t.Seconds, 0).Format(time.RFC3339)
 }
 
 func endpointTypeValid(etype string) error {

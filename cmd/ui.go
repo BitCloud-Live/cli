@@ -8,10 +8,12 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 
 	"google.golang.org/grpc/codes"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/pkg/browser"
 	ybApi "github.com/yottab/proto-api/proto"
 
 	"google.golang.org/grpc/status"
@@ -41,31 +43,110 @@ func uiStringArray(title string, arr []string) {
 		log.Printf("%s: None", title)
 		return
 	}
-	log.Printf("%s:", title)
-	for _, stri := range arr {
-		log.Printf("\t %s", stri)
+	log.Printf("%s: [%s]", title, strings.Join(arr, ","))
+
+}
+
+func uiList(list interface{}) {
+	switch list.(type) {
+	case *ybApi.ActivityListRes:
+		itemList := list.(*ybApi.ActivityListRes)
+		log.Printf("Count: %d\t", len(itemList.Activities))
+		for _, v := range itemList.Activities {
+			log.Printf("- Name: %s", v.Name)
+			log.Printf("  Description: %s", v.Description)
+			log.Printf("  Attachment: %s", v.Attachment)
+			log.Printf("  Tag: %s", v.Tag.String())
+			log.Printf("  Type: %s", v.Type)
+			log.Printf("  Email: %s", v.Email)
+			log.Printf("  Updated: %v ", toTime(v.Time))
+		}
+		return
+	case *ybApi.SrvListRes:
+		itemList := list.(*ybApi.SrvListRes)
+		log.Printf("Count: %d\t", len(itemList.Services))
+		for _, v := range itemList.Services {
+			log.Printf("- Name: %s", v.Name)
+			log.Printf("  State: %s", v.State.String())
+			log.Printf("  Service refrence: %s", v.ServiceRefrence)
+			log.Printf("  Updated: %v ", toTime(v.Updated))
+		}
+		return
+	case *ybApi.PrdListRes:
+		itemList := list.(*ybApi.PrdListRes)
+		log.Printf("Count: %d\t", len(itemList.Rows))
+		for _, v := range itemList.Rows {
+			log.Printf("- Name: %s", v.Name)
+			log.Printf("  Description: %s", v.Description)
+		}
+		return
+	case *ybApi.ImgListRes:
+		itemList := list.(*ybApi.ImgListRes)
+		log.Printf("Count: %d\t", len(itemList.Imgs))
+		for _, v := range itemList.Imgs {
+			log.Printf("- Name: %s", v.Name)
+			//TODO: Currently no tags will be recieved from the server
+			// log.Printf("  Tags: [%s]", strings.Join(v.Tags, ","))
+			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
+		}
+		return
+	case *ybApi.VolumeSpecListRes:
+		itemList := list.(*ybApi.VolumeSpecListRes)
+		log.Printf("Count: %d\t", len(itemList.VolumeSpecs))
+		for _, v := range itemList.VolumeSpecs {
+			log.Printf("- Name: %s", v.Name)
+			log.Printf("  Class: %s", v.Class)
+			log.Printf("  Size: %s", v.Size)
+		}
+		return
+	case *ybApi.VolumeListRes:
+		itemList := list.(*ybApi.VolumeListRes)
+		log.Printf("Count: %d\t", len(itemList.Volumes))
+		for _, v := range itemList.Volumes {
+			log.Printf("- Name: %s", v.Name)
+			log.Printf("  Spec: %s", v.Spec.Name)
+			log.Printf("  AttachedTo: %s", v.AttachedTo)
+			log.Printf("  MountPath: %s", v.MountPath)
+			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
+		}
+		return
+	case *ybApi.DomainListRes:
+		itemList := list.(*ybApi.DomainListRes)
+		log.Printf("Count: %d\t", len(itemList.Domains))
+		for _, v := range itemList.Domains {
+			log.Printf("- Name: %s", v.Name)
+			log.Printf("  Spec: %s", v.Domain)
+			log.Printf("  TLS: %s", v.Tls)
+			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
+		}
+		return
+	case *ybApi.WorkerListRes:
+		itemList := list.(*ybApi.WorkerListRes)
+		log.Printf("Count: %d\t", len(itemList.Services))
+		for _, v := range itemList.Services {
+			log.Printf("- Name: %s", v.Name)
+			log.Printf("  State: %s", v.State.String())
+			log.Printf("  Image: %s", v.Config.Image)
+			log.Printf("  Port: %d", v.Config.Port)
+			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
+		}
+		return
+	default:
+		return
 	}
 }
 
-//FIXME:
-func uiList(list interface{}) {
-	log.Printf("%v", list)
-	// log.Printf("Count: %d,\t Next: %d,\t  Previous:%d ", list.Count, list.Next, list.Previous)
-	// for i, v := range list.Names {
-	// 	log.Printf("%d. %s", i, v)
-	// }
-}
-
-//FIXME:
 func uiImageInfo(res *ybApi.ImgStatusRes) {
-	log.Printf("%v", res)
+	log.Printf("Name: %s", res.Name)
+	log.Printf("Tags: %s", strings.Join(res.Tags, ","))
+	log.Printf("Created: %v , Updated: %v ", toTime(res.Created), toTime(res.Updated))
 }
 
 func uiServicStatus(srv *ybApi.SrvStatusRes) {
 	log.Printf("Service Name: %s ", srv.Name)
 	log.Printf("Plan Name: %s ", srv.Plan)
 	log.Printf("State: %v ", srv.State.String())
-	log.Printf("Created: %v,\t Updated: %v ", srv.Created, srv.Updated)
+	log.Printf("Created: %v , Updated: %v ", toTime(srv.Created), toTime(srv.Updated))
 	uiMap(srv.Variable, "Variable")
 	uiStringArray("List of endpoints", srv.Endpoints)
 	uiAttachedDomains(srv.Domains)
@@ -134,12 +215,9 @@ func uiPortforward(in *ybApi.PortforwardRes) {
 
 func uiPlan(plan []*ybApi.Plan) {
 	log.Println("Plan:")
-	for i, p := range plan {
-		log.Printf("%d. ", i)
-		log.Printf("\t name: %s ", p.Name)
-		//Deprecated
-		// log.Printf("\t price: %v, off: %v ", p.Price, p.Off)
-		log.Printf("\t Description: %v ", p.Description)
+	for _, p := range plan {
+		log.Printf("- Name: %s ", p.Name)
+		log.Printf("  Description: %v ", p.Description)
 	}
 }
 func uiMap(mapVar map[string]string, name string) {
@@ -159,17 +237,17 @@ func uiProduct(prd *ybApi.ProductRes) {
 	uiPlan(prd.Plan)
 	log.Print("Variables")
 	for _, vari := range prd.Variables {
-		log.Printf("\tName: %s", vari.Name)
-		log.Printf("\t\ttype: %s, default: %s", vari.Type, vari.DefaultValue)
-		log.Printf("\t\tDescription: %s", vari.Description)
-		log.Printf("\t\tIs required: %v", vari.IsRequired)
+		log.Printf("- Name: %s", vari.Name)
+		log.Printf("  Type: %s, default: %s", vari.Type, vari.DefaultValue)
+		log.Printf("  Description: %s", vari.Description)
+		log.Printf("  Is required: %v", vari.IsRequired)
 	}
 }
 
 func uiSettingByDetail(set *ybApi.SettingRes) {
 	log.Printf("Setting Name: %s ", set.Name)
 	log.Printf("Application: %s Path: %s", set.App, set.Path)
-	log.Print("value: ")
+	log.Print("Value: ")
 	log.Print(set.File)
 }
 
@@ -177,11 +255,50 @@ func uiSetting(set *ybApi.SettingRes) {
 	log.Println(set.File)
 }
 
+func uiApplicationOpen(app *ybApi.AppStatusRes) {
+	if len(app.Config.Routes) == 0 {
+		print("No endpoint provided by the app!")
+	}
+	//We only recieve one route at this moment!
+	route := app.Config.Routes[0]
+	switch app.Config.EndpointType {
+	//We only handle http endpoint at this moment!
+	case "http":
+		route = fmt.Sprintf("https://%s:443", route)
+		if err := browser.OpenURL("https://" + route); err != nil {
+			fmt.Printf("Can't open this endpoint, error: %v!", err)
+		}
+		print("Opened in default browser!")
+		return
+	default:
+		print("Can't open this type of endpoints right now!")
+		return
+	}
+
+}
 func uiApplicationStatus(app *ybApi.AppStatusRes) {
 	log.Printf("Service Name: %s ", app.Name)
 	log.Printf("State: %v ", app.State)
-	log.Printf("Config: %v ", app.Config)
-	log.Printf("Created: %v,\t Updated: %v ", app.Created, app.Updated)
+	log.Printf("Image: %v", app.Config.Image)
+	log.Printf("Internal-port: %v ", app.Config.Port)
+	log.Printf("Minimum-scale: %v", app.Config.MinScale)
+
+	//Print routes
+	log.Printf("Endpoints(Public URLs):")
+	for idx, route := range app.Config.Routes {
+		switch app.Config.EndpointType {
+		case "http":
+			route = fmt.Sprintf("https://%s:443", route)
+			break
+		case "grpc":
+			route = fmt.Sprintf("dns://%s:443", route)
+			break
+		default:
+			break
+		}
+		log.Printf("\t%d. %v -> (%v endpoint type)", idx+1, route, app.Config.EndpointType)
+	}
+	log.Printf("Created: %v , Updated: %v ", toTime(app.Created), toTime(app.Updated))
 	log.Printf("VCAP_SERVICES: ")
 	log.Print(jsonPrettyPrint(app.VcapServices))
 	uiMap(app.EnvironmentVariables, "Environment variables")
@@ -192,7 +309,7 @@ func uiWorkerStatus(worker *ybApi.WorkerRes) {
 	log.Printf("Service Name: %s ", worker.Name)
 	log.Printf("State: %v ", worker.State)
 	log.Printf("Config: %v ", worker.Config)
-	log.Printf("Created: %v,\t Updated: %v ", worker.Created, worker.Updated)
+	log.Printf("Created: %v , Updated: %v ", toTime(worker.Created), toTime(worker.Updated))
 }
 
 func uiAttachedDomains(domains []*ybApi.AttachedDomainInfo) {
@@ -225,20 +342,20 @@ func uiApplicationLog(client ybApi.YB_AppLogClient) {
 
 func uiDomainStatus(dom *ybApi.DomainStatusRes) {
 	log.Printf("Domain Name: %s ", dom.Domain)
-	log.Printf("Created: %v ,Update: %v", dom.Created, dom.Updated)
+	log.Printf("Created: %v , Update: %v", toTime(dom.Created), toTime(dom.Updated))
 	log.Printf("AttachedTo: %s ", dom.AttachedTo)
 	log.Printf("TLS: %s ", dom.Tls)
 }
 
 func uiVolumeSpec(vol *ybApi.VolumeSpec) {
 	log.Printf("Volume Spec Name: %s ", vol.Name)
-	log.Printf("\t Spec Class: %s ", vol.Class)
-	log.Printf("\t Spec Size: %v ", vol.Size)
+	log.Printf("Spec Class: %s ", vol.Class)
+	log.Printf("Spec Size: %v ", vol.Size)
 }
 
 func uiVolumeStatus(vol *ybApi.VolumeStatusRes) {
 	log.Printf("Volume Name: %s ", vol.Name)
-	log.Printf("Created: %v ,Update: %v", vol.Created, vol.Updated)
+	log.Printf("Created: %v , Update: %v", toTime(vol.Created), toTime(vol.Updated))
 	log.Printf("AttachedTo: %s ", vol.AttachedTo)
 	uiVolumeSpec(vol.Spec)
 }
