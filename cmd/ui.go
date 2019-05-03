@@ -20,6 +20,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/portforward"
 	"k8s.io/client-go/transport/spdy"
+
 	//For windows support
 	"github.com/mattn/go-colorable"
 )
@@ -30,6 +31,7 @@ func init() {
 	//Configure logging formatter
 	customFormatter := new(logrus.TextFormatter)
 	customFormatter.ForceColors = true
+	customFormatter.DisableTimestamp = false
 	customFormatter.FullTimestamp = false
 	customFormatter.DisableColors = false
 	log.Formatter = customFormatter
@@ -233,9 +235,17 @@ func uiMap(mapVar map[string]string, name string) {
 
 func uiProduct(prd *ybApi.ProductRes) {
 	log.Printf("Product Name: %s ", prd.Name)
-	log.Printf("Description: %s ", prd.Description)
+	descLines := strings.Split(strings.Replace(prd.Description, "\r\n", "\n", -1), "\n")
+	log.Print("Description: ")
+	for _, line := range descLines {
+		log.Print(line)
+	}
 	uiPlan(prd.Plan)
-	log.Print("Variables")
+	if len(prd.Variables) == 0 {
+		log.Print("Variables: []")
+		return
+	}
+	log.Print("Variables:")
 	for _, vari := range prd.Variables {
 		log.Printf("- Name: %s", vari.Name)
 		log.Printf("  Type: %s, default: %s", vari.Type, vari.DefaultValue)
@@ -299,10 +309,18 @@ func uiApplicationStatus(app *ybApi.AppStatusRes) {
 		log.Printf("\t%d. %v -> (%v endpoint type)", idx+1, route, app.Config.EndpointType)
 	}
 	log.Printf("Created: %v , Updated: %v ", toTime(app.Created), toTime(app.Updated))
-	log.Printf("VCAP_SERVICES: ")
-	log.Print(jsonPrettyPrint(app.VcapServices))
 	uiMap(app.EnvironmentVariables, "Environment variables")
 	// uiAttachedDomains(app.Domains)
+	if app.VcapServices == "" {
+		log.Printf("VCAP_SERVICES: None")
+		return
+	}
+	log.Printf("VCAP_SERVICES: ")
+	lines := strings.Split(strings.Replace(jsonPrettyPrint(app.VcapServices), "\r\n", "\n", -1), "\n")
+	for _, line := range lines {
+		log.Print(line)
+	}
+
 }
 
 func uiWorkerStatus(worker *ybApi.WorkerRes) {
