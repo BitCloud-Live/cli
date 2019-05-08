@@ -248,7 +248,8 @@ func uiProduct(prd *ybApi.ProductRes) {
 	log.Print("Variables:")
 	for _, vari := range prd.Variables {
 		log.Printf("- Name: %s", vari.Name)
-		log.Printf("  Type: %s, default: %s", vari.Type, vari.DefaultValue)
+		log.Printf("  Type: %s", vari.Type)
+		log.Printf("  Default: %s", vari.DefaultValue)
 		log.Printf("  Description: %s", vari.Description)
 		log.Printf("  Is required: %v", vari.IsRequired)
 	}
