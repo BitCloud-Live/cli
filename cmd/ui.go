@@ -155,22 +155,8 @@ func uiServicStatus(srv *ybApi.SrvStatusRes) {
 }
 
 func uiNFSMount(in *ybApi.PortforwardRes) {
-	log.Printf("NFS portforwarding is READY!")
-	log.Printf("NFSv4 now is available at host 127.0.0.1, port 2049")
-	log.Printf(`How to mount:
-				On archlinux: see https://wiki.archlinux.org/index.php/NFS
-				On Ubuntu: see https://help.ubuntu.com/community/SettingUpNFSHowTo#NFSv4_client
-				On OSX operating systems, you can connect using cmd+k in the Finder application
-				On Windows operating systems use the following steps:
-				Go to Control Panel → Programs → Programs and Features
-				Select: Turn Windows features on or off" from the left hand navigation.
-				Scroll down to "Services for NFS" and click the "plus" on the left
-				Check "Client for NFS"
-				Select "Ok"
-				Windows should install the client. Once the client package is install you will have the "mount" command available.
-				For example you can use the following cmd command to mount to "L" drive:
-				mount \127.0.0.1\ L:`)
-
+	log.Printf("FTP portforwarding is ready @ localhost:21")
+	log.Printf("Now you can connect using your favorite ftp client, e.g. filezilla...")
 }
 
 func uiPortforward(in *ybApi.PortforwardRes) {

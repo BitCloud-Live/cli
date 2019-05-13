@@ -19,14 +19,16 @@ var (
 		Use:   "update",
 		Short: "Self update cli to latest stable release",
 		Long:  `Self update cli to latest stable release from github release page of YOTTAb cli`,
-		Run:   confirmAndSelfUpdate}
+		Run:   checkAndSelfUpdate}
 )
 
-func confirmAndSelfUpdate(cmd *cobra.Command, args []string) {
+func CheckNewerVersion(inform bool) (*selfupdate.Release, bool) {
 	latest, found, err := selfupdate.DetectLatest("yottab/cli")
 	if err != nil {
-		log.Println("Error occurred while detecting version:", err)
-		return
+		if inform {
+			log.Println("Error occurred while detecting version:", err)
+		}
+		return nil, false
 	}
 
 	//Convert to a semver compatible version
@@ -34,12 +36,24 @@ func confirmAndSelfUpdate(cmd *cobra.Command, args []string) {
 	v := semver.MustParse(semverCompatVersion)
 	log.Printf("Current version: %s", v)
 	if !found || latest.Version.Equals(v) || latest.Version.LT(v) {
-		log.Printf("Latest stable version from upstream (github): %s", latest.Version)
-		log.Print("Current version is the latest")
+		if inform {
+			log.Printf("Latest stable version from upstream (github): %s", latest.Version)
+			log.Print("Current version is the latest")
+		}
+		return nil, false
+	}
+	return latest, true
+}
+func checkAndSelfUpdate(cmd *cobra.Command, args []string) {
+	latest, available := CheckNewerVersion(true)
+	if !available {
 		return
 	}
+	SelfUpdate(latest)
+}
 
-	fmt.Printf("We found a newer version: %s", latest.Version)
+func SelfUpdate(latestAvailable *selfupdate.Release) {
+	fmt.Printf("We found a newer version: %s", latestAvailable.Version)
 	fmt.Print("Do you want to update? [Y/n]: ")
 	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {
@@ -52,11 +66,11 @@ func confirmAndSelfUpdate(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := selfupdate.UpdateTo(latest.AssetURL, os.Args[0]); err != nil {
+	if err := selfupdate.UpdateTo(latestAvailable.AssetURL, os.Args[0]); err != nil {
 		log.Println("Error occurred while updating binary:", err)
 		return
 	}
-	log.Println("Successfully updated to version", latest.Version)
+	log.Println("Successfully updated to version", latestAvailable.Version)
 }
 
 func init() {

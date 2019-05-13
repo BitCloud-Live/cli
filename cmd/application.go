@@ -40,11 +40,11 @@ var (
 		Long:  `This subcommand tails the current application logs`,
 		Run:   appLog}
 
-	appNFSMountCmd = &cobra.Command{
-		Use:   "app:nfs-mount",
-		Short: "Connect to the remote file system using nfs protocol",
-		Long:  `This subcommand connects to the remote file system using nfs protocol`,
-		Run:   appNFSMount}
+	appFTPMountCmd = &cobra.Command{
+		Use:   "app:ftp-mount",
+		Short: "Connect to the remote file system using ftp protocol",
+		Long:  `This subcommand connects to the remote file system using ftp protocol`,
+		Run:   appFTPMount}
 
 	appCreateCmd = &cobra.Command{
 		Use:   "app:create",
@@ -99,7 +99,7 @@ var (
 		Run: appChangePlane}
 
 	appResetCmd = &cobra.Command{
-		Use:   "app:reset",
+		Use:   "app:restart",
 		Short: "restart of application",
 		Long:  `Destroys an application instance and create a new instance of application.`,
 		Run:   appReset}
@@ -123,7 +123,7 @@ var (
 		Run:   appDestroy}
 
 	appSrvBindCmd = &cobra.Command{
-		Use:   "app:bind",
+		Use:   "app:link",
 		Short: "add link to another service",
 		Long: `This subcommand add link to another service
 		when starting a new application container in the cluster, 
@@ -131,7 +131,7 @@ var (
 		Run: appSrvBind}
 
 	appSrvUnBindCmd = &cobra.Command{
-		Use:   "app:unbind",
+		Use:   "app:unlink",
 		Short: "remove link to binded service and restart application",
 		Long:  `This subcommand remove link to binded service and restart application.`,
 		Run:   appSrvUnBind}
@@ -200,11 +200,11 @@ func appLog(cmd *cobra.Command, args []string) {
 	uiApplicationLog(logClient)
 }
 
-func appNFSMount(cmd *cobra.Command, args []string) {
+func appFTPMount(cmd *cobra.Command, args []string) {
 	req := reqIdentity(cmd)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().AppNFSPortforward(client.Context(), req)
+	res, err := client.V2().AppFTPPortforward(client.Context(), req)
 	uiCheckErr("Could not Portforward the Service: %v", err)
 	uiPortforward(res)
 	uiNFSMount(res)
@@ -417,9 +417,9 @@ func init() {
 	appLogCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
 	appLogCmd.MarkFlagRequired("name")
 
-	// app nfs mount:
-	appNFSMountCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
-	appNFSMountCmd.MarkFlagRequired("name")
+	// app ftp mount:
+	appFTPMountCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
+	appFTPMountCmd.MarkFlagRequired("name")
 
 	// app Create:
 	appCreateCmd.Flags().StringP("plan", "s", "", "name of plan")
@@ -520,7 +520,7 @@ func init() {
 		appInfoCmd,
 		appOpenCmd,
 		appLogCmd,
-		appNFSMountCmd,
+		appFTPMountCmd,
 		appCreateCmd,
 		appConfigSetCmd,
 		appConfigUnsetCmd,
