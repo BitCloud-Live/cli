@@ -269,8 +269,10 @@ func init() {
 	srvAttachDomainCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service.")
 	srvAttachDomainCmd.Flags().StringP("attachment", "a", "", "name of attachment")
 	srvAttachDomainCmd.Flags().StringP("endpoint", "e", "", "name of the service endpoint")
+	srvAttachDomainCmd.Flags().StringP("path", "p", "", "http subpath to route traffic")
 	srvAttachDomainCmd.MarkFlagRequired("name")
 	srvAttachDomainCmd.MarkFlagRequired("endpoint")
+	srvAttachDomainCmd.MarkFlagRequired("path")
 	srvAttachDomainCmd.MarkFlagRequired("attachment")
 
 	// srv Detach Domain:

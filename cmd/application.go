@@ -378,13 +378,15 @@ func appDetachVolume(cmd *cobra.Command, args []string) {
 }
 
 func appAttachDomain(cmd *cobra.Command, args []string) {
-	req := new(ybApi.AttachIdentity)
-	req.Name = cmd.Flag("name").Value.String()
-	req.Attachment = cmd.Flag("attachment").Value.String()
+	req := new(ybApi.SrvDomainAttachReq)
+	req.AttachIdentity = new(ybApi.AttachIdentity)
+	req.AttachIdentity.Name = cmd.Flag("name").Value.String()
+	req.AttachIdentity.Attachment = cmd.Flag("attachment").Value.String()
+	req.Path = cmd.Flag("path").Value.String()
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().AppAttachDomain(client.Context(), req)
+	res, err := client.V2().AppAttachDomain23(client.Context(), req)
 	uiCheckErr("Could not Attach the Domain for Application: %v", err)
 	uiApplicationStatus(res)
 }
@@ -492,7 +494,9 @@ func init() {
 	// app Aettach Domain:
 	appAttachDomainCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
 	appAttachDomainCmd.Flags().StringP("attachment", "a", "", "name of attachment")
+	appAttachDomainCmd.Flags().StringP("path", "p", "", "http subpath to route traffic")
 	appAttachDomainCmd.MarkFlagRequired("name")
+	appAttachDomainCmd.MarkFlagRequired("path")
 	appAttachDomainCmd.MarkFlagRequired("attachment")
 
 	// app Detach Domain:

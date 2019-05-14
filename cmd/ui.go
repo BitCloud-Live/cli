@@ -31,7 +31,7 @@ func init() {
 	//Configure logging formatter
 	customFormatter := new(logrus.TextFormatter)
 	customFormatter.ForceColors = true
-	customFormatter.DisableTimestamp = false
+	customFormatter.DisableTimestamp = true
 	customFormatter.FullTimestamp = false
 	customFormatter.DisableColors = false
 	log.Formatter = customFormatter

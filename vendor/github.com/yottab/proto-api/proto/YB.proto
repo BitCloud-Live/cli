@@ -6,14 +6,23 @@ service YB {
     rpc Login (LoginReq) returns (AuthenticationRes) { }
     rpc Logout (Empty) returns (Empty) { }
 
-    // Activity
+    // Added in v2.3 patch
+    // Monitoring
+    rpc MonitoringResources(Identity) returns (ResourcesRes) { } // (App OR Srv)
+    rpc MonitoringQueriesTraffic(Identity) returns (TrafficRes) { } // (only App)
+    rpc MonitoringQueriesLatency(Identity) returns (LatencyRes) { } // (only App)
     rpc ActivityList(ActivityReq) returns (ActivityListRes) { }
 
     // Domain
     rpc DomainList (AppListReq) returns (DomainListRes) { }
-    rpc DomainInfo (Identity) returns (DomainStatusRes) { }
+    rpc DomainInfo (Identity) returns (DomainStatusRes) { } 
     rpc DomainCreate (DomainCreateReq) returns (DomainStatusRes) { }
     rpc DomainDelete (Identity) returns (Empty) { }
+    // //Added in v2.3 patch
+    // rpc DomainAddRoute (Identity) returns (DomainStatusRes) { }
+    // rpc DomainRemoveRoute (Identity) returns (DomainStatusRes) { }
+    // //Get all available domain features
+    // rpc DomainFeatureList (Empty) returns (DomainFeatures) { }
 
     // Volume
     rpc VolumeSpecList (ListReq) returns (VolumeSpecListRes) { }
@@ -22,12 +31,13 @@ service YB {
     rpc VolumeInfo (Identity) returns (VolumeStatusRes) { }
     rpc VolumeCreate (VolumeCreateReq) returns (VolumeStatusRes) { }
     rpc VolumeDelete (Identity) returns (Empty) { }
+    rpc VolumeFTPPortforward (Identity) returns (PortforwardRes) { }
 
     // Image
     rpc ImgList (AppListReq) returns (ImgListRes) { }
     rpc ImgInfo (Identity) returns (ImgStatusRes) { }
-    // TODO: Reserved for later
-    // rpc ImgBuild (stream ImgBuildReq) returns (ImgStatusRes) { }
+    //Added in v2.3 patch
+    rpc ImgBuild (ImgBuildReq) returns (ImgStatusRes) { }
     rpc ImgDelete (Identity) returns (Empty) { }
 
     // Product
@@ -50,7 +60,9 @@ service YB {
     rpc SrvStop (Identity) returns (SrvStatusRes) { }
     rpc SrvDestroy (Identity) returns (Empty) { }
     rpc SrvInfo (Identity) returns (SrvStatusRes) { }
+    //SrvAttachDomain Deprecated: will be deleted in v3.0
     rpc SrvAttachDomain (SrvDomainAttachReq) returns (SrvStatusRes) { }
+    //SrvDetachDomain Deprecated: will be deleted in v3.0
     rpc SrvDetachDomain (AttachIdentity) returns (SrvStatusRes) { }
     //Added in v2.1 patch
     rpc SrvConfigSet (SrvConfigSetReq) returns (SrvStatusRes) { } 
@@ -69,17 +81,26 @@ service YB {
     rpc AppReset (Identity) returns (AppStatusRes) { }
     rpc AppAttachVolume (VolumeAttachReq) returns (AppStatusRes) { }
     rpc AppDetachVolume (AttachIdentity) returns (AppStatusRes) { }
+    //AppAttachDomain23 Deprecated: will be deleted in v3.0
+    rpc AppAttachDomain23 (SrvDomainAttachReq) returns (AppStatusRes) { }
+    //AppAttachDomain Deprecated: will be deleted in v3.0
     rpc AppAttachDomain (AttachIdentity) returns (AppStatusRes) { }
+    //AppDetachDomain Deprecated: will be deleted in v3.0
     rpc AppDetachDomain (AttachIdentity) returns (AppStatusRes) { }
     rpc AppStop (Identity) returns (AppStatusRes) { }
     rpc AppStart (Identity) returns (AppStatusRes) { }
     rpc AppDestroy (Identity) returns (Empty) { }
     rpc AppSrvBind (AppSrvBindReq) returns (AppStatusRes) { }
     rpc AppSrvUnBind (AppSrvBindReq) returns (AppStatusRes) { }
+
+    //Added in v2.3 patch
+    rpc AppFTPPortforward (Identity) returns (PortforwardRes) { }
     //Added in v2.1 patch
+    //AppNFSPortforward Deprecated: will be deleted in v3.0
     rpc AppNFSPortforward (Identity) returns (PortforwardRes) { }
     rpc AppListWorkers (Identity) returns (WorkerListRes) { }
     rpc AppAddWorker (WorkerReq) returns (WorkerListRes) { }
+    rpc AppWorkerUpdate (WorkerReq) returns (WorkerRes) { }
     rpc AppRemoveWorker (AttachIdentity) returns (WorkerListRes) { }
     rpc AppWorkerInfo (AttachIdentity) returns (WorkerRes) { }
     rpc AppWorkerPortforward (AttachIdentity) returns (PortforwardRes) { }
@@ -171,6 +192,9 @@ message DomainStatusRes {
     string domain = 4;
     string tls = 5;
     string attachedTo = 6;
+    //Added in v2.3 patch
+    string path = 7;
+
 }
 
 message DomainListRes {
@@ -178,11 +202,22 @@ message DomainListRes {
     repeated DomainStatusRes domains = 2;
 }
 
+// //Added in v2.3 patch
+// message DomainRouteReq{
+//     string domain = 1;
+//     string endpoint = 2;
+//     string path = 3;
+//     map<string, string> featureRequests = 4;
+// }
+
 //For embedded response
+//AttachedDomainInfo Deprecated: will be deleted in v3.0
 message AttachedDomainInfo{
     string domain = 1;
     string endpoint = 2;
     string endpointType = 3;
+    //Added in v2.3 patch
+    string path = 4;
 }
 
 // Volume ////////////////////////////////////////////////////////////////////////////
@@ -237,20 +272,11 @@ message ImgListRes {
     repeated ImgStatusRes imgs = 2;
 }
 
-// TODO: Reserved for later
-// message ImgBuildReq {
-//     message Meta {
-//          string name = 1;
-//     }
-//     message Chunk {
-//           bytes data = 1;
-//           int64 position = 2;
-//     }
-//     oneof value {
-//         Meta meta = 1;
-//         Chunk chunk = 2;
-//     }
-// }
+message ImgBuildReq {
+    string name = 1;
+    string tags = 2;
+    bytes data = 3; // zip (Dockerfile + Assets)
+}
 
 // Setting ///////////////////////////////////////////////////////////////////////////
 
@@ -311,7 +337,7 @@ message ProductVariable{
 
 //Added in v2.1 patch
 message SrvConfigSetReq{
-    string name = 1; 
+    string name = 1;
     map<string, string> variables = 2;
 }
 
@@ -357,6 +383,8 @@ message SrvListRes {
 message SrvDomainAttachReq{
     AttachIdentity attachIdentity = 1;
     string endpoint = 2;
+    //Added in v2.3 patch
+    string path = 3;
 }
 
 message SrvCreateReq {
@@ -384,6 +412,7 @@ message WorkerReq{
     AttachIdentity identities = 4;
     WorkerConfig config = 5;
 }
+
 message WorkerListRes {
     int32 index = 1; // [default = 0]
     repeated WorkerRes services = 2;
@@ -410,7 +439,7 @@ message AppCreateReq {
 
 message ConfigSetReq {
     string name = 1;
-    AppConfig config = 2; 
+    AppConfig config = 2;
 }
 
 message AppConfig {
@@ -441,7 +470,39 @@ message AppSrvBindReq {
     string service = 2;
 }
 
-// API Activity //////////////////////////////////////////////////////////////////////
+// Monitoring //////////////////////////////////////////////////////////////////////
+
+message ResourcesRes {
+    Timestamp start = 1; // time of the beginning
+    uint64 stepPerod = 2; // time interval
+    string name = 3;
+    repeated uint64 core = 4;
+    repeated uint64 ram = 5;
+}
+
+message Hit {
+    string path = 1; // path or domain of queries
+    repeated uint64 hit = 2; // QPS
+}
+
+message TrafficRes {
+    Timestamp start = 1; // time of the beginning
+    uint64 stepPerod = 2; // time interval
+    string name = 3; // application name
+    repeated Hit hits = 4;
+}
+
+message Latency {
+    string path = 1; // path or domain of queries
+    repeated uint64 latency = 2; // average latency in one-step of the time interval
+}
+
+message LatencyRes {
+    Timestamp start = 1; // time of the beginning
+    uint64 stepPerod = 2; // time interval
+    string name = 3; // application name
+    repeated Latency latencies = 4;
+}
 
 enum ActivityTag {
     None = 0; //No tag
