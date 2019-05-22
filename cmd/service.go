@@ -194,6 +194,7 @@ func srvAttachDomain(cmd *cobra.Command, args []string) {
 	req.AttachIdentity.Name = cmd.Flag("name").Value.String()
 	req.AttachIdentity.Attachment = cmd.Flag("attachment").Value.String()
 	req.Endpoint = cmd.Flag("endpoint").Value.String()
+	req.Path = cmd.Flag("path").Value.String()
 
 	client := grpcConnect()
 	defer client.Close()
@@ -203,9 +204,11 @@ func srvAttachDomain(cmd *cobra.Command, args []string) {
 }
 
 func srvDetachDomain(cmd *cobra.Command, args []string) {
-	req := new(ybApi.AttachIdentity)
-	req.Name = cmd.Flag("name").Value.String()
-	req.Attachment = cmd.Flag("attachment").Value.String()
+	req := new(ybApi.SrvDomainAttachReq)
+	req.AttachIdentity = new(ybApi.AttachIdentity)
+	req.AttachIdentity.Name = cmd.Flag("name").Value.String()
+	req.AttachIdentity.Attachment = cmd.Flag("attachment").Value.String()
+	req.Path = cmd.Flag("path").Value.String()
 
 	client := grpcConnect()
 	defer client.Close()
@@ -278,6 +281,8 @@ func init() {
 	// srv Detach Domain:
 	srvDetachDomainCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service.")
 	srvDetachDomainCmd.Flags().StringP("attachment", "a", "", "name of attachment")
+	srvDetachDomainCmd.Flags().StringP("path", "p", "", "http subpath to route traffic")
+	srvDetachDomainCmd.MarkFlagRequired("path")
 	srvDetachDomainCmd.MarkFlagRequired("name")
 	srvDetachDomainCmd.MarkFlagRequired("attachment")
 

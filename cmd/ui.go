@@ -116,9 +116,9 @@ func uiList(list interface{}) {
 		itemList := list.(*ybApi.DomainListRes)
 		log.Printf("Count: %d\t", len(itemList.Domains))
 		for _, v := range itemList.Domains {
-			log.Printf("- Name: %s", v.Name)
-			log.Printf("  Spec: %s", v.Domain)
+			log.Printf("- Domain Name: %s", v.Domain)
 			log.Printf("  TLS: %s", v.Tls)
+			log.Printf("  AttachedTo: %s ", v.AttachedTo)
 			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
 		}
 		return
@@ -347,7 +347,7 @@ func uiApplicationLog(client ybApi.YB_AppLogClient) {
 
 func uiDomainStatus(dom *ybApi.DomainStatusRes) {
 	log.Printf("Domain Name: %s ", dom.Domain)
-	log.Printf("Created: %v , Update: %v", toTime(dom.Created), toTime(dom.Updated))
+	log.Printf("Created: %v , Updated: %v", toTime(dom.Created), toTime(dom.Updated))
 	log.Printf("AttachedTo: %s ", dom.AttachedTo)
 	log.Printf("TLS: %s ", dom.Tls)
 }
@@ -360,8 +360,9 @@ func uiVolumeSpec(vol *ybApi.VolumeSpec) {
 
 func uiVolumeStatus(vol *ybApi.VolumeStatusRes) {
 	log.Printf("Volume Name: %s ", vol.Name)
-	log.Printf("Created: %v , Update: %v", toTime(vol.Created), toTime(vol.Updated))
+	log.Printf("Created: %v , Updated: %v", toTime(vol.Created), toTime(vol.Updated))
 	log.Printf("AttachedTo: %s ", vol.AttachedTo)
+	log.Printf("MountPath: %s ", vol.MountPath)
 	uiVolumeSpec(vol.Spec)
 }
 

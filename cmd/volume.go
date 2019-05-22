@@ -76,8 +76,7 @@ func volumeInfo(cmd *cobra.Command, args []string) {
 	defer client.Close()
 	res, err := client.V2().VolumeInfo(client.Context(), req)
 	uiCheckErr("Could not get the Volumes: %v", err)
-	//TODO
-	log.Println(res)
+	uiVolumeStatus(res)
 }
 
 func volumeCreate(cmd *cobra.Command, args []string) {

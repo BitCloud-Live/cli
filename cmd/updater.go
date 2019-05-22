@@ -34,7 +34,9 @@ func CheckNewerVersion(inform bool) (*selfupdate.Release, bool) {
 	//Convert to a semver compatible version
 	semverCompatVersion := strings.TrimPrefix(version, "v")
 	v := semver.MustParse(semverCompatVersion)
-	log.Printf("Current version: %s", v)
+	if inform {
+		log.Printf("Current version: %s", v)
+	}
 	if !found || latest.Version.Equals(v) || latest.Version.LT(v) {
 		if inform {
 			log.Printf("Latest stable version from upstream (github): %s", latest.Version)

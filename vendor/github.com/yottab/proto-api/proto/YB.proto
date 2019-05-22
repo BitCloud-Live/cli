@@ -60,10 +60,8 @@ service YB {
     rpc SrvStop (Identity) returns (SrvStatusRes) { }
     rpc SrvDestroy (Identity) returns (Empty) { }
     rpc SrvInfo (Identity) returns (SrvStatusRes) { }
-    //SrvAttachDomain Deprecated: will be deleted in v3.0
     rpc SrvAttachDomain (SrvDomainAttachReq) returns (SrvStatusRes) { }
-    //SrvDetachDomain Deprecated: will be deleted in v3.0
-    rpc SrvDetachDomain (AttachIdentity) returns (SrvStatusRes) { }
+    rpc SrvDetachDomain (SrvDomainAttachReq) returns (SrvStatusRes) { }
     //Added in v2.1 patch
     rpc SrvConfigSet (SrvConfigSetReq) returns (SrvStatusRes) { } 
     rpc SrvConfigUnset (UnsetReq) returns (SrvStatusRes) { } 
@@ -81,12 +79,8 @@ service YB {
     rpc AppReset (Identity) returns (AppStatusRes) { }
     rpc AppAttachVolume (VolumeAttachReq) returns (AppStatusRes) { }
     rpc AppDetachVolume (AttachIdentity) returns (AppStatusRes) { }
-    //AppAttachDomain23 Deprecated: will be deleted in v3.0
-    rpc AppAttachDomain23 (SrvDomainAttachReq) returns (AppStatusRes) { }
-    //AppAttachDomain Deprecated: will be deleted in v3.0
-    rpc AppAttachDomain (AttachIdentity) returns (AppStatusRes) { }
-    //AppDetachDomain Deprecated: will be deleted in v3.0
-    rpc AppDetachDomain (AttachIdentity) returns (AppStatusRes) { }
+    rpc AppAttachDomain (SrvDomainAttachReq) returns (AppStatusRes) { }
+    rpc AppDetachDomain (SrvDomainAttachReq) returns (AppStatusRes) { }
     rpc AppStop (Identity) returns (AppStatusRes) { }
     rpc AppStart (Identity) returns (AppStatusRes) { }
     rpc AppDestroy (Identity) returns (Empty) { }
@@ -191,7 +185,7 @@ message DomainStatusRes {
     string name = 3;
     string domain = 4;
     string tls = 5;
-    string attachedTo = 6;
+    map<string, string> attachedTo = 6;
     //Added in v2.3 patch
     string path = 7;
 

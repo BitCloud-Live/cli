@@ -25,11 +25,11 @@ import (
 
 func main() {
 	//Simultaneously check for update
-	latest, available := cmd.CheckNewerVersion(true)
-	if !available {
-		return
-	}
-	cmd.SelfUpdate(latest)
+	// latest, available := cmd.CheckNewerVersion(false)
+	// if available {
+	// 	cmd.SelfUpdate(latest)
+	// }
+
 	//Start executing of the commands
 	cmd.Execute()
 }

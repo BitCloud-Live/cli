@@ -21,8 +21,14 @@ var (
 	workerCreateCmd = &cobra.Command{
 		Use:   "worker:create",
 		Short: "Add a new worker to an application",
-		Long:  `This subcommand adds a new worker to an application, be notify that there is a upper limit to worker counts`,
+		Long:  `This subcommand adds a new worker to an application, be notify that there is a upper limit to worker counts.`,
 		Run:   workerCreate}
+
+	workerUpdateCmd = &cobra.Command{
+		Use:   "worker:update",
+		Short: "Update an existing worker for an application",
+		Long:  `This subcommand Update an existing worker for an application.`,
+		Run:   workerUpdate}
 
 	workerDestroyCmd = &cobra.Command{
 		Use:   "worker:destroy",
@@ -100,6 +106,22 @@ func workerCreate(cmd *cobra.Command, args []string) {
 	uiList(res)
 }
 
+func workerUpdate(cmd *cobra.Command, args []string) {
+	req := new(ybApi.WorkerReq)
+	req.Identities = new(ybApi.AttachIdentity)
+	req.Identities.Name = cmd.Flag("name").Value.String()
+	req.Identities.Attachment = cmd.Flag("worker").Value.String()
+	req.Config = new(ybApi.WorkerConfig)
+	req.Config.Port = flagVarPort
+	req.Config.Image = cmd.Flag("image").Value.String()
+
+	client := grpcConnect()
+	defer client.Close()
+	res, err := client.V2().AppWorkerUpdate(client.Context(), req)
+	uiCheckErr("Could not Update the Application: %v", err)
+	uiList(res)
+}
+
 func init() {
 	// worker List:
 	workerListCmd.Flags().Int32Var(&flagIndex, "index", 0, "page number list")
@@ -128,6 +150,14 @@ func init() {
 	workerCreateCmd.MarkFlagRequired("name")
 	workerCreateCmd.MarkFlagRequired("worker")
 
+	// worker Update:
+	workerUpdateCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
+	workerUpdateCmd.Flags().StringP("worker", "w", "", "name of worker")
+	workerUpdateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
+	workerUpdateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
+	workerUpdateCmd.MarkFlagRequired("name")
+	workerUpdateCmd.MarkFlagRequired("worker")
+
 	// worker Destroy:
 	workerDestroyCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
 	workerDestroyCmd.Flags().StringP("worker", "w", "", "name of worker")
@@ -139,6 +169,7 @@ func init() {
 		workerInfoCmd,
 		workerPortforwardCmd,
 		workerCreateCmd,
+		workerUpdateCmd,
 		workerDestroyCmd,
 	)
 }
