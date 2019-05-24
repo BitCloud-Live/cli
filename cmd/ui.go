@@ -118,7 +118,7 @@ func uiList(list interface{}) {
 		for _, v := range itemList.Domains {
 			log.Printf("- Domain Name: %s", v.Domain)
 			log.Printf("  TLS: %s", v.Tls)
-			log.Printf("  AttachedTo: %s ", v.AttachedTo)
+			uiRoutes(v.AttachedTo, "  Routes")
 			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
 		}
 		return
@@ -216,6 +216,17 @@ func uiMap(mapVar map[string]string, name string) {
 	log.Printf("%s:", name)
 	for k, v := range mapVar {
 		log.Printf("\t %s: %s ", k, v)
+	}
+}
+
+func uiRoutes(mapVar map[string]string, name string) {
+	if len(mapVar) == 0 {
+		log.Printf("%s: None", name)
+		return
+	}
+	log.Printf("%s:", name)
+	for k, v := range mapVar {
+		log.Printf("\t %s -> %s (application/service)", k, v)
 	}
 }
 
@@ -348,7 +359,7 @@ func uiApplicationLog(client ybApi.YB_AppLogClient) {
 func uiDomainStatus(dom *ybApi.DomainStatusRes) {
 	log.Printf("Domain Name: %s ", dom.Domain)
 	log.Printf("Created: %v , Updated: %v", toTime(dom.Created), toTime(dom.Updated))
-	log.Printf("AttachedTo: %s ", dom.AttachedTo)
+	uiRoutes(dom.AttachedTo, "Routes")
 	log.Printf("TLS: %s ", dom.Tls)
 }
 

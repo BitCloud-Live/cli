@@ -9,16 +9,22 @@ $ make -B build
 # Prebuilt binaries
 Common platform binaries are published on the releases page. this includes linux, osx, windows and even arm binary for arm  linux platforms such as raspbian.
 ## Quick installation
-### OSX 
+The easiest way to install the latest release on Mac or Linux is with the following script:
+
+```
+curl https://raw.githubusercontent.com/yottab/cli/master/scripts/install | sh
+```
+### Other installation methods:
+#### OSX 
 ```sh
 $ wget https://github.com/yottab/cli/releases/download/v2.2.0/yb-v2.2.0-darwin-amd64 -O /usr/local/bin/yb
 ```
-### Linux
+#### Linux
 ```sh
 $ sudo wget https://github.com/yottab/cli/releases/download/v2.2.0/yb-v2.2.0-linux-amd64 -O /usr/local/bin/yb
 $ sudo chmod +x /usr/local/bin/yb
 ```  
-### Windows 
+#### Windows 
 Just grap the latest executive file in release page and run it from cmd.  
 See [Releases](https://github.com/yottab/cli/releases).
 

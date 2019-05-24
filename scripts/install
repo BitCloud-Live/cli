@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright The Helm Authors.
+# Copyright The YOTTAb Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,11 +17,10 @@
 # The install script is based off of the MIT-licensed script from glide,
 # the package manager for Go: https://github.com/Masterminds/glide.sh/blob/master/get
 
-PROJECT_NAME="helm"
-TILLER_NAME="tiller"
+PROJECT_NAME="yb"
 
 : ${USE_SUDO:="true"}
-: ${HELM_INSTALL_DIR:="/usr/local/bin"}
+: ${YOTTAB_INSTALL_DIR:="/usr/local/bin"}
 
 # initArch discovers the architecture for this system.
 initArch() {
@@ -65,7 +64,7 @@ verifySupported() {
   local supported="darwin-386\ndarwin-amd64\nlinux-386\nlinux-amd64\nlinux-arm\nlinux-arm64\nlinux-ppc64le\nwindows-386\nwindows-amd64"
   if ! echo "${supported}" | grep -q "${OS}-${ARCH}"; then
     echo "No prebuilt binary for ${OS}-${ARCH}."
-    echo "To build from source, go to https://github.com/helm/helm"
+    echo "To build from source, go to https://github.com/yottab/cli"
     exit 1
   fi
 
@@ -79,7 +78,7 @@ verifySupported() {
 checkDesiredVersion() {
   if [ "x$DESIRED_VERSION" == "x" ]; then
     # Get tag from release URL
-    local latest_release_url="https://github.com/helm/helm/releases/latest"
+    local latest_release_url="https://github.com/yottab/cli/releases/latest"
     if type "curl" > /dev/null; then
       TAG=$(curl -Ls -o /dev/null -w %{url_effective} $latest_release_url | grep -oE "[^/]+$" )
     elif type "wget" > /dev/null; then
@@ -90,16 +89,16 @@ checkDesiredVersion() {
   fi
 }
 
-# checkHelmInstalledVersion checks which version of helm is installed and
+# checkYottabInstalledVersion checks which version of yb is installed and
 # if it needs to be changed.
-checkHelmInstalledVersion() {
-  if [[ -f "${HELM_INSTALL_DIR}/${PROJECT_NAME}" ]]; then
-    local version=$(helm version -c | grep '^Client' | cut -d'"' -f2)
+checkYottabInstalledVersion() {
+  if [[ -f "${YOTTAB_INSTALL_DIR}/${PROJECT_NAME}" ]]; then
+    local version=$(yb version -c | grep '^Client' | cut -d" " -f3)
     if [[ "$version" == "$TAG" ]]; then
-      echo "Helm ${version} is already ${DESIRED_VERSION:-latest}"
+      echo "yb ${version} is already ${DESIRED_VERSION:-latest}"
       return 0
     else
-      echo "Helm ${TAG} is available. Changing from version ${version}."
+      echo "yb ${TAG} is available. Changing from version ${version}."
       return 1
     fi
   else
@@ -110,49 +109,43 @@ checkHelmInstalledVersion() {
 # downloadFile downloads the latest binary package and also the checksum
 # for that binary.
 downloadFile() {
-  HELM_DIST="helm-$TAG-$OS-$ARCH.tar.gz"
-  DOWNLOAD_URL="https://kubernetes-helm.storage.googleapis.com/$HELM_DIST"
+  YOTTAB_DIST="yb-$TAG-$OS-$ARCH"
+  DOWNLOAD_URL="https://github.com/yottab/$PROJECT_NAME/releases/download/$TAG/$YOTTAB_DIST"
   CHECKSUM_URL="$DOWNLOAD_URL.sha256"
-  HELM_TMP_ROOT="$(mktemp -dt helm-installer-XXXXXX)"
-  HELM_TMP_FILE="$HELM_TMP_ROOT/$HELM_DIST"
-  HELM_SUM_FILE="$HELM_TMP_ROOT/$HELM_DIST.sha256"
+  YOTTAB_TMP_ROOT="$(mktemp -dt yottab-tempX)"
+  YOTTAB_TMP_FILE="$YOTTAB_TMP_ROOT/$YOTTAB_DIST"
+  YOTTAB_SUM_FILE="$YOTTAB_TMP_ROOT/$YOTTAB_DIST.sha256"
   echo "Downloading $DOWNLOAD_URL"
   if type "curl" > /dev/null; then
-    curl -SsL "$CHECKSUM_URL" -o "$HELM_SUM_FILE"
+    curl -SsL "$CHECKSUM_URL" -o "$YOTTAB_SUM_FILE"
   elif type "wget" > /dev/null; then
-    wget -q -O "$HELM_SUM_FILE" "$CHECKSUM_URL"
+    wget -q -O "$YOTTAB_SUM_FILE" "$CHECKSUM_URL"
   fi
   if type "curl" > /dev/null; then
-    curl -SsL "$DOWNLOAD_URL" -o "$HELM_TMP_FILE"
+    curl -SsL "$DOWNLOAD_URL" -o "$YOTTAB_TMP_FILE"
   elif type "wget" > /dev/null; then
-    wget -q -O "$HELM_TMP_FILE" "$DOWNLOAD_URL"
+    wget -q -O "$YOTTAB_TMP_FILE" "$DOWNLOAD_URL"
   fi
 }
 
 # installFile verifies the SHA256 for the file, then unpacks and
 # installs it.
 installFile() {
-  HELM_TMP="$HELM_TMP_ROOT/$PROJECT_NAME"
-  local sum=$(openssl sha1 -sha256 ${HELM_TMP_FILE} | awk '{print $2}')
-  local expected_sum=$(cat ${HELM_SUM_FILE})
+  YOTTAB_TMP="$YOTTAB_TMP_ROOT/$PROJECT_NAME"
+  local sum=$(openssl sha1 -sha256 ${YOTTAB_TMP_FILE} | awk '{print $2}')
+  local expected_sum=$(cat ${YOTTAB_SUM_FILE})
   if [ "$sum" != "$expected_sum" ]; then
-    echo "SHA sum of ${HELM_TMP_FILE} does not match. Aborting."
+    echo "SHA sum of ${YOTTAB_TMP_FILE} does not match. Aborting."
     exit 1
   fi
 
-  mkdir -p "$HELM_TMP"
-  tar xf "$HELM_TMP_FILE" -C "$HELM_TMP"
-  HELM_TMP_BIN="$HELM_TMP/$OS-$ARCH/$PROJECT_NAME"
-  TILLER_TMP_BIN="$HELM_TMP/$OS-$ARCH/$TILLER_NAME"
-  echo "Preparing to install $PROJECT_NAME and $TILLER_NAME into ${HELM_INSTALL_DIR}"
-  runAsRoot cp "$HELM_TMP_BIN" "$HELM_INSTALL_DIR"
-  echo "$PROJECT_NAME installed into $HELM_INSTALL_DIR/$PROJECT_NAME"
-  if [ -x "$TILLER_TMP_BIN" ]; then
-    runAsRoot cp "$TILLER_TMP_BIN" "$HELM_INSTALL_DIR"
-    echo "$TILLER_NAME installed into $HELM_INSTALL_DIR/$TILLER_NAME"
-  else
-    echo "info: $TILLER_NAME binary was not found in this release; skipping $TILLER_NAME installation"
-  fi
+  # mkdir -p "$YOTTAB_TMP"
+  # tar xf "$YOTTAB_TMP_FILE" -C "$YOTTAB_TMP"
+  # YOTTAB_TMP_BIN="$YOTTAB_TMP/$OS-$ARCH/$PROJECT_NAME"
+  # TILLER_TMP_BIN="$YOTTAB_TMP/$OS-$ARCH/$TILLER_NAME"
+  echo "Preparing to install $PROJECT_NAME into ${YOTTAB_INSTALL_DIR}"
+  runAsRoot cp "$YOTTAB_TMP_FILE" "$YOTTAB_INSTALL_DIR"
+  echo "$PROJECT_NAME installed into $YOTTAB_INSTALL_DIR/$PROJECT_NAME"
 }
 
 # fail_trap is executed if an error occurs.
@@ -165,7 +158,7 @@ fail_trap() {
     else
       echo "Failed to install $PROJECT_NAME"
     fi
-    echo -e "\tFor support, go to https://github.com/helm/helm."
+    echo -e "\tFor support, go to https://github.com/yottab/cli."
   fi
   cleanup
   exit $result
@@ -174,9 +167,9 @@ fail_trap() {
 # testVersion tests the installed client to make sure it is working.
 testVersion() {
   set +e
-  HELM="$(which $PROJECT_NAME)"
+  YOTTAB="$(which $PROJECT_NAME)"
   if [ "$?" = "1" ]; then
-    echo "$PROJECT_NAME not found. Is $HELM_INSTALL_DIR on your "'$PATH?'
+    echo "$PROJECT_NAME not found. Is $YOTTAB_INSTALL_DIR on your "'$PATH?'
     exit 1
   fi
   set -e
@@ -192,10 +185,10 @@ help () {
   echo -e "\t[--no-sudo]  ->> install without sudo"
 }
 
-# cleanup temporary files to avoid https://github.com/helm/helm/issues/2977
+# cleanup temporary files 
 cleanup() {
-  if [[ -d "${HELM_TMP_ROOT:-}" ]]; then
-    rm -rf "$HELM_TMP_ROOT"
+  if [[ -d "${YOTTAB_TMP_ROOT:-}" ]]; then
+    rm -rf "$YOTTAB_TMP_ROOT"
   fi
 }
 
@@ -237,7 +230,7 @@ initArch
 initOS
 verifySupported
 checkDesiredVersion
-if ! checkHelmInstalledVersion; then
+if ! checkYottabInstalledVersion; then
   downloadFile
   installFile
 fi

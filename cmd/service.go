@@ -35,9 +35,9 @@ var (
 		Run: srvChangePlane}
 
 	srvPortforwardCmd = &cobra.Command{
-		Use:   "srv:port-forward",
-		Short: "port-forward to connect to an application running in a cluster",
-		Long: `Port-forward to connect to an application running in a cluster.
+		Use:   "srv:portforward",
+		Short: "portforward to connect to an application running in a cluster",
+		Long: `Portforward to connect to an application running in a cluster.
 		This type of connection can be useful for database debugging`,
 		Run: srvPortforward}
 
