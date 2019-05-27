@@ -110,7 +110,7 @@ checkYottabInstalledVersion() {
 # for that binary.
 downloadFile() {
   YOTTAB_DIST="yb-$TAG-$OS-$ARCH"
-  DOWNLOAD_URL="https://github.com/yottab/$PROJECT_NAME/releases/download/$TAG/$YOTTAB_DIST"
+  DOWNLOAD_URL="https://github.com/yottab/cli/releases/download/$TAG/$YOTTAB_DIST"
   CHECKSUM_URL="$DOWNLOAD_URL.sha256"
   YOTTAB_TMP_ROOT="$(mktemp -dt yottab-tempX)"
   YOTTAB_TMP_FILE="$YOTTAB_TMP_ROOT/$YOTTAB_DIST"
