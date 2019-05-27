@@ -34,7 +34,7 @@ YOTTAb cli can be updated in place using the following command:
 $ yb update
 ```  
 # Quickstart
-[![asciicast](https://asciinema.org/a/193296.png)](https://asciinema.org/a/193296)
+[![asciicast](https://asciinema.org/a/243119.svg)](https://asciinema.org/a/243119)
 See [Documentations](http://docs.yottab.io/quickstart/) for more details.
 
 # Gitlab integration
