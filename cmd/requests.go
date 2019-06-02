@@ -2,8 +2,15 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	//"github.com/spf13/viper"
 	ybApi "github.com/yottab/proto-api/proto"
+)
+
+const (
+	// RequiredArg : this arg must be set
+	RequiredArg = true
+
+	// NotRequiredArg : this arg Not required to set
+	NotRequiredArg = false
 )
 
 func reqIndex(cmd *cobra.Command) *ybApi.ListReq {
@@ -12,15 +19,27 @@ func reqIndex(cmd *cobra.Command) *ybApi.ListReq {
 	return req
 }
 
-func reqIndexForApp(cmd *cobra.Command) *ybApi.AppListReq {
+func reqIndexForApp(args []string, index int, required bool) *ybApi.AppListReq {
 	req := new(ybApi.AppListReq)
 	req.Index = flagIndex
-	req.App = flagAppName
+	req.App = argValue(args, index, required, "NO_NAME")
 	return req
 }
 
-func reqIdentity(cmd *cobra.Command) *ybApi.Identity {
+func reqIdentity(args []string, index int, required bool) *ybApi.Identity {
+	val := argValue(args, index, required, "NO_NAME")
 	req := new(ybApi.Identity)
-	req.Name = cmd.Flag("name").Value.String()
+	req.Name = val
 	return req
+}
+
+func argValue(args []string, index int, required bool, defaultValue string) string {
+	if len(args) < index+1 {
+		if required {
+			log.Fatalf("not enugh required arg")
+		} else {
+			return defaultValue
+		}
+	}
+	return args[index]
 }

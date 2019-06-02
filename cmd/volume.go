@@ -17,30 +17,6 @@ var (
 		Short: "",
 		Long:  ``,
 		Run:   volumeSpecInfo}
-
-	volumeListCmd = &cobra.Command{
-		Use:   "vol:list",
-		Short: "",
-		Long:  ``,
-		Run:   volumeList}
-
-	volumeInfoCmd = &cobra.Command{
-		Use:   "vol:info",
-		Short: "",
-		Long:  ``,
-		Run:   volumeInfo}
-
-	volumeCreateCmd = &cobra.Command{
-		Use:   "vol:create",
-		Short: "",
-		Long:  ``,
-		Run:   volumeCreate}
-
-	volumeDeleteCmd = &cobra.Command{
-		Use:   "vol:delete",
-		Short: "",
-		Long:  ``,
-		Run:   volumeDelete}
 )
 
 func volumeSpecList(cmd *cobra.Command, args []string) {
@@ -53,7 +29,7 @@ func volumeSpecList(cmd *cobra.Command, args []string) {
 }
 
 func volumeSpecInfo(cmd *cobra.Command, args []string) {
-	req := reqIdentity(cmd)
+	req := reqIdentity(args, 0, RequiredArg)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().VolumeSpecInfo(client.Context(), req)
@@ -62,7 +38,7 @@ func volumeSpecInfo(cmd *cobra.Command, args []string) {
 }
 
 func volumeList(cmd *cobra.Command, args []string) {
-	req := reqIndexForApp(cmd)
+	req := reqIndexForApp(args, 0, NotRequiredArg)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().VolumeList(client.Context(), req)
@@ -71,7 +47,7 @@ func volumeList(cmd *cobra.Command, args []string) {
 }
 
 func volumeInfo(cmd *cobra.Command, args []string) {
-	req := reqIdentity(cmd)
+	req := reqIdentity(args, 0, RequiredArg)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().VolumeInfo(client.Context(), req)
@@ -93,46 +69,10 @@ func volumeCreate(cmd *cobra.Command, args []string) {
 }
 
 func volumeDelete(cmd *cobra.Command, args []string) {
-	req := reqIdentity(cmd)
+	req := reqIdentity(args, 0, RequiredArg)
 	client := grpcConnect()
 	defer client.Close()
 	_, err := client.V2().VolumeDelete(client.Context(), req)
 	uiCheckErr("Could not Delete the Volume: %v", err)
 	log.Println("Task is done.")
-}
-
-func init() {
-	// volume Spec list:
-	volumeSpecListCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number list")
-	volumeSpecListCmd.Flags().StringVarP(&flagAppName, "app", "n", "", "page number list")
-
-	// volume Spec info:
-	volumeSpecInfoCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the volume.")
-	volumeSpecInfoCmd.MarkFlagRequired("name")
-
-	// volume list:
-	volumeListCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number list")
-	volumeListCmd.Flags().StringVarP(&flagAppName, "app", "n", "", "page number list")
-
-	// volume info:
-	volumeInfoCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the volume.")
-	volumeInfoCmd.MarkFlagRequired("name")
-
-	// volume create:
-	volumeCreateCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the volume.")
-	volumeCreateCmd.Flags().StringP("volume-type", "v", "", "the type of volume")
-	volumeCreateCmd.MarkFlagRequired("name")
-	volumeCreateCmd.MarkFlagRequired("volume-type")
-
-	// volume delete:
-	volumeDeleteCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the volume.")
-	volumeDeleteCmd.MarkFlagRequired("name")
-
-	rootCmd.AddCommand(
-		volumeSpecListCmd,
-		volumeSpecInfoCmd,
-		volumeListCmd,
-		volumeInfoCmd,
-		volumeCreateCmd,
-		volumeDeleteCmd)
 }

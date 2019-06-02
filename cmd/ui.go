@@ -20,24 +20,32 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/portforward"
 	"k8s.io/client-go/transport/spdy"
-
 	//For windows support
-	"github.com/mattn/go-colorable"
 )
 
 var log = logrus.New()
 
-func init() {
-	//Configure logging formatter
-	customFormatter := new(logrus.TextFormatter)
-	customFormatter.ForceColors = true
-	customFormatter.DisableTimestamp = true
-	customFormatter.FullTimestamp = false
-	customFormatter.DisableColors = false
-	log.Formatter = customFormatter
+type clearTextFormatter struct{}
 
-	//Windows color support
-	log.SetOutput(colorable.NewColorableStdout())
+func (f *clearTextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	return []byte(entry.Message + "\r\n"), nil
+}
+
+func init() {
+	/*
+		//Configure logging formatter
+		customFormatter := new(logrus.TextFormatter)
+		customFormatter.ForceColors = false
+		customFormatter.DisableTimestamp = true
+		customFormatter.FullTimestamp = false
+		customFormatter.DisableColors = false
+		log.Formatter = customFormatter
+
+		//Windows color support
+		log.SetOutput(colorable.NewColorableStdout())
+	*/
+
+	log.SetFormatter(new(clearTextFormatter))
 }
 
 func uiStringArray(title string, arr []string) {
@@ -46,14 +54,13 @@ func uiStringArray(title string, arr []string) {
 		return
 	}
 	log.Printf("%s: [%s]", title, strings.Join(arr, ","))
-
 }
 
 func uiList(list interface{}) {
 	switch list.(type) {
 	case *ybApi.ActivityListRes:
 		itemList := list.(*ybApi.ActivityListRes)
-		log.Printf("Count: %d\t", len(itemList.Activities))
+		log.Printf("# Count: %d\t", len(itemList.Activities))
 		for _, v := range itemList.Activities {
 			log.Printf("- Name: %s", v.Name)
 			log.Printf("  Description: %s", v.Description)
@@ -66,7 +73,7 @@ func uiList(list interface{}) {
 		return
 	case *ybApi.SrvListRes:
 		itemList := list.(*ybApi.SrvListRes)
-		log.Printf("Count: %d\t", len(itemList.Services))
+		log.Printf("# Count: %d\t", len(itemList.Services))
 		for _, v := range itemList.Services {
 			log.Printf("- Name: %s", v.Name)
 			log.Printf("  State: %s", v.State.String())
@@ -76,7 +83,7 @@ func uiList(list interface{}) {
 		return
 	case *ybApi.PrdListRes:
 		itemList := list.(*ybApi.PrdListRes)
-		log.Printf("Count: %d\t", len(itemList.Rows))
+		log.Printf("# Count: %d\t", len(itemList.Rows))
 		for _, v := range itemList.Rows {
 			log.Printf("- Name: %s", v.Name)
 			log.Printf("  Description: %s", v.Description)
@@ -84,7 +91,7 @@ func uiList(list interface{}) {
 		return
 	case *ybApi.ImgListRes:
 		itemList := list.(*ybApi.ImgListRes)
-		log.Printf("Count: %d\t", len(itemList.Imgs))
+		log.Printf("# Count: %d\t", len(itemList.Imgs))
 		for _, v := range itemList.Imgs {
 			log.Printf("- Name: %s", v.Name)
 			//TODO: Currently no tags will be recieved from the server
@@ -94,7 +101,7 @@ func uiList(list interface{}) {
 		return
 	case *ybApi.VolumeSpecListRes:
 		itemList := list.(*ybApi.VolumeSpecListRes)
-		log.Printf("Count: %d\t", len(itemList.VolumeSpecs))
+		log.Printf("# Count: %d\t", len(itemList.VolumeSpecs))
 		for _, v := range itemList.VolumeSpecs {
 			log.Printf("- Name: %s", v.Name)
 			log.Printf("  Class: %s", v.Class)
@@ -103,7 +110,7 @@ func uiList(list interface{}) {
 		return
 	case *ybApi.VolumeListRes:
 		itemList := list.(*ybApi.VolumeListRes)
-		log.Printf("Count: %d\t", len(itemList.Volumes))
+		log.Printf("# Count: %d\t", len(itemList.Volumes))
 		for _, v := range itemList.Volumes {
 			log.Printf("- Name: %s", v.Name)
 			log.Printf("  Spec: %s", v.Spec.Name)
@@ -114,7 +121,7 @@ func uiList(list interface{}) {
 		return
 	case *ybApi.DomainListRes:
 		itemList := list.(*ybApi.DomainListRes)
-		log.Printf("Count: %d\t", len(itemList.Domains))
+		log.Printf("# Count: %d\t", len(itemList.Domains))
 		for _, v := range itemList.Domains {
 			log.Printf("- Domain Name: %s", v.Domain)
 			log.Printf("  TLS: %s", v.Tls)
@@ -124,7 +131,7 @@ func uiList(list interface{}) {
 		return
 	case *ybApi.WorkerListRes:
 		itemList := list.(*ybApi.WorkerListRes)
-		log.Printf("Count: %d\t", len(itemList.Services))
+		log.Printf("# Count: %d\t", len(itemList.Services))
 		for _, v := range itemList.Services {
 			log.Printf("- Name: %s", v.Name)
 			log.Printf("  State: %s", v.State.String())

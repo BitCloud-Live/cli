@@ -15,13 +15,37 @@ import (
 var version string
 
 var (
-	updateCmd = &cobra.Command{
+	cliCmd = &cobra.Command{
+		Use:   "cli [command]",
+		Short: "YOTTAb cli setting",
+		Long:  ``}
+
+	cliUpdateCmd = &cobra.Command{
 		Use:   "update",
 		Short: "Self update cli to latest stable release",
 		Long:  `Self update cli to latest stable release from github release page of YOTTAb cli`,
 		Run:   checkAndSelfUpdate}
+
+	cliCompletionCmd = &cobra.Command{
+		Use:   "completion",
+		Short: "Generates bash completion scripts",
+		Long: `To load completion run
+			
+			. <(yb completion)
+			
+			To configure your bash shell to load completions for each session add to your bashrc
+			
+			# ~/.bashrc or ~/.profile
+			. <(yb completion)
+			`,
+		Run: func(cmd *cobra.Command, args []string) {
+			// TODO
+
+			rootCmd.GenBashCompletion(os.Stdout)
+		}}
 )
 
+// CheckNewerVersion .
 func CheckNewerVersion(inform bool) (*selfupdate.Release, bool) {
 	latest, found, err := selfupdate.DetectLatest("yottab/cli")
 	if err != nil {
@@ -46,6 +70,7 @@ func CheckNewerVersion(inform bool) (*selfupdate.Release, bool) {
 	}
 	return latest, true
 }
+
 func checkAndSelfUpdate(cmd *cobra.Command, args []string) {
 	latest, available := CheckNewerVersion(true)
 	if !available {
@@ -54,6 +79,7 @@ func checkAndSelfUpdate(cmd *cobra.Command, args []string) {
 	SelfUpdate(latest)
 }
 
+// SelfUpdate .
 func SelfUpdate(latestAvailable *selfupdate.Release) {
 	fmt.Printf("We found a newer version: %s", latestAvailable.Version)
 	fmt.Print("Do you want to update? [Y/n]: ")
@@ -76,5 +102,9 @@ func SelfUpdate(latestAvailable *selfupdate.Release) {
 }
 
 func init() {
-	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(cliCmd)
+
+	cliCmd.AddCommand(
+		cliUpdateCmd,
+		cliCompletionCmd)
 }
