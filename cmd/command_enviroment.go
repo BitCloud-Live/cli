@@ -42,7 +42,7 @@ var (
 
 	srvSetEnvCmd = &cobra.Command{
 		Use:     "service [name]",
-		Run:     srvConfigSet,
+		Run:     srvEnvironmentSet,
 		Short:   commentShort,
 		Long:    commentSetLong,
 		Example: commentExample}
@@ -65,7 +65,7 @@ var (
 
 	srvUnsetEnvCmd = &cobra.Command{
 		Use:     "service [name]",
-		Run:     srvConfigUnset,
+		Run:     srvEnvironmentUnset,
 		Short:   commentShort,
 		Long:    commentUnsetLong,
 		Example: commentExample}

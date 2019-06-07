@@ -10,7 +10,7 @@ var (
 )
 
 func domainList(cmd *cobra.Command, args []string) {
-	req := reqIndexForApp(args, 0, NotRequiredArg)
+	req := getCliRequestIndexForApp(args, 0, flagIndex)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().DomainList(client.Context(), req)
@@ -19,7 +19,7 @@ func domainList(cmd *cobra.Command, args []string) {
 }
 
 func domainInfo(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().DomainInfo(client.Context(), req)
@@ -27,20 +27,27 @@ func domainInfo(cmd *cobra.Command, args []string) {
 	uiDomainStatus(res)
 }
 
-func domainCreate(cmd *cobra.Command, args []string) {
+// DomainCreate create domain
+func DomainCreate(domain string, tls bool) (*ybApi.DomainStatusRes, error) {
 	req := new(ybApi.DomainCreateReq)
-	req.Domain = argValue(args, 0, RequiredArg, "")
-	req.Tls = flagTLS
+	req.Domain = domain
+	req.Tls = tls
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().DomainCreate(client.Context(), req)
+	return client.V2().DomainCreate(client.Context(), req)
+}
+func domainCreate(cmd *cobra.Command, args []string) {
+	res, err := DomainCreate(
+		getCliRequiredArg(args, 0),
+		flagTLS)
+
 	uiCheckErr("Could not Create the Domain: %v", err)
 	uiDomainStatus(res)
 }
 
 func domainDelete(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	_, err := client.V2().DomainDelete(client.Context(), req)

@@ -7,7 +7,7 @@ import (
 
 func workerList(cmd *cobra.Command, args []string) {
 	// TODO get index of page
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppListWorkers(client.Context(), req)
@@ -17,8 +17,8 @@ func workerList(cmd *cobra.Command, args []string) {
 
 func workerInfo(cmd *cobra.Command, args []string) {
 	req := new(ybApi.AttachIdentity)
-	req.Name = argValue(args, 0, RequiredArg, "")
-	req.Attachment = argValue(args, 1, RequiredArg, "")
+	req.Name = getCliRequiredArg(args, 0)
+	req.Attachment = getCliRequiredArg(args, 1)
 
 	client := grpcConnect()
 	defer client.Close()
@@ -29,8 +29,8 @@ func workerInfo(cmd *cobra.Command, args []string) {
 
 func workerPortforward(cmd *cobra.Command, args []string) {
 	req := new(ybApi.AttachIdentity)
-	req.Name = argValue(args, 0, RequiredArg, "")
-	req.Attachment = argValue(args, 1, RequiredArg, "")
+	req.Name = getCliRequiredArg(args, 0)
+	req.Attachment = getCliRequiredArg(args, 1)
 
 	client := grpcConnect()
 	defer client.Close()
@@ -41,8 +41,8 @@ func workerPortforward(cmd *cobra.Command, args []string) {
 
 func workerDestroy(cmd *cobra.Command, args []string) {
 	req := new(ybApi.AttachIdentity)
-	req.Name = argValue(args, 0, RequiredArg, "")
-	req.Attachment = argValue(args, 1, RequiredArg, "")
+	req.Name = getCliRequiredArg(args, 0)
+	req.Attachment = getCliRequiredArg(args, 1)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppRemoveWorker(client.Context(), req)
@@ -54,7 +54,7 @@ func workerDestroy(cmd *cobra.Command, args []string) {
 func workerCreate(cmd *cobra.Command, args []string) {
 	req := new(ybApi.WorkerReq)
 	req.Identities = new(ybApi.AttachIdentity)
-	req.Identities.Name = argValue(args, 0, RequiredArg, "")
+	req.Identities.Name = getCliRequiredArg(args, 0)
 	req.Identities.Attachment = cmd.Flag("name").Value.String()
 	req.Config = new(ybApi.WorkerConfig)
 	req.Config.Port = flagVarPort
@@ -70,7 +70,7 @@ func workerCreate(cmd *cobra.Command, args []string) {
 func workerUpdate(cmd *cobra.Command, args []string) {
 	req := new(ybApi.WorkerReq)
 	req.Identities = new(ybApi.AttachIdentity)
-	req.Identities.Name = argValue(args, 0, RequiredArg, "")
+	req.Identities.Name = getCliRequiredArg(args, 0)
 	req.Identities.Attachment = cmd.Flag("name").Value.String()
 	req.Config = new(ybApi.WorkerConfig)
 	req.Config.Port = flagVarPort

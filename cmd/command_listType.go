@@ -43,7 +43,13 @@ var (
   $: yb service                                 # list of all Services
   $: yb service [image_name]                    # detail of one Service
   $: yb service application [application_name]  # list of accessible Services for only one application`,
-		Run: srvList}
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 1 {
+				srvList(cmd, args)
+			} else {
+				log.Println("$: yb service application [application_name]")
+			}
+		}}
 )
 
 // Domain
@@ -72,9 +78,9 @@ var (
   $: yb domain application [application_name]  # list of accessible Domains for only one application`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 1 {
-				domainInfo(cmd, args)
-			} else {
 				domainList(cmd, args)
+			} else {
+				log.Println("$: yb domain application [application_name]")
 			}
 		}}
 )
@@ -103,7 +109,13 @@ var (
   $: yb volume                                 # list of all Volume
   $: yb volume [volume_name]                   # detail of one Volume
   $: yb volume application [application_name]  # list of accessible Volume for only one application`,
-		Run: volumeList}
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 1 {
+				volumeList(cmd, args)
+			} else {
+				log.Println("$: yb volume application [application_name]")
+			}
+		}}
 )
 
 // Image
@@ -129,7 +141,13 @@ var (
 		Use:   "application [name]",
 		Short: "list of accessible Image for only one application",
 		Long:  `This subcommand can pageing the Image.`,
-		Run:   imgList}
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 1 {
+				imgList(cmd, args)
+			} else {
+				log.Println("$: yb image application [application_name]")
+			}
+		}}
 )
 
 // Product
@@ -138,14 +156,7 @@ var (
 		Use:   "product [type]",
 		Short: "list or informaition of accessible Products",
 		Long: `This subcommand can pageing the Products.
-		This subcommand show the information, praice and ... of a product.`,
-		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) == 1 {
-				prdInfo(cmd, args)
-			} else {
-				prdList(cmd, args)
-			}
-		}}
+		This subcommand show the information, praice and ... of a product.`}
 
 	prdServiceCmd = &cobra.Command{
 		Use:   "service [name]",
@@ -226,9 +237,9 @@ var (
 
 	logCmd = &cobra.Command{
 		Use:   "log [APP.name]",
+		Run:   appLog,
 		Short: "tail application log",
-		Long:  `This subcommand tails the current application logs`,
-		Run:   appLog}
+		Long:  `This subcommand tails the current application logs`}
 )
 
 func init() {

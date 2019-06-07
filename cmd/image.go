@@ -19,7 +19,7 @@ var (
 )
 
 func imgList(cmd *cobra.Command, args []string) {
-	req := reqIndexForApp(args, 0, NotRequiredArg)
+	req := getCliRequestIndexForApp(args, 0, flagIndex)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().ImgList(client.Context(), req)
@@ -28,7 +28,7 @@ func imgList(cmd *cobra.Command, args []string) {
 }
 
 func imgInfo(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().ImgInfo(client.Context(), req)
@@ -41,7 +41,7 @@ func imgImport(cmd *cobra.Command, args []string) {} //TODO
 func imgBuild(cmd *cobra.Command, args []string) {} //TODO
 
 func imgDelete(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	_, err := client.V2().ImgDelete(client.Context(), req)

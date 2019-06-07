@@ -10,7 +10,13 @@ var (
 		Use:   "create [command]",
 		Short: "creates new [service|application|domain|volume|worker|config]",
 		Long:  ``,
-		Args:  cobra.MinimumNArgs(1)}
+		Run: func(cmd *cobra.Command, args []string) {
+			if cmd.Flag("compose-file").Changed {
+				composeCreate(cmd, args)
+			} else {
+				cmd.Help()
+			}
+		}}
 
 	appCreateCmd = &cobra.Command{
 		Use:   "application",
@@ -103,6 +109,8 @@ var (
 )
 
 func init() {
+	createCmd.Flags().StringP("compose-file", "f", "", "the path of compose file")
+
 	// service Create flag:
 	srvCreateCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service")
 	srvCreateCmd.Flags().StringP("plan", "P", "starter", "the plan of sell")

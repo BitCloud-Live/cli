@@ -1,45 +1,61 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	ybApi "github.com/yottab/proto-api/proto"
 )
 
-const (
-	// RequiredArg : this arg must be set
-	RequiredArg = true
-
-	// NotRequiredArg : this arg Not required to set
-	NotRequiredArg = false
-)
-
-func reqIndex(cmd *cobra.Command) *ybApi.ListReq {
+func getRequestIndex(pageIndex int32) *ybApi.ListReq {
 	req := new(ybApi.ListReq)
-	req.Index = flagIndex
+	req.Index = pageIndex //cli get value by flagIndex
 	return req
 }
 
-func reqIndexForApp(args []string, index int, required bool) *ybApi.AppListReq {
+func getCliRequestIndexForApp(cliArgs []string, index int, pageIndex int32) *ybApi.AppListReq {
+	appName := getCliArg(cliArgs, index, "")         // not Required have application.Name
+	return getRequestIndexForApp(appName, pageIndex) //cli get pageIndex value by flagIndex
+}
+func getRequestIndexForApp(appName string, pageIndex int32) *ybApi.AppListReq {
 	req := new(ybApi.AppListReq)
-	req.Index = flagIndex
-	req.App = argValue(args, index, required, "NO_NAME")
+	req.Index = pageIndex //cli get value by flagIndex
+	req.App = appName     // not Required have application.Name
 	return req
 }
 
-func reqIdentity(args []string, index int, required bool) *ybApi.Identity {
-	val := argValue(args, index, required, "NO_NAME")
+func getCliRequestIdentity(cliArgs []string, index int) *ybApi.Identity {
+	val := getCliRequiredArg(cliArgs, index)
+	return getRequestIdentity(val)
+}
+
+func getRequestIdentity(name string) *ybApi.Identity {
+	ri := checkRequiredArg(name)
 	req := new(ybApi.Identity)
-	req.Name = val
+	req.Name = ri
 	return req
 }
 
-func argValue(args []string, index int, required bool, defaultValue string) string {
-	if len(args) < index+1 {
-		if required {
-			log.Fatalf("not enugh required arg")
-		} else {
-			return defaultValue
-		}
+// get input Arg and check it
+
+func getCliArg(cliArgs []string, index int, defaultValue string) string {
+	if len(cliArgs) < index+1 {
+		return defaultValue
 	}
-	return args[index]
+	return cliArgs[index]
+}
+func getCliRequiredArg(cliArgs []string, index int) string {
+	if len(cliArgs) < index+1 {
+		log.Fatalf("not enugh required arg")
+	}
+	return cliArgs[index]
+}
+func checkArg(arg string, defaultValue string) string {
+	if arg == "" {
+		return defaultValue
+	}
+	return arg
+}
+func checkRequiredArg(arg string) string {
+	if arg == "" {
+		log.Fatalf("not enugh required arg")
+	}
+	return arg
 }

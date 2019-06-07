@@ -5,7 +5,7 @@ import (
 )
 
 func prdList(cmd *cobra.Command, args []string) {
-	req := reqIndex(cmd)
+	req := getRequestIndex(flagIndex)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().PrdList(client.Context(), req)
@@ -14,7 +14,7 @@ func prdList(cmd *cobra.Command, args []string) {
 }
 
 func prdInfo(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().PrdInfo(client.Context(), req)

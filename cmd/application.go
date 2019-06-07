@@ -16,7 +16,7 @@ var (
 )
 
 func appList(cmd *cobra.Command, args []string) {
-	req := reqIndex(cmd)
+	req := getRequestIndex(flagIndex)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppList(client.Context(), req)
@@ -25,7 +25,7 @@ func appList(cmd *cobra.Command, args []string) {
 }
 
 func appInfo(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppInfo(client.Context(), req)
@@ -34,7 +34,7 @@ func appInfo(cmd *cobra.Command, args []string) {
 }
 
 func appOpen(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppInfo(client.Context(), req)
@@ -43,7 +43,7 @@ func appOpen(cmd *cobra.Command, args []string) {
 }
 
 func appLog(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	logClient, err := client.V2().AppLog(context.Background(), req)
@@ -55,7 +55,7 @@ func appLog(cmd *cobra.Command, args []string) {
 }
 
 func appFTPMount(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppFTPPortforward(client.Context(), req)
@@ -64,26 +64,36 @@ func appFTPMount(cmd *cobra.Command, args []string) {
 	uiNFSMount(res)
 }
 
-func appStart(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+// AppStart start the application by name
+func AppStart(name string) (*ybApi.AppStatusRes, error) {
+	req := getRequestIdentity(name)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().AppStart(client.Context(), req)
+	return client.V2().AppStart(client.Context(), req)
+}
+func appStart(cmd *cobra.Command, args []string) {
+	appName := getCliRequiredArg(args, 0)
+	res, err := AppStart(appName)
 	uiCheckErr("Could not Start the Application: %v", err)
 	uiApplicationStatus(res)
 }
 
-func appStop(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+// AppStop stop the application by name
+func AppStop(name string) (*ybApi.AppStatusRes, error) {
+	req := getRequestIdentity(name)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().AppStop(client.Context(), req)
+	return client.V2().AppStop(client.Context(), req)
+}
+func appStop(cmd *cobra.Command, args []string) {
+	appName := getCliRequiredArg(args, 0)
+	res, err := AppStop(appName)
 	uiCheckErr("Could not Stop the Application: %v", err)
 	uiApplicationStatus(res)
 }
 
 func appDestroy(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	_, err := client.V2().AppDestroy(client.Context(), req)
@@ -91,30 +101,40 @@ func appDestroy(cmd *cobra.Command, args []string) {
 	log.Printf("app %s deleted", req.Name)
 }
 
-func appCreate(cmd *cobra.Command, args []string) {
-	if err := endpointTypeValid(flagVarEndpointType); err != nil {
+// ApplicationCreate create application by link of docker image
+func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale uint64) (*ybApi.AppStatusRes, error) {
+	if err := endpointTypeValid(EndpointType); err != nil {
 		log.Panic(err)
 	}
 	req := new(ybApi.AppCreateReq)
-	req.Name = cmd.Flag("name").Value.String()
-	req.Plan = cmd.Flag("plan").Value.String()
+	req.Name = appName
+	req.Plan = plan
 	req.Config = new(ybApi.AppConfig)
-	req.Config.Port = flagVarPort
-	req.Config.EndpointType = flagVarEndpointType
-	req.Config.MinScale = flagVarMinScale
-	req.Config.Image = cmd.Flag("image").Value.String()
+	req.Config.Port = port
+	req.Config.EndpointType = EndpointType
+	req.Config.MinScale = minScale
+	req.Config.Image = image
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().AppCreate(client.Context(), req)
+	return client.V2().AppCreate(client.Context(), req)
+}
+func appCreate(cmd *cobra.Command, args []string) {
+	res, err := ApplicationCreate(
+		cmd.Flag("name").Value.String(),
+		cmd.Flag("image").Value.String(),
+		cmd.Flag("plan").Value.String(),
+		flagVarEndpointType,
+		flagVarPort,
+		flagVarMinScale)
 	uiCheckErr("Could not Create the Application: %v", err)
 	uiApplicationStatus(res)
 }
 
 func appChangePlane(cmd *cobra.Command, args []string) {
 	req := new(ybApi.ChangePlanReq)
-	req.Name = argValue(args, 0, RequiredArg, "")
-	req.Plan = argValue(args, 1, RequiredArg, "")
+	req.Name = getCliRequiredArg(args, 0)
+	req.Plan = getCliRequiredArg(args, 1)
 
 	client := grpcConnect()
 	defer client.Close()
@@ -125,7 +145,7 @@ func appChangePlane(cmd *cobra.Command, args []string) {
 
 func appUpdate(cmd *cobra.Command, args []string) {
 	req := new(ybApi.ConfigSetReq)
-	req.Name = argValue(args, 0, RequiredArg, "")
+	req.Name = getCliRequiredArg(args, 0)
 	req.Config = new(ybApi.AppConfig)
 	req.Config.MinScale = flagVarMinScale
 	req.Config.Port = flagVarPort
@@ -140,21 +160,28 @@ func appUpdate(cmd *cobra.Command, args []string) {
 	uiApplicationStatus(res)
 }
 
-func appAddEnvironmentVariable(cmd *cobra.Command, args []string) {
+// ApplicationAddEnvironmentVariable add Environment Variable to Application
+func ApplicationAddEnvironmentVariable(serviceName string, variable map[string]string) (*ybApi.AppStatusRes, error) {
 	req := new(ybApi.AppAddEnvironmentVariableReq)
-	req.Name = argValue(args, 0, RequiredArg, "")
-	req.Variables = arrayFlagToMap(flagVariableArray)
+	req.Name = serviceName
+	req.Variables = variable
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().AppAddEnvironmentVariable(client.Context(), req)
+	return client.V2().AppAddEnvironmentVariable(client.Context(), req)
+}
+func appAddEnvironmentVariable(cmd *cobra.Command, args []string) {
+	res, err := ApplicationAddEnvironmentVariable(
+		getCliRequiredArg(args, 0),
+		arrayFlagToMap(flagVariableArray))
+
 	uiCheckErr("Could not Add the Environment Variable for Application: %v", err)
 	uiApplicationStatus(res)
 }
 
 func appRemoveEnvironmentVariable(cmd *cobra.Command, args []string) {
 	req := new(ybApi.UnsetReq)
-	req.Name = argValue(args, 0, RequiredArg, "")
+	req.Name = getCliRequiredArg(args, 0)
 	req.Variables = flagVariableArray
 
 	client := grpcConnect()
@@ -165,7 +192,7 @@ func appRemoveEnvironmentVariable(cmd *cobra.Command, args []string) {
 }
 
 func appReset(cmd *cobra.Command, args []string) {
-	req := reqIdentity(args, 0, RequiredArg)
+	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppReset(client.Context(), req)
@@ -173,13 +200,19 @@ func appReset(cmd *cobra.Command, args []string) {
 	uiApplicationStatus(res)
 }
 
-func appSrvBind(cmd *cobra.Command, args []string) {
+// ApplicationLinkService Application <-> Service
+func ApplicationLinkService(applicationName, serviceName string) (*ybApi.AppStatusRes, error) {
 	req := new(ybApi.AppSrvBindReq)
-	req.Name = cmd.Flag("application").Value.String()
-	req.Service = cmd.Flag("service").Value.String()
+	req.Name = applicationName
+	req.Service = serviceName
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().AppSrvBind(client.Context(), req)
+	return client.V2().AppSrvBind(client.Context(), req)
+}
+func appSrvBind(cmd *cobra.Command, args []string) {
+	res, err := ApplicationLinkService(
+		cmd.Flag("application").Value.String(),
+		cmd.Flag("service").Value.String())
 	uiCheckErr("Could not Bind the Service for Application: %v", err)
 	uiApplicationStatus(res)
 }
@@ -195,16 +228,22 @@ func appSrvUnBind(cmd *cobra.Command, args []string) {
 	uiApplicationStatus(res)
 }
 
-func appAttachVolume(cmd *cobra.Command, args []string) {
+// AppAttachVolume link the application and volume
+func AppAttachVolume(appName, volumeName, path string) (*ybApi.AppStatusRes, error) {
 	req := new(ybApi.VolumeAttachReq)
-	req.Name = cmd.Flag("application").Value.String()
-	req.Attachment = cmd.Flag("volume").Value.String()
-	req.MountPath = cmd.Flag("path").Value.String()
+	req.Name = appName
+	req.Attachment = volumeName
+	req.MountPath = path
 
 	client := grpcConnect()
-
 	defer client.Close()
-	res, err := client.V2().AppAttachVolume(client.Context(), req)
+	return client.V2().AppAttachVolume(client.Context(), req)
+}
+func appAttachVolume(cmd *cobra.Command, args []string) {
+	res, err := AppAttachVolume(
+		cmd.Flag("application").Value.String(),
+		cmd.Flag("volume").Value.String(),
+		cmd.Flag("path").Value.String())
 	uiCheckErr("Could not Attach the Volume for Application: %v", err)
 	uiApplicationStatus(res)
 }
@@ -221,16 +260,23 @@ func appDetachVolume(cmd *cobra.Command, args []string) {
 	uiApplicationStatus(res)
 }
 
-func appAttachDomain(cmd *cobra.Command, args []string) {
+// AppAttachDomain link the application and domain
+func AppAttachDomain(appName, domainName, path string) (*ybApi.AppStatusRes, error) {
 	req := new(ybApi.SrvDomainAttachReq)
 	req.AttachIdentity = new(ybApi.AttachIdentity)
-	req.AttachIdentity.Name = cmd.Flag("application").Value.String()
-	req.AttachIdentity.Attachment = cmd.Flag("domain").Value.String()
-	req.Path = cmd.Flag("path").Value.String()
+	req.AttachIdentity.Name = appName
+	req.AttachIdentity.Attachment = domainName
+	req.Path = path
 
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().AppAttachDomain(client.Context(), req)
+	return client.V2().AppAttachDomain(client.Context(), req)
+}
+func appAttachDomain(cmd *cobra.Command, args []string) {
+	res, err := AppAttachDomain(
+		cmd.Flag("application").Value.String(),
+		cmd.Flag("domain").Value.String(),
+		cmd.Flag("path").Value.String())
 	uiCheckErr("Could not Attach the Domain for Application: %v", err)
 	uiApplicationStatus(res)
 }

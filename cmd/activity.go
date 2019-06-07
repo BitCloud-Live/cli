@@ -14,13 +14,13 @@ var (
 
 func actList(cmd *cobra.Command, args []string) {
 	req := &ybApi.ActivityReq{}
-	strTag := argValue(args, 0, NotRequiredArg, "0")
+	strTag := getCliArg(args, 0, "0")
 	tagVal, err := strconv.ParseUint(strTag, 0, 64)
 	if err != nil {
 		tagVal = 0
 	}
 	req.Tag = ybApi.ActivityTag(tagVal)
-	req.Name = argValue(args, 1, NotRequiredArg, "")
+	req.Name = getCliArg(args, 1, "")
 	req.Index = flagIndex
 	client := grpcConnect()
 	defer client.Close()
