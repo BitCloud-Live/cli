@@ -61,8 +61,7 @@ func volumeCreate(cmd *cobra.Command, args []string) {
 		cmd.Flag("volume-type").Value.String())
 
 	uiCheckErr("Could not Create the Volume: %v", err)
-	//TODO
-	log.Println(res)
+	uiVolumeStatus(res)
 }
 
 // VolumeDelete delete a volume by name
