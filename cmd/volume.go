@@ -88,8 +88,7 @@ func volumeCreate(cmd *cobra.Command, args []string) {
 	defer client.Close()
 	res, err := client.V2().VolumeCreate(client.Context(), req)
 	uiCheckErr("Could not Create the Volume: %v", err)
-	//TODO
-	log.Println(res)
+	uiVolumeStatus(res)
 }
 
 func volumeDelete(cmd *cobra.Command, args []string) {
