@@ -9,7 +9,9 @@ var (
 		Use:   "rm [command] [name]",
 		Short: "Remove by name for [service|application|domain|volume|worker|config]",
 		Long:  `This subcommand can Remove the [services|app|domain|...] by name`,
-		Args:  cobra.MinimumNArgs(1)}
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	rmAppCmd = &cobra.Command{
 		Use:   "application [name]",

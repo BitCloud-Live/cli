@@ -20,7 +20,9 @@ var (
 		Short: "portforward to connect to an application running in a cluster",
 		Long: `Portforward to connect to an application running in a cluster.
 		This type of connection can be useful for database debugging`,
-		Args: cobra.MinimumNArgs(1)}
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	portforwardSrvCmd = &cobra.Command{
 		Use:   "service [name]",

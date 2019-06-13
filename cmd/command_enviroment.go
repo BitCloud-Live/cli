@@ -25,13 +25,19 @@ var (
 		Use:     "environment [command]",
 		Short:   commentShort,
 		Long:    commentSetLong,
-		Example: commentExample}
+		Example: commentExample,
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	setEnvCmd = &cobra.Command{
 		Use:     "set [type]",
 		Short:   commentShort,
 		Long:    commentSetLong,
-		Example: commentExample}
+		Example: commentExample,
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	appSetEnvCmd = &cobra.Command{
 		Use:     "application [name]",
@@ -54,7 +60,10 @@ var (
 		Use:     "unset [type]",
 		Short:   commentShort,
 		Long:    commentUnsetLong,
-		Example: commentExample}
+		Example: commentExample,
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	appUnsetEnvCmd = &cobra.Command{
 		Use:     "application [name]",

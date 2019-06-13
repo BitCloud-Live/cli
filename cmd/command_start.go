@@ -10,7 +10,9 @@ var (
 		Use:   "start [command] [name]",
 		Short: "start the stopped container",
 		Long:  ``,
-		Args:  cobra.MinimumNArgs(1)}
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	startAppCmd = &cobra.Command{
 		Use:   "application [name]",
@@ -31,7 +33,9 @@ var (
 		Use:   "stop [command] [name]",
 		Short: "stop the running container",
 		Long:  ``,
-		Args:  cobra.MinimumNArgs(1)}
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	stopAppCmd = &cobra.Command{
 		Use:   "application [name]",
@@ -52,7 +56,9 @@ var (
 		Use:   "reset [command] [name]",
 		Short: "reset the running container",
 		Long:  ``,
-		Args:  cobra.MinimumNArgs(1)}
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	resetAppCmd = &cobra.Command{
 		Use:   "application [name]",

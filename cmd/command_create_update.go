@@ -67,7 +67,9 @@ var (
 		Use:   "update [command] [name]",
 		Short: "update the existing [application|worker|plan]",
 		Long:  ``,
-		Args:  cobra.MinimumNArgs(1)}
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	appUpdateCmd = &cobra.Command{
 		Use:   "application [APP.name]",

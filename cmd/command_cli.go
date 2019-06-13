@@ -18,7 +18,10 @@ var (
 	cliCmd = &cobra.Command{
 		Use:   "cli [command]",
 		Short: "YOTTAb cli setting",
-		Long:  ``}
+		Long:  ``,
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	cliUpdateCmd = &cobra.Command{
 		Use:   "update",

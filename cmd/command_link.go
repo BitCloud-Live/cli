@@ -17,7 +17,9 @@ var (
   $: yb link set \
         --service="my-wordpress" \
         --domain="example.com"`,
-		Args: cobra.MinimumNArgs(1)}
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Help()
+		}}
 
 	setLinkCmd = &cobra.Command{
 		Use:   "set",
