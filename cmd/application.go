@@ -40,11 +40,12 @@ var (
 		Long:  `This subcommand tails the current application logs`,
 		Run:   appLog}
 
-	appFTPMountCmd = &cobra.Command{
-		Use:   "app:ftp-mount",
-		Short: "Connect to the remote file system using ftp protocol",
-		Long:  `This subcommand connects to the remote file system using ftp protocol`,
-		Run:   appFTPMount}
+	//Deprecated in favor of the worker api
+	// appFTPMountCmd = &cobra.Command{
+	// 	Use:   "app:ftp-mount",
+	// 	Short: "Connect to the remote file system using ftp protocol",
+	// 	Long:  `This subcommand connects to the remote file system using ftp protocol`,
+	// 	Run:   appFTPMount}
 
 	appCreateCmd = &cobra.Command{
 		Use:   "app:create",
@@ -421,16 +422,17 @@ func init() {
 	appLogCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
 	appLogCmd.MarkFlagRequired("name")
 
+	// Deprecated in favor of the worker api
 	// app ftp mount:
-	appFTPMountCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
-	appFTPMountCmd.MarkFlagRequired("name")
+	// appFTPMountCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the application.")
+	// appFTPMountCmd.MarkFlagRequired("name")
 
 	// app Create:
 	appCreateCmd.Flags().StringP("plan", "s", "", "name of plan")
 	appCreateCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
 	appCreateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
 	appCreateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
-	appCreateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc, default to http")
+	appCreateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc|private, default to http")
 	appCreateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 1, "min scale of application")
 	appCreateCmd.MarkFlagRequired("image")
 
@@ -528,7 +530,8 @@ func init() {
 		appInfoCmd,
 		appOpenCmd,
 		appLogCmd,
-		appFTPMountCmd,
+		// Deprecated in favor of the worker api
+		// appFTPMountCmd,
 		appCreateCmd,
 		appConfigSetCmd,
 		appConfigUnsetCmd,
