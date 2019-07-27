@@ -30,6 +30,10 @@
   version = "1.0.6"
 
 [[constraint]]
+  name = "github.com/xeipuuv/gojsonschema"
+  version = "master"
+
+[[constraint]]
   name = "github.com/mitchellh/go-homedir"
   version = "1.0.0"
 
