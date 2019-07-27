@@ -27,8 +27,10 @@ func srvPortforward(cmd *cobra.Command, args []string) {
 	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
+	info, err := client.V2().SrvInfo(client.Context(), req)
 	res, err := client.V2().SrvPortforward(client.Context(), req)
 	uiCheckErr("Could not Portforward the Service: %v", err)
+	uiServicStatus(info)
 	uiPortforward(res)
 }
 

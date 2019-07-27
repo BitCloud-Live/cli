@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 
 	"google.golang.org/grpc/codes"
@@ -168,6 +169,19 @@ func uiNFSMount(in *ybApi.PortforwardRes) {
 
 func uiPortforward(in *ybApi.PortforwardRes) {
 	bearer := string(in.Token)
+	localPorts := []string{}
+	for _, p := range in.Ports {
+		pRemote, err := strconv.Atoi(p)
+		if err != nil {
+			panic(err)
+		}
+		pLocal := pRemote
+		if pLocal < 1000 {
+			pLocal += 1000
+		}
+		pNew := fmt.Sprintf("%d:%d", pLocal, pRemote)
+		localPorts = append(localPorts, pNew)
+	}
 	proxyURL, _ := url.Parse(in.ProxyHost)
 	conf := &rest.Config{
 		BearerToken:     bearer,
@@ -189,16 +203,23 @@ func uiPortforward(in *ybApi.PortforwardRes) {
 	defer signal.Stop(signals)
 
 	go func() {
-		fmt.Printf("Forwarding ports: %s", in.Ports)
+		fmt.Println("#####################################################")
+		fmt.Printf("### Forwarding ports [local:remote]: %s", localPorts)
+		fmt.Println("")
+		fmt.Println("### Now local ports are accessible from localhost")
+		fmt.Println("### For example: localhost:3306, 127.0.0.1:5432")
+		fmt.Println("#####################################################")
 		<-signals
-		fmt.Print("closing the opened ports...")
+		fmt.Println("closing ports...")
 		if done != nil {
 			close(done)
 		}
+		fmt.Println("done.")
 		os.Exit(1)
+
 	}()
 	dialer := spdy.NewDialer(upgrader, &http.Client{Transport: transport}, http.MethodPost, proxyURL)
-	pf, err := portforward.New(dialer, in.Ports, done, rdy, &stdout, &stderr)
+	pf, err := portforward.New(dialer, localPorts, done, rdy, &stdout, &stderr)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -280,7 +301,7 @@ func uiApplicationOpen(app *ybApi.AppStatusRes) {
 	//We only handle http endpoint at this moment!
 	case "http":
 		route = fmt.Sprintf("https://%s:443", route)
-		if err := browser.OpenURL("https://" + route); err != nil {
+		if err := browser.OpenURL(route); err != nil {
 			fmt.Printf("Can't open this endpoint, error: %v!", err)
 		}
 		print("Opened in default browser!")

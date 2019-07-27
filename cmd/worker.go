@@ -34,8 +34,10 @@ func workerPortforward(cmd *cobra.Command, args []string) {
 
 	client := grpcConnect()
 	defer client.Close()
+	info, err := client.V2().AppWorkerInfo(client.Context(), req)
 	res, err := client.V2().AppWorkerPortforward(client.Context(), req)
 	uiCheckErr("Could not Portforward the Service: %v", err)
+	uiWorkerStatus(info)
 	uiPortforward(res)
 }
 
