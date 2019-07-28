@@ -47,7 +47,7 @@
 
 [[constraint]]
   name = "github.com/yottab/proto-api"
-  version = "2.2.0"
+  version = "2.3.0"
 
 [[constraint]]
   branch = "master"

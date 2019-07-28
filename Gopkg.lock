@@ -379,12 +379,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:56f0f4357be97a95ca544bf8de083ba0966b1938a1cf8505dc9e589e93888bff"
+  digest = "1:df42b2da01b71ac1579ad75c56ffdd91629e61abfe8946c5db0d347ff5a2cce6"
   name = "github.com/yottab/proto-api"
   packages = ["proto"]
   pruneopts = "UT"
-  revision = "7d2ab2a7d9a015b1e03dd7c1deb47562dac6ee3e"
-  version = "v2.2.0"
+  revision = "1f77e50f9dacc9eba41d6d6c4731a6f8843a3728"
+  version = "v2.3.0"
 
 [[projects]]
   branch = "master"
