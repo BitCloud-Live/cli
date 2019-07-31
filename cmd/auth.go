@@ -3,14 +3,14 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	ybApi "github.com/yottab/proto-api/proto"
 	"github.com/yottab/cli/config"
+	ybApi "github.com/yottab/proto-api/proto"
 )
 
 var (
 	loginCmd = &cobra.Command{
 		Use:   "login",
-		Short: "Login to a controller",
+		Short: "Login to a YOTTAb controller",
 		Long:  `This subcommand logs in by authenticating against a controller.`,
 		Run:   login}
 
@@ -58,5 +58,7 @@ func logout(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	rootCmd.AddCommand(loginCmd, logoutCmd)
+	rootCmd.AddCommand(
+		loginCmd,
+		logoutCmd)
 }

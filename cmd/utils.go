@@ -57,9 +57,11 @@ func readPasswordFromConsole(inputAnswr string) (val string) {
 }
 
 func grpcConnect() ybApi.Client {
-	return ybApi.Connect(viper.GetString(config.KEY_HOST), ybApi.NewJwtAccess(func() string {
-		return viper.GetString(config.KEY_TOKEN)
-	}))
+	return ybApi.Connect(
+		viper.GetString(config.KEY_HOST),
+		ybApi.NewJwtAccess(func() string {
+			return viper.GetString(config.KEY_TOKEN)
+		}))
 }
 
 func toTime(t *ybApi.Timestamp) (out string) {
