@@ -33,7 +33,7 @@ build-all: build-linux build-linux-arm build-windows build-darwin
 	ls build
 
 docker-build:
-	docker build --no-cache  --build-arg version=$(version) -t yb:$(version) . && docker tag yb:$(version) hub.yottab.io/yottab/cli:$(version)
+	docker build -t yb:$(version) . && docker tag yb:$(version) hub.yottab.io/yottab-library/cli:$(version)
 
 docker-push:
-	docker push hub.yottab.io/yottab/cli:$(version)
+	docker push hub.yottab.io/yottab-library/cli:$(version)
