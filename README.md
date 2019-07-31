@@ -88,7 +88,7 @@ build-master:
     - master # use `tags` for build when ever a new tag pushed to the repository
 
 deploy: 
-  image: hub.yottab.io/yottab-library/yottab-cli:${LATEST_VERSION} # use an existing git tag for the LATEST_VERSION variable.
+  image: hub.yottab.io/yottab-library/cli:${LATEST_VERSION} # use an existing git tag for the LATEST_VERSION variable.
   stage: deploy
   before_script:
     - yb login -u $YOTTAB_USER --yb-pass=$YOTTAB_PASSWORD
