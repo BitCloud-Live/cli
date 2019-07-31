@@ -94,6 +94,6 @@ deploy:
     - yb login -u $YOTTAB_USER --yb-pass=$YOTTAB_PASSWORD
     - yb application $APP
   script:
-    - "yb app:configSet -n $APP  -i $IMAGE"
-    - "yb app:info -n $APP"
+    - "yb update application $APP -i $IMAGE"
+    - "yb application $APP"
 ```
