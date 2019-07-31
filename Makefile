@@ -2,7 +2,7 @@ version := $(shell git describe --abbrev=0 --tags)
 LD_FLAGS := -w -X github.com/yottab/cli/cmd.version=$(version) -extldflags "-static"
 define GOBUILD
 	CGO_ENABLED=0 GOOS=$(1) GOARCH=$(2) go build --tags netgo -a -ldflags '$(LD_FLAGS)' -o build/yb-$(version)-$(1)-$(2) -i main.go
-	openssl dgst -sha256 build/yb-$(version)-$(1)-$(2) > build/yb-$(version)-$(1)-$(2).sha256
+	openssl dgst -sha256 build/yb-$(version)-$(1)-$(2) | cut -f2 -d' ' > build/yb-$(version)-$(1)-$(2).sha256
 endef
 
 
