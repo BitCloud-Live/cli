@@ -14,6 +14,7 @@ import (
 const (
 	DEFAULTE_CONTOROLLER = "controller.yottab.io:443"
 	KEY_USER             = "yb-user"
+	KEY_PASSWORD         = "yb-pass"
 	KEY_TOKEN            = "token"
 	KEY_HOST             = "host"
 	APP_NAME             = "yb"

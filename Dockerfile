@@ -1,14 +1,19 @@
 # This file is a template, and might need editing before it works on your project.
 FROM golang:1.10 AS builder
+ARG version
 WORKDIR $GOPATH/src/github.com/yottab/cli
-# This will download deps in docker file ignored for faster build(copy vendor folder)
-# ADD https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 /usr/bin/dep
-# RUN chmod +x /usr/bin/dep
-# COPY Gopkg.toml Gopkg.lock ./
-# RUN dep ensure --vendor-only
 COPY . ./
-RUN make
-FROM alpine:latest
-WORKDIR /usr/bin/
-COPY --from=builder /go/src/github.com/yottab/cli/build/yb yb
+WORKDIR $GOPATH/src
+RUN CGO_ENABLED=0 go build -a -installsuffix nocgo --tags netgo -ldflags '-w -X github.com/yottab/cli/cmd.version=$(version) -extldflags "-static"' -o /yb -i github.com/yottab/cli/main.go
+#RUN go build -v  -o cron1 youtab/cron/expWorker/main.go
+#RUN go build -v  -o cron2 youtab/cron/mailWorker/main.go
 
+FROM alpine
+RUN apk update && \
+     apk add libc6-compat && \
+     apk add ca-certificates
+ENV HOME /app
+ENV PATH ${PATH}:${HOME}
+WORKDIR ${HOME}
+COPY --from=builder /yb yb
+CMD [ "/app/yb" ]
