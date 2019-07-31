@@ -12,16 +12,16 @@ Common platform binaries are published on the releases page. this includes linux
 The easiest way to install the latest release on Mac or Linux is with the following script:
 
 ```
-curl https://raw.githubusercontent.com/yottab/cli/master/scripts/install | sh
+curl -L http://install.yottab.io | bash
 ```
 ### Other installation methods:
 #### OSX 
 ```sh
-$ wget https://github.com/yottab/cli/releases/download/v2.2.0/yb-v2.2.0-darwin-amd64 -O /usr/local/bin/yb
+$ wget https://github.com/yottab/cli/releases/download/v${LATEST_VERSION}/yb-${LATEST_VERSION}-darwin-amd64 -O /usr/local/bin/yb
 ```
 #### Linux
 ```sh
-$ sudo wget https://github.com/yottab/cli/releases/download/v2.2.0/yb-v2.2.0-linux-amd64 -O /usr/local/bin/yb
+$ sudo wget https://github.com/yottab/cli/releases/download/v${LATEST_VERSION}/yb-v${LATEST_VERSION}-linux-amd64 -O /usr/local/bin/yb
 $ sudo chmod +x /usr/local/bin/yb
 ```  
 #### Windows 
@@ -88,11 +88,11 @@ build-master:
     - master # use `tags` for build when ever a new tag pushed to the repository
 
 deploy: 
-  image: hub.yottab.io/yottab/cli:V2.0.0-rc7
+  image: hub.yottab.io/yottab/cli:${LATEST_VERSION} # use an existing git tag for the LATEST_VERSION variable.
   stage: deploy
   before_script:
-    - echo $YOTTAB_PASSWORD | yb login -u $YOTTAB_USER
-    - yb app:info -n $APP
+    - yb login -u $YOTTAB_USER --yb-pass=$YOTTAB_PASSWORD
+    - yb application $APP
   script:
     - "yb app:configSet -n $APP  -i $IMAGE"
     - "yb app:info -n $APP"

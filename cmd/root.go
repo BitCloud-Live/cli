@@ -32,7 +32,7 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&config.ConfigManualAddress, "config", "", "Config file (default is $HOME/.yb/config.json)")
 	rootCmd.PersistentFlags().StringP(config.KEY_USER, "u", "", "yottab account username")
-	rootCmd.PersistentFlags().StringP(config.KEY_PASSWORD, "p", "", "yottab account password")
+	rootCmd.PersistentFlags().StringP(config.KEY_PASSWORD, "", "", "yottab account password")
 	rootCmd.PersistentFlags().StringP(config.KEY_HOST, "l", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI")
 	rootCmd.PersistentFlags().StringP(config.KEY_TOKEN, "t", "", "Manual Send 'TOKEN' for Authentication")
 
