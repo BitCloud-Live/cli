@@ -21,15 +21,18 @@ var (
 		Run:   logout}
 )
 
+//Cli provided insecure password
+var password string
+
 func login(cmd *cobra.Command, args []string) {
 	email := viper.GetString(config.KEY_USER)
 
 	if len(email) == 0 {
 		email = readFromConsole("Username: ")
 	}
-	password := viper.GetString(config.KEY_PASSWORD)
-	if len(password) == 0 {
+	if len(password) != 0 {
 		log.Warn("WARNING! Using --password via the CLI is insecure. use it in the case of need, for example: a secured build pipeline")
+	} else {
 		password = readPasswordFromConsole("Password: ")
 	}
 	client := grpcConnect()

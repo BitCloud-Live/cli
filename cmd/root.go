@@ -32,12 +32,11 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&config.ConfigManualAddress, "config", "", "Config file (default is $HOME/.yb/config.json)")
 	rootCmd.PersistentFlags().StringP(config.KEY_USER, "u", "", "yottab account username")
-	rootCmd.PersistentFlags().StringP(config.KEY_PASSWORD, "", "", "yottab account password")
+	rootCmd.PersistentFlags().StringVarP(&password, config.KEY_PASSWORD, "P", "", "yottab account password")
 	rootCmd.PersistentFlags().StringP(config.KEY_HOST, "l", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI")
 	rootCmd.PersistentFlags().StringP(config.KEY_TOKEN, "t", "", "Manual Send 'TOKEN' for Authentication")
 
 	viper.BindPFlag(config.KEY_USER, rootCmd.PersistentFlags().Lookup(config.KEY_USER))
-	viper.BindPFlag(config.KEY_PASSWORD, rootCmd.PersistentFlags().Lookup(config.KEY_PASSWORD))
 	viper.BindPFlag(config.KEY_HOST, rootCmd.PersistentFlags().Lookup(config.KEY_HOST))
 	viper.BindPFlag(config.KEY_TOKEN, rootCmd.PersistentFlags().Lookup(config.KEY_TOKEN))
 }

@@ -115,7 +115,7 @@ func init() {
 
 	// service Create flag:
 	srvCreateCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service")
-	srvCreateCmd.Flags().StringP("plan", "P", "starter", "the plan of sell")
+	srvCreateCmd.Flags().StringP("plan", "", "starter", "the plan of sell")
 	srvCreateCmd.Flags().StringArrayVarP(&flagVariableArray, "variable", "v", nil, "variable of service")
 	srvCreateCmd.MarkFlagRequired("name")
 

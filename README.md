@@ -91,7 +91,7 @@ deploy:
   image: hub.yottab.io/yottab-library/cli:${LATEST_VERSION} # use an existing git tag for the LATEST_VERSION variable.
   stage: deploy
   before_script:
-    - yb login -u $YOTTAB_USER --yb-pass=$YOTTAB_PASSWORD
+    - yb login -u $YOTTAB_USER --P $YOTTAB_PASSWORD
     - yb application $APP
   script:
     - "yb update application $APP -i $IMAGE"
