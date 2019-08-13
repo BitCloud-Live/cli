@@ -93,7 +93,7 @@ checkDesiredVersion() {
 # if it needs to be changed.
 checkYottabInstalledVersion() {
   if [[ -f "${YOTTAB_INSTALL_DIR}/${PROJECT_NAME}" ]]; then
-    local version=$(yb version -c | grep '^Client' | cut -d" " -f3)
+    local version=$(yb --version | cut -d" " -f3)
     if [[ "$version" == "$TAG" ]]; then
       echo "yb ${version} is already ${DESIRED_VERSION:-latest}"
       return 0
