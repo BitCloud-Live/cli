@@ -407,7 +407,7 @@ func uiVolumeStatus(vol *ybApi.VolumeStatusRes) {
 
 func uiCheckErr(info string, err error) {
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf("%s, Err: %v", info, err)
 	}
 }
 

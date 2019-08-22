@@ -31,12 +31,6 @@ var (
 		This type of connection can be useful for database debugging`,
 		Run: srvPortforward}
 
-	portforwardFTPCmd = &cobra.Command{
-		Use:   "ftp [Application.name]",
-		Short: "Connect to the remote file system using ftp protocol",
-		Long:  `This subcommand connects to the remote file system using ftp protocol`,
-		Run:   appFTPMount}
-
 	portforwardWorkerCmd = &cobra.Command{
 		Use:   "worker [Application.name] [Worker.name]",
 		Short: "port-forward to connect to an application worker running in a cluster",
@@ -52,6 +46,5 @@ func init() {
 
 	portforwardCmd.AddCommand(
 		portforwardSrvCmd,
-		portforwardFTPCmd,
 		portforwardWorkerCmd)
 }

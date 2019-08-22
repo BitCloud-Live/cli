@@ -29,12 +29,16 @@ func login(cmd *cobra.Command, args []string) {
 
 	if len(email) == 0 {
 		email = readFromConsole("Username: ")
+	} else {
+		log.Println("Loggin by user", email)
 	}
+
 	if len(password) != 0 {
 		log.Warn("WARNING! Using --password via the CLI is insecure. use it in the case of need, for example: a secured build pipeline")
 	} else {
 		password = readPasswordFromConsole("Password: ")
 	}
+
 	client := grpcConnect()
 	defer client.Close()
 	req := &ybApi.LoginReq{Email: email, Password: password}

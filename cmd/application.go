@@ -54,16 +54,6 @@ func appLog(cmd *cobra.Command, args []string) {
 	uiApplicationLog(logClient)
 }
 
-func appFTPMount(cmd *cobra.Command, args []string) {
-	req := getCliRequestIdentity(args, 0)
-	client := grpcConnect()
-	defer client.Close()
-	res, err := client.V2().AppFTPPortforward(client.Context(), req)
-	uiCheckErr("Could not Portforward the Service: %v", err)
-	uiPortforward(res)
-	uiNFSMount(res)
-}
-
 // AppStart start the application by name
 func AppStart(name string) (*ybApi.AppStatusRes, error) {
 	req := getRequestIdentity(name)
