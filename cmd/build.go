@@ -58,7 +58,7 @@ func getBuildLog(imageName, imageTag string) {
 	client := grpcConnect()
 	defer client.Close()
 	logClient, err := client.V2().ImgBuildLog(context.Background(), id)
-	uiCheckErr("Could not Get Application log: %v", err)
+	uiCheckErr("Could not Get Application log", err)
 	uiImageLog(logClient)
 }
 

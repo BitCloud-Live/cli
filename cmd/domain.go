@@ -14,7 +14,7 @@ func domainList(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().DomainList(client.Context(), req)
-	uiCheckErr("Could not List the domain: %v", err)
+	uiCheckErr("Could not List the domain", err)
 	uiList(res)
 }
 
@@ -23,7 +23,7 @@ func domainInfo(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().DomainInfo(client.Context(), req)
-	uiCheckErr("Could not get the Domains: %v", err)
+	uiCheckErr("Could not get the Domains", err)
 	uiDomainStatus(res)
 }
 
@@ -42,7 +42,7 @@ func domainCreate(cmd *cobra.Command, args []string) {
 		getCliRequiredArg(args, 0),
 		flagTLS)
 
-	uiCheckErr("Could not Create the Domain: %v", err)
+	uiCheckErr("Could not Create the Domain", err)
 	uiDomainStatus(res)
 }
 
@@ -51,6 +51,6 @@ func domainDelete(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	_, err := client.V2().DomainDelete(client.Context(), req)
-	uiCheckErr("Could not Delete the Domain: %v", err)
+	uiCheckErr("Could not Delete the Domain", err)
 	log.Println("Task is done.")
 }

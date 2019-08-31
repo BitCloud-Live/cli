@@ -59,6 +59,12 @@ var (
 		Short: "create new volume",
 		Long:  `create new volume`,
 		Run:   volumeCreate}
+
+	bucketCreateCmd = &cobra.Command{
+		Use:   "bucket [name]",
+		Short: "create an Object Storage bucket over the YOTTAb",
+		Long:  `create an Object Storage bucket over the YOTTAb`,
+		Run:   bucketCreate}
 )
 
 // Update Command
@@ -167,7 +173,8 @@ func init() {
 		srvCreateCmd,
 		domainCreateCmd,
 		workerCreateCmd,
-		volumeCreateCmd)
+		volumeCreateCmd,
+		bucketCreateCmd)
 
 	updateCmd.AddCommand(
 		workerUpdateCmd,

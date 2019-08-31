@@ -10,7 +10,7 @@ func srvList(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().SrvList(client.Context(), req)
-	uiCheckErr("Could not List the Services: %v", err)
+	uiCheckErr("Could not List the Services", err)
 	uiList(res)
 }
 
@@ -19,7 +19,7 @@ func srvInfo(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().SrvInfo(client.Context(), req)
-	uiCheckErr("Could not Get Service: %v", err)
+	uiCheckErr("Could not Get Service", err)
 	uiServicStatus(res)
 }
 
@@ -29,7 +29,7 @@ func srvPortforward(cmd *cobra.Command, args []string) {
 	defer client.Close()
 	info, err := client.V2().SrvInfo(client.Context(), req)
 	res, err := client.V2().SrvPortforward(client.Context(), req)
-	uiCheckErr("Could not Portforward the Service: %v", err)
+	uiCheckErr("Could not Portforward the Service", err)
 	uiServicStatus(info)
 	uiPortforward(res)
 }
@@ -44,7 +44,7 @@ func ServiceStart(name string) (*ybApi.SrvStatusRes, error) {
 func srvStart(cmd *cobra.Command, args []string) {
 	res, err := ServiceStart(
 		getCliRequiredArg(args, 0))
-	uiCheckErr("Could not Start the Service: %v", err)
+	uiCheckErr("Could not Start the Service", err)
 	uiServicStatus(res)
 }
 
@@ -58,7 +58,7 @@ func ServiceStop(name string) (*ybApi.SrvStatusRes, error) {
 func srvStop(cmd *cobra.Command, args []string) {
 	res, err := ServiceStop(
 		getCliRequiredArg(args, 0))
-	uiCheckErr("Could not Stop the Service: %v", err)
+	uiCheckErr("Could not Stop the Service", err)
 	uiServicStatus(res)
 }
 
@@ -67,7 +67,7 @@ func srvDestroy(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	_, err := client.V2().SrvDestroy(client.Context(), req)
-	uiCheckErr("Could not Destroy the Service: %v", err)
+	uiCheckErr("Could not Destroy the Service", err)
 	log.Printf("service %s deleted", req.Name)
 }
 
@@ -90,7 +90,7 @@ func srvCreate(cmd *cobra.Command, args []string) {
 		cmd.Flag("plan").Value.String(), // Plan
 		arrayFlagToMap(flagVariableArray))
 
-	uiCheckErr("Could not Create the Service: %v", err)
+	uiCheckErr("Could not Create the Service", err)
 	uiServicStatus(res)
 }
 
@@ -109,7 +109,7 @@ func srvEnvironmentSet(cmd *cobra.Command, args []string) {
 		getCliRequiredArg(args, 0),
 		arrayFlagToMap(flagVariableArray))
 
-	uiCheckErr("Could not Set the Config for Service: %v", err)
+	uiCheckErr("Could not Set the Config for Service", err)
 	uiServicStatus(res)
 }
 
@@ -121,7 +121,7 @@ func srvEnvironmentUnset(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().SrvConfigUnset(client.Context(), req)
-	uiCheckErr("Could not Unset the Config for Service: %v", err)
+	uiCheckErr("Could not Unset the Config for Service", err)
 	uiServicStatus(res)
 }
 
@@ -133,7 +133,7 @@ func srvChangePlane(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().SrvChangePlan(client.Context(), req)
-	uiCheckErr("Could not Change the Plan: %v", err)
+	uiCheckErr("Could not Change the Plan", err)
 	uiServicStatus(res)
 }
 
@@ -157,7 +157,7 @@ func srvAttachDomain(cmd *cobra.Command, args []string) {
 		cmd.Flag("endpoint").Value.String(),
 		cmd.Flag("path").Value.String())
 
-	uiCheckErr("Could not Attach the Domain for Service: %v", err)
+	uiCheckErr("Could not Attach the Domain for Service", err)
 	uiServicStatus(res)
 }
 
@@ -171,6 +171,6 @@ func srvDetachDomain(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().SrvDetachDomain(client.Context(), req)
-	uiCheckErr("Could not Detach the Domain for Service: %v", err)
+	uiCheckErr("Could not Detach the Domain for Service", err)
 	uiServicStatus(res)
 }

@@ -20,7 +20,7 @@ func appList(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppList(client.Context(), req)
-	uiCheckErr("Could not List the Applications: %v", err)
+	uiCheckErr("Could not List the Applications", err)
 	uiList(res)
 }
 
@@ -29,7 +29,7 @@ func appInfo(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppInfo(client.Context(), req)
-	uiCheckErr("Could not Get Application: %v", err)
+	uiCheckErr("Could not Get Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -38,7 +38,7 @@ func appOpen(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppInfo(client.Context(), req)
-	uiCheckErr("Could not Get Application: %v", err)
+	uiCheckErr("Could not Get Application", err)
 	uiApplicationOpen(res)
 }
 
@@ -47,7 +47,7 @@ func appLog(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	logClient, err := client.V2().AppLog(context.Background(), req)
-	uiCheckErr("Could not Get Application log: %v", err)
+	uiCheckErr("Could not Get Application log", err)
 	uiApplicationLog(logClient)
 }
 
@@ -61,7 +61,7 @@ func AppStart(name string) (*ybApi.AppStatusRes, error) {
 func appStart(cmd *cobra.Command, args []string) {
 	appName := getCliRequiredArg(args, 0)
 	res, err := AppStart(appName)
-	uiCheckErr("Could not Start the Application: %v", err)
+	uiCheckErr("Could not Start the Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -75,7 +75,7 @@ func AppStop(name string) (*ybApi.AppStatusRes, error) {
 func appStop(cmd *cobra.Command, args []string) {
 	appName := getCliRequiredArg(args, 0)
 	res, err := AppStop(appName)
-	uiCheckErr("Could not Stop the Application: %v", err)
+	uiCheckErr("Could not Stop the Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -84,7 +84,7 @@ func appDestroy(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	_, err := client.V2().AppDestroy(client.Context(), req)
-	uiCheckErr("Could not Destroy the Application: %v", err)
+	uiCheckErr("Could not Destroy the Application", err)
 	log.Printf("app %s deleted", req.Name)
 }
 
@@ -114,7 +114,7 @@ func appCreate(cmd *cobra.Command, args []string) {
 		flagVarEndpointType,
 		flagVarPort,
 		flagVarMinScale)
-	uiCheckErr("Could not Create the Application: %v", err)
+	uiCheckErr("Could not Create the Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -126,7 +126,7 @@ func appChangePlane(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppChangePlan(client.Context(), req)
-	uiCheckErr("Could not Change the Plan: %v", err)
+	uiCheckErr("Could not Change the Plan", err)
 	uiApplicationStatus(res)
 }
 
@@ -143,7 +143,7 @@ func appUpdate(cmd *cobra.Command, args []string) {
 	defer client.Close()
 
 	res, err := client.V2().AppConfigSet(client.Context(), req)
-	uiCheckErr("Could not Set the Config for Application: %v", err)
+	uiCheckErr("Could not Set the Config for Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -162,7 +162,7 @@ func appAddEnvironmentVariable(cmd *cobra.Command, args []string) {
 		getCliRequiredArg(args, 0),
 		arrayFlagToMap(flagVariableArray))
 
-	uiCheckErr("Could not Add the Environment Variable for Application: %v", err)
+	uiCheckErr("Could not Add the Environment Variable for Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -174,7 +174,7 @@ func appRemoveEnvironmentVariable(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppRemoveEnvironmentVariable(client.Context(), req)
-	uiCheckErr("Could not Remove the Environment Variable for Application: %v", err)
+	uiCheckErr("Could not Remove the Environment Variable for Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -183,7 +183,7 @@ func appReset(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppReset(client.Context(), req)
-	uiCheckErr("Could not Reset the Application: %v", err)
+	uiCheckErr("Could not Reset the Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -200,7 +200,7 @@ func appSrvBind(cmd *cobra.Command, args []string) {
 	res, err := ApplicationLinkService(
 		cmd.Flag("application").Value.String(),
 		cmd.Flag("service").Value.String())
-	uiCheckErr("Could not Bind the Service for Application: %v", err)
+	uiCheckErr("Could not Bind the Service for Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -211,7 +211,7 @@ func appSrvUnBind(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppSrvUnBind(client.Context(), req)
-	uiCheckErr("Could not Unbind the Service for Application: %v", err)
+	uiCheckErr("Could not Unbind the Service for Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -231,7 +231,7 @@ func appAttachVolume(cmd *cobra.Command, args []string) {
 		cmd.Flag("application").Value.String(),
 		cmd.Flag("volume").Value.String(),
 		cmd.Flag("path").Value.String())
-	uiCheckErr("Could not Attach the Volume for Application: %v", err)
+	uiCheckErr("Could not Attach the Volume for Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -243,7 +243,7 @@ func appDetachVolume(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppDetachVolume(client.Context(), req)
-	uiCheckErr("Could not Detach the Volume for Application: %v", err)
+	uiCheckErr("Could not Detach the Volume for Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -264,7 +264,7 @@ func appAttachDomain(cmd *cobra.Command, args []string) {
 		cmd.Flag("application").Value.String(),
 		cmd.Flag("domain").Value.String(),
 		cmd.Flag("path").Value.String())
-	uiCheckErr("Could not Attach the Domain for Application: %v", err)
+	uiCheckErr("Could not Attach the Domain for Application", err)
 	uiApplicationStatus(res)
 }
 
@@ -278,6 +278,6 @@ func appDetachDomain(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppDetachDomain(client.Context(), req)
-	uiCheckErr("Could not Detach the Domain for Application: %v", err)
+	uiCheckErr("Could not Detach the Domain for Application", err)
 	uiApplicationStatus(res)
 }

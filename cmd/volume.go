@@ -10,7 +10,7 @@ func volumeSpecList(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().VolumeSpecList(client.Context(), req)
-	uiCheckErr("Could not List the Volumes Spec: %v", err)
+	uiCheckErr("Could not List the Volumes Spec", err)
 	uiList(res)
 }
 
@@ -19,7 +19,7 @@ func volumeSpecInfo(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().VolumeSpecInfo(client.Context(), req)
-	uiCheckErr("Could not get the Volumes Spec: %v", err)
+	uiCheckErr("Could not get the Volumes Spec", err)
 	uiVolumeSpec(res)
 }
 
@@ -28,7 +28,7 @@ func volumeList(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().VolumeList(client.Context(), req)
-	uiCheckErr("Could not List the volume: %v", err)
+	uiCheckErr("Could not List the volume", err)
 	uiList(res)
 }
 
@@ -37,7 +37,7 @@ func volumeInfo(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().VolumeInfo(client.Context(), req)
-	uiCheckErr("Could not get the Volumes: %v", err)
+	uiCheckErr("Could not get the Volumes", err)
 	uiVolumeStatus(res)
 }
 
@@ -60,7 +60,7 @@ func volumeCreate(cmd *cobra.Command, args []string) {
 		cmd.Flag("name").Value.String(),
 		cmd.Flag("volume-type").Value.String())
 
-	uiCheckErr("Could not Create the Volume: %v", err)
+	uiCheckErr("Could not Create the Volume", err)
 	uiVolumeStatus(res)
 }
 
@@ -75,6 +75,6 @@ func VolumeDelete(name string) error {
 func volumeDelete(cmd *cobra.Command, args []string) {
 	name := getCliRequiredArg(args, 0)
 	err := VolumeDelete(name)
-	uiCheckErr("Could not Delete the Volume: %v", err)
+	uiCheckErr("Could not Delete the Volume", err)
 	log.Println("Task is done.")
 }

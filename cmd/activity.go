@@ -25,7 +25,7 @@ func actList(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().ActivityList(client.Context(), req)
-	uiCheckErr("Could not get the list of activities: %v", err)
+	uiCheckErr("Could not get the list of activities", err)
 	uiList(res)
 }
 

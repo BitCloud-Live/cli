@@ -9,7 +9,7 @@ func prdList(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().PrdList(client.Context(), req)
-	uiCheckErr("Could not List the Products: %v", err)
+	uiCheckErr("Could not List the Products", err)
 	uiList(res)
 }
 
@@ -18,6 +18,6 @@ func prdInfo(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().PrdInfo(client.Context(), req)
-	uiCheckErr("Could not Get the Product Info: %v", err)
+	uiCheckErr("Could not Get the Product Info", err)
 	uiProduct(res)
 }

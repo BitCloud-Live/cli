@@ -11,7 +11,7 @@ func workerList(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppListWorkers(client.Context(), req)
-	uiCheckErr("Could not List the Applications: %v", err)
+	uiCheckErr("Could not List the Applications", err)
 	uiList(res)
 }
 
@@ -23,7 +23,7 @@ func workerInfo(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppWorkerInfo(client.Context(), req)
-	uiCheckErr("Could not Get Application: %v", err)
+	uiCheckErr("Could not Get Application", err)
 	uiWorkerStatus(res)
 }
 
@@ -36,7 +36,7 @@ func workerPortforward(cmd *cobra.Command, args []string) {
 	defer client.Close()
 	info, err := client.V2().AppWorkerInfo(client.Context(), req)
 	res, err := client.V2().AppWorkerPortforward(client.Context(), req)
-	uiCheckErr("Could not Portforward the Service: %v", err)
+	uiCheckErr("Could not Portforward the Service", err)
 	uiWorkerStatus(info)
 	uiPortforward(res)
 }
@@ -48,7 +48,7 @@ func workerDestroy(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppRemoveWorker(client.Context(), req)
-	uiCheckErr("Could not Destroy the Application: %v", err)
+	uiCheckErr("Could not Destroy the Application", err)
 	log.Printf("worker %s deleted", req.Attachment)
 	uiList(res)
 }
@@ -65,7 +65,7 @@ func workerCreate(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppAddWorker(client.Context(), req)
-	uiCheckErr("Could not Create the Application: %v", err)
+	uiCheckErr("Could not Create the Application", err)
 	uiList(res)
 }
 
@@ -81,6 +81,6 @@ func workerUpdate(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().AppWorkerUpdate(client.Context(), req)
-	uiCheckErr("Could not Update the Application: %v", err)
+	uiCheckErr("Could not Update the Application", err)
 	uiList(res)
 }
