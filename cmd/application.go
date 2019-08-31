@@ -47,9 +47,6 @@ func appLog(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 	logClient, err := client.V2().AppLog(context.Background(), req)
-	if err != nil {
-		panic(err)
-	}
 	uiCheckErr("Could not Get Application log: %v", err)
 	uiApplicationLog(logClient)
 }

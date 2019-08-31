@@ -384,6 +384,22 @@ func uiApplicationLog(client ybApi.YB_AppLogClient) {
 	}
 }
 
+func uiImageLog(client ybApi.YB_ImgBuildLogClient) {
+	var byteRecieved = 0
+	for {
+		c, err := client.Recv()
+		if err != nil {
+			if status.Code(err) == codes.OutOfRange {
+				log.Printf("Transfer of %d bytes done", byteRecieved)
+				return
+			}
+			log.Fatal(err)
+		}
+		byteRecieved += len(c.Chunk)
+		log.Printf(string(c.Chunk))
+	}
+}
+
 func uiDomainStatus(dom *ybApi.DomainStatusRes) {
 	log.Printf("Domain Name: %s ", dom.Domain)
 	log.Printf("Created: %v , Updated: %v", toTime(dom.Created), toTime(dom.Updated))

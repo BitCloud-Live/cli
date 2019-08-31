@@ -37,7 +37,8 @@ service YB {
     rpc ImgList (AppListReq) returns (ImgListRes) { }
     rpc ImgInfo (Identity) returns (ImgStatusRes) { }
     //Added in v2.3 patch
-    rpc ImgBuild (ImgBuildReq) returns (ImgStatusRes) { }
+    rpc ImgBuild (ImgBuildReq) returns (Empty) { }
+    rpc ImgBuildLog (Identity) returns (stream Chunk) { }
     rpc ImgDelete (Identity) returns (Empty) { }
 
     // Product
@@ -87,8 +88,6 @@ service YB {
     rpc AppSrvBind (AppSrvBindReq) returns (AppStatusRes) { }
     rpc AppSrvUnBind (AppSrvBindReq) returns (AppStatusRes) { }
 
-    //Added in v2.3 patch
-    rpc AppFTPPortforward (Identity) returns (PortforwardRes) { }
     //Added in v2.1 patch
     //AppNFSPortforward Deprecated: will be deleted in v3.0
     rpc AppNFSPortforward (Identity) returns (PortforwardRes) { }
@@ -252,7 +251,7 @@ message VolumeListRes{
     repeated VolumeStatusRes volumes = 2;
 }
 
-// Image /////////////////////////////////////////////////////////////////////////////
+// Repository ////////////////////////////////////////////////////////////////////////
 
 message ImgStatusRes {
     Timestamp created = 1;
@@ -266,12 +265,14 @@ message ImgListRes {
     repeated ImgStatusRes imgs = 2;
 }
 
-message ImgBuildReq {
-    string name = 1;
-    string tags = 2;
-    bytes data = 3; // zip (Dockerfile + Assets)
-}
 
+// Img Build //////////////////////////////////////////////////////////////////
+
+message ImgBuildReq {
+    string zipArchiveURL = 1;  // ZIP ( Dockerfile + The Asset Repository )
+    string repositoryTag = 2;
+    string repositoryName = 3; 
+}
 // Setting ///////////////////////////////////////////////////////////////////////////
 
 message SettingInfoReq {

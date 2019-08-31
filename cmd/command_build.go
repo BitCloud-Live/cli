@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -10,14 +11,15 @@ import (
 // Repository Build
 var repositoryBuildCmd = &cobra.Command{
 	Use:   "build",
-	Run:   repositoryBuild,
+	Run:   imageBuild,
 	Short: "build a Repository from a Dockerfile",
 	Long:  `This subcommand Build an image from a dockerfile.`,
 	Example: `
 		$: yb build \
 			  --name=my-application \
 			  --tag=0.0.1 \
-			  --path="~/Desktop/my-application/"`}
+			  --path="~/Desktop/my-application/"`,
+}
 
 // return current path
 func getPath() string {
@@ -25,7 +27,7 @@ func getPath() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return dir
+	return fmt.Sprintf("%s%c", dir, os.PathSeparator)
 }
 
 // return name of current folder
