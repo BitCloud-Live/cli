@@ -8,6 +8,8 @@ import (
 
 	"github.com/minio/minio-go"
 	"github.com/minio/minio-go/pkg/s3signer"
+	"github.com/spf13/viper"
+	"github.com/yottab/cli/config"
 )
 
 const (
@@ -17,11 +19,10 @@ const (
 )
 
 var (
-	s3Endpoint    = "storage.uvcloud.ir:8080" //s3.YOTTAb.io                    // TODO get by EVar
-	s3AccessKeyID = "ewogICAgIlJHV19UT0tFTiI6IHsKICAgICAgICAidmVyc2lvbiI6IDEsCiAgICAgICAgInR5cGUiOiAibGRhcCIsCiAgICAgICAgImlkIjogImhoaW82MThAZ21haWwuY29tIiwKICAgICAgICAia2V5IjogIjEyMzQ1NiIKICAgIH0KfQo="
-	// viper.GetString(config.KEY_TOKEN) //
-	s3SecretAccessKey = " "   //
-	s3UseSSL          = false // TODO get by EVar
+	s3Endpoint        = "s3.YOTTAb.io"                    // TODO get by EVar
+	s3AccessKeyID     = viper.GetString(config.KEY_TOKEN) // TODO get by EVar
+	s3SecretAccessKey = " "                               // TODO get by EVar
+	s3UseSSL          = false                             // TODO get by EVar
 )
 
 // Initialize minio client object.
