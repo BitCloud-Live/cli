@@ -17,7 +17,7 @@ import (
 const (
 	imageLogIDFormat  = "%s:%s"                     // imageName:imageTag
 	archiveNameFormat = "repository_%s_archive.zip" //
-	bucketNameFormat  = "yb--build-archive--%s"     //
+	bucketNameFormat  = "yottab-build-archive-%s"   //
 )
 
 func imageBuild(cmd *cobra.Command, args []string) {
@@ -43,7 +43,7 @@ func imageBuild(cmd *cobra.Command, args []string) {
 	req.ZipArchiveURL = zipArchiveURL
 	_, err = client.V2().ImgBuild(client.Context(), req)
 	uiCheckErr("Could not Build the Repository", err)
-	getBuildLog(imageName, imageTag)
+	//getBuildLog(imageName, imageTag)
 }
 
 func getBuildLog(imageName, imageTag string) {
@@ -60,11 +60,7 @@ func s3SendArchive(zipFilePath, objectName string) (uri string, err error) {
 	var bucketName = fmt.Sprintf(bucketNameFormat, viper.GetString(config.KEY_USER))
 
 	// Initialize minio client object.
-	minioClient, err := initializeObjectStore()
-	if err != nil {
-		log.Printf("Err: Initialize s3 client, Err:%v", err)
-		return
-	}
+	minioClient := initializeObjectStore()
 
 	// Initialize Archive bucket.
 	if err = initializeS3ArchiveBucket(minioClient, bucketName); err != nil {

@@ -53,20 +53,16 @@ func objectCp(cmd *cobra.Command, args []string) {
 	checkIsNotDir(srcPath)
 
 	// Initialize minio client object.
-	minioClient, err := initializeObjectStore()
-	if err != nil {
-		log.Printf("Err: Initialize s3 client, Err:%v", err)
-		return
-	}
+	minioClient := initializeObjectStore()
 
 	// Initialize Archive bucket.
-	if err = initializeS3ArchiveBucket(minioClient, bucketName); err != nil {
+	if err := initializeS3ArchiveBucket(minioClient, bucketName); err != nil {
 		log.Printf("Err: Initialize S3 Archive bucket, Err:%v", err)
 		return
 	}
 
 	// save Archive File
-	if err = s3PutObject(minioClient, srcPath, bucketName, objectName); err != nil {
+	if err := s3PutObject(minioClient, srcPath, bucketName, objectName); err != nil {
 		log.Printf("Err: Put S3 Archive bucket, Err:%v", err)
 		return
 	}
@@ -79,13 +75,9 @@ func objectRm(cmd *cobra.Command, args []string) {
 	)
 
 	// Initialize minio client object.
-	minioClient, err := initializeObjectStore()
-	if err != nil {
-		log.Printf("Err: Initialize s3 client, Err:%v", err)
-		return
-	}
+	minioClient := initializeObjectStore()
 
-	err = minioClient.RemoveObject(bucketName, objectName)
+	err := minioClient.RemoveObject(bucketName, objectName)
 	uiCheckErr("Could not Remove Object", err)
 
 	log.Print("Successful delete")
@@ -95,24 +87,16 @@ func bucketCreate(cmd *cobra.Command, args []string) {
 	bucketName := getCliRequiredArg(args, 0)
 
 	// Initialize minio client object.
-	minioClient, err := initializeObjectStore()
-	if err != nil {
-		log.Printf("Err: Initialize s3 client, Err:%v", err)
-		return
-	}
+	minioClient := initializeObjectStore()
 
-	err = minioClient.MakeBucket(bucketName, s3DefaulteRegion)
+	err := minioClient.MakeBucket(bucketName, s3DefaulteRegion)
 	uiCheckErr("Could not Create Object", err)
 	fmt.Println("Successfully created Bucket.")
 }
 
 func bucketList(cmd *cobra.Command, args []string) {
 	// Initialize minio client object.
-	minioClient, err := initializeObjectStore()
-	if err != nil {
-		log.Printf("Err: Initialize s3 client, Err:%v", err)
-		return
-	}
+	minioClient := initializeObjectStore()
 
 	buckets, err := minioClient.ListBuckets()
 	uiCheckErr("Could not Buckets List", err)
