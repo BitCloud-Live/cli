@@ -32,6 +32,7 @@ func imageBuild(cmd *cobra.Command, args []string) {
 	log.Printf("archive folder at [%s]", zipPath)
 
 	zipArchiveURL, err := s3SendArchive(zipPath, zipName)
+	// zipArchiveURL := "https://s3.yottab.io/test2/hello.zip"
 	uiCheckErr("Could not Save the Archive at s3.YOTTAb.io", err)
 	log.Printf("Upload Archive at [%s]", zipArchiveURL)
 
@@ -43,7 +44,7 @@ func imageBuild(cmd *cobra.Command, args []string) {
 	req.ZipArchiveURL = zipArchiveURL
 	_, err = client.V2().ImgBuild(client.Context(), req)
 	uiCheckErr("Could not Build the Repository", err)
-	getBuildLog(imageName, imageTag)
+	// getBuildLog(imageName, imageTag)
 }
 
 func getBuildLog(imageName, imageTag string) {
