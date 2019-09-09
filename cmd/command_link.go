@@ -103,15 +103,13 @@ func init() {
 
 	// srv/app </- Domain
 	setLinkCmd.Flags().StringP("endpoint", "e", "", "name of the service endpoint")
+	unsetLinkCmd.Flags().StringP("path", "p", "", "http subpath to route traffic")
 
 	// unset:
 	unsetLinkCmd.Flags().StringP("application", "a", "", "the uniquely identifiable name for the Application.")
 	unsetLinkCmd.Flags().StringP("service", "s", "", "the uniquely identifiable name for the Service.")
 	unsetLinkCmd.Flags().StringP("volume", "v", "", "name of Volume for Detattachment")
 	unsetLinkCmd.Flags().StringP("domain", "d", "", "name of Domain for Detattachment")
-
-	// app/srv </- Domain
-	unsetLinkCmd.Flags().StringP("path", "p", "", "http subpath to route traffic")
 
 	// srv/app </- Domain
 	unsetLinkCmd.Flags().StringP("endpoint", "e", "", "name of the service endpoint")

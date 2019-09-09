@@ -3,13 +3,13 @@ package cmd
 import (
 	"bytes"
 	"crypto/md5"
-	"crypto/tls"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 
 	"github.com/minio/minio-go"
+	"github.com/spf13/viper"
+	"github.com/yottab/cli/config"
 )
 
 const (
@@ -19,19 +19,16 @@ const (
 )
 
 var (
-	s3Endpoint        = "s3.YOTTAb.io"                                                                                                                                // TODO get by EVar
-	s3AccessKeyID     = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTM0OTQ4ODQsImlhdCI6MTU2NzU3NDg4NCwic3ViIjoxfQ.Pf3_fQe8htoJGO87-Qt4NA9-dJ_Z3ZQP-lYqDuV8kJI" // TODO get by EVar
-	s3SecretAccessKey = " "                                                                                                                                           // TODO get by EVar
-	s3UseSSL          = true                                                                                                                                          // TODO get by EVar
+	s3Endpoint        = "s3.yottab.io"                    // TODO get by EVar  storage.uvcloud.ir:8080
+	s3AccessKeyID     = viper.GetString(config.KEY_TOKEN) // TODO get by EVar
+	s3SecretAccessKey = " "                               // TODO get by EVar
+	s3UseSSL          = true                              // TODO get by EVar
 )
 
 // Initialize minio client object.
-func initializeObjectStore() (minioClient *minio.Client, err error) {
-	minioClient, err = minio.New(s3Endpoint, s3AccessKeyID, s3SecretAccessKey, s3UseSSL)
-	minioClient.SetCustomTransport(&http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}})
-	if err != nil {
-		log.Printf("Err: Initialize s3 client, Err:%v", err)
-	}
+func initializeObjectStore() (minioClient *minio.Client) {
+	minioClient, err := minio.New(s3Endpoint, s3AccessKeyID, s3SecretAccessKey, s3UseSSL)
+	uiCheckErr("Initialize s3 client", err)
 
 	return
 }
@@ -40,7 +37,7 @@ func initializeS3ArchiveBucket(minioClient *minio.Client, bucketName string) (er
 	// Check to see if we already own this bucket
 	exists, err := minioClient.BucketExists(bucketName)
 	if err != nil {
-		log.Printf("Err: check Bucket Exists; Bucket:%s, Err:%v", bucketName, err)
+		log.Printf("Err at check Bucket Exists; Bucket:%s, Err:%v", bucketName, err)
 		return
 	} else if !exists {
 		// Make a new bucket.

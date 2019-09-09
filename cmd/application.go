@@ -248,22 +248,38 @@ func appDetachVolume(cmd *cobra.Command, args []string) {
 }
 
 // AppAttachDomain link the application and domain
-func AppAttachDomain(appName, domainName, path string) (*ybApi.AppStatusRes, error) {
+func AppAttachDomain(appName, domainName, path, endpoint string) (*ybApi.AppStatusRes, error) {
 	req := new(ybApi.SrvDomainAttachReq)
 	req.AttachIdentity = new(ybApi.AttachIdentity)
 	req.AttachIdentity.Name = appName
 	req.AttachIdentity.Attachment = domainName
 	req.Path = path
+	req.Endpoint = endpoint
 
 	client := grpcConnect()
 	defer client.Close()
 	return client.V2().AppAttachDomain(client.Context(), req)
 }
 func appAttachDomain(cmd *cobra.Command, args []string) {
-	res, err := AppAttachDomain(
-		cmd.Flag("application").Value.String(),
-		cmd.Flag("domain").Value.String(),
-		cmd.Flag("path").Value.String())
+	var (
+		app  = cmd.Flag("application").Value.String()
+		dom  = cmd.Flag("domain").Value.String()
+		path = cmd.Flag("path").Value.String()
+		ep   = cmd.Flag("endpoint").Value.String()
+	)
+
+	if app == "" {
+		app = readFromConsole("Enter Application Name:")
+	}
+	if dom == "" {
+		dom = readFromConsole("Enter Domain:")
+	}
+	if path == "" {
+		dom = readFromConsole("Enter Path:")
+	}
+
+	res, err := AppAttachDomain(app, dom, path, ep)
+
 	uiCheckErr("Could not Attach the Domain for Application", err)
 	uiApplicationStatus(res)
 }
