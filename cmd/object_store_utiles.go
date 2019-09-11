@@ -19,14 +19,14 @@ const (
 )
 
 var (
-	s3Endpoint        = "s3.yottab.io"                    // TODO get by EVar  storage.uvcloud.ir:8080
-	s3AccessKeyID     = viper.GetString(config.KEY_TOKEN) // TODO get by EVar
-	s3SecretAccessKey = " "                               // TODO get by EVar
-	s3UseSSL          = true                              // TODO get by EVar
+	s3Endpoint        = "s3.yottab.io" // TODO: get by EVar
+	s3SecretAccessKey = " "            // TODO: get by EVar
+	s3UseSSL          = true           // TODO: get by EVar
 )
 
 // Initialize minio client object.
 func initializeObjectStore() (minioClient *minio.Client) {
+	s3AccessKeyID := viper.GetString(config.KEY_TOKEN)
 	minioClient, err := minio.New(s3Endpoint, s3AccessKeyID, s3SecretAccessKey, s3UseSSL)
 	uiCheckErr("Initialize s3 client", err)
 

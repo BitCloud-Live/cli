@@ -44,17 +44,26 @@ func imageBuild(cmd *cobra.Command, args []string) {
 	req.ZipArchiveURL = zipArchiveURL
 	_, err = client.V2().ImgBuild(client.Context(), req)
 	uiCheckErr("Could not Build the Repository", err)
-	//getBuildLog(imageName, imageTag)
+	log.Print("Build started!")
+	log.Print("Waiting for builder log to get ready...")
+	time.Sleep(10 * time.Second)
+	getBuildLog(imageName, imageTag)
 }
 
+func imageBuildLog(cmd *cobra.Command, args []string) {
+	imageTag := cmd.Flag("tag").Value.String()   // Repository tag
+	imageName := cmd.Flag("name").Value.String() // Repository name
+	getBuildLog(imageName, imageTag)
+}
 func getBuildLog(imageName, imageTag string) {
 	id := getRequestIdentity(
 		fmt.Sprintf(imageLogIDFormat, imageName, imageTag))
 	client := grpcConnect()
 	defer client.Close()
 	logClient, err := client.V2().ImgBuildLog(context.Background(), id)
-	uiCheckErr("Could not Get Application log", err)
+	uiCheckErr(fmt.Sprintf("Could not get build log right now!\nTry again in a few soconds using $yb build-log --name=%s --tag=%s", imageName, imageTag), err)
 	uiImageLog(logClient)
+
 }
 
 func s3SendArchive(zipFilePath, objectName string) (uri string, err error) {

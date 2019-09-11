@@ -21,6 +21,17 @@ var repositoryBuildCmd = &cobra.Command{
 			  --path="~/Desktop/my-application/"`,
 }
 
+var repositoryBuildLogCmd = &cobra.Command{
+	Use:   "build-log",
+	Run:   imageBuildLog,
+	Short: "tail builder log",
+	Long:  `This subcommand Tail current builder log.`,
+	Example: `
+		$: yb build-log \
+			  --name=my-application \
+			  --tag=0.0.1`,
+}
+
 // return current path
 func getPath() string {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -38,6 +49,11 @@ func defaultRepositoryName() string {
 }
 
 func init() {
+	repositoryBuildLogCmd.Flags().StringP("name", "n", defaultRepositoryName(), "the uniquely identifiable name for the Repository")
+	repositoryBuildLogCmd.Flags().StringP("tag", "T", "latest", "the uniquely identifiable name for the Repository")
+
+	rootCmd.AddCommand(repositoryBuildLogCmd)
+
 	repositoryBuildCmd.Flags().StringP("name", "n", defaultRepositoryName(), "the uniquely identifiable name for the Repository")
 	repositoryBuildCmd.Flags().StringP("tag", "T", "latest", "the uniquely identifiable name for the Repository")
 	repositoryBuildCmd.Flags().StringP("path", "p", getPath(), "the uniquely identifiable name for the Repository")
