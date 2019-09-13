@@ -25,11 +25,12 @@ var (
 func arrayFlagToMap(flags []string) map[string]string {
 	varMap := make(map[string]string, len(flags))
 	for _, v := range flags {
-		splitFlag := strings.Split(v, "=")
-		if len(splitFlag) >= 2 {
-			varMap[splitFlag[0]] = splitFlag[1]
+		index := strings.Index(v, "=")
+		if index > 0 {
+			key := v[:index]
+			varMap[key] = v[index+1:]
 		} else {
-			varMap[v] = ""
+			log.Fatalf("Bad data entry format [%s], Enter the information in 'KEY=VALUE' format.", v)
 		}
 	}
 	return varMap
