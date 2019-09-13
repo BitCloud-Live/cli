@@ -17,7 +17,7 @@ import (
 const (
 	imageLogIDFormat  = "%s:%s"                     // imageName:imageTag
 	archiveNameFormat = "repository_%s_archive.zip" //
-	bucketNameFormat  = "yottab-build-archive-%s"   //
+	bucketNameFormat  = "yottab-build-bucket-%s"    //
 )
 
 func imageBuild(cmd *cobra.Command, args []string) {

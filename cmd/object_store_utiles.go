@@ -19,7 +19,7 @@ const (
 )
 
 var (
-	s3Endpoint        = "s3.yottab.io"                    // TODO get by EVar  storage.uvcloud.ir:8080
+	s3Endpoint        = "s3.yottab.io"                    // TODO get by EVar
 	s3AccessKeyID     = viper.GetString(config.KEY_TOKEN) // TODO get by EVar
 	s3SecretAccessKey = " "                               // TODO get by EVar
 	s3UseSSL          = true                              // TODO get by EVar
