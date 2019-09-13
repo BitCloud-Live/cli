@@ -30,7 +30,7 @@ func login(cmd *cobra.Command, args []string) {
 	if len(email) == 0 {
 		email = readFromConsole("Username: ")
 	} else {
-		log.Println("Loggin by user", email)
+		log.Println("User:", email)
 	}
 
 	if len(password) != 0 {
@@ -49,6 +49,7 @@ func login(cmd *cobra.Command, args []string) {
 
 	log.Printf("Login successful!")
 	viper.Set(config.KEY_TOKEN, res.Token)
+	viper.Set(config.KEY_USER, email)
 
 	// Save TOKEN to config file
 	if err = config.ResetConfigFile(); err != nil {

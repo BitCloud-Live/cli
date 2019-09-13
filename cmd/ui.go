@@ -175,10 +175,8 @@ func uiPortforward(in *ybApi.PortforwardRes) {
 		if err != nil {
 			panic(err)
 		}
-		pLocal := pRemote
-		if pLocal < 1000 {
-			pLocal += 1000
-		}
+		//FIXME: better ux needed here
+		pLocal := pRemote + 2000
 		pNew := fmt.Sprintf("%d:%d", pLocal, pRemote)
 		localPorts = append(localPorts, pNew)
 	}

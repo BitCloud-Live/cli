@@ -33,7 +33,7 @@ func imageBuild(cmd *cobra.Command, args []string) {
 
 	zipArchiveURL, err := s3SendArchive(zipPath, zipName)
 	uiCheckErr("Could not Save the Archive at s3.YOTTAb.io", err)
-	log.Print("Successful Uploading Archive.")
+	log.Print("Archive uploaded successfully.")
 
 	client := grpcConnect()
 	defer client.Close()
@@ -67,7 +67,7 @@ func getBuildLog(imageName, imageTag string) {
 
 func s3SendArchive(zipFilePath, objectName string) (uri string, err error) {
 	var bucketName = fmt.Sprintf(bucketNameFormat, viper.GetString(config.KEY_USER))
-
+	
 	// Initialize minio client object.
 	minioClient := initializeObjectStore()
 
