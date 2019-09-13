@@ -111,10 +111,10 @@ checkYottabInstalledVersion() {
 downloadFile() {
   YOTTAB_NAME="yb"
   YOTTAB_DIST="$YOTTAB_NAME-$TAG-$OS-$ARCH"
-  DOWNLOAD_URL="https://github.com/yottab/cli/releases/download/$TAG/$YOTTAB_DIST"
-  CHECKSUM_URL="$DOWNLOAD_URL.sha256"
+  DOWNLOAD_URL="https://github.com/yottab/cli/releases/download/$TAG/$YOTTAB_DIST.tar.bz2"
+  CHECKSUM_URL="https://github.com/yottab/cli/releases/download/$TAG/$YOTTAB_DIST.sha256"
   YOTTAB_TMP_ROOT="$(mktemp -dt yottab-tempXXXXXXXXXX)"
-  YOTTAB_TMP_FILE="$YOTTAB_TMP_ROOT/$YOTTAB_NAME"
+  YOTTAB_TMP_FILE="$YOTTAB_TMP_ROOT/$YOTTAB_NAME.tar.bz2"
   YOTTAB_SUM_FILE="$YOTTAB_TMP_ROOT/$YOTTAB_DIST.sha256"
   echo "Downloading $DOWNLOAD_URL"
   if type "curl" > /dev/null; then
@@ -140,13 +140,12 @@ installFile() {
     exit 1
   fi
 
-  # mkdir -p "$YOTTAB_TMP"
-  # tar xf "$YOTTAB_TMP_FILE" -C "$YOTTAB_TMP"
-  # YOTTAB_TMP_BIN="$YOTTAB_TMP/$OS-$ARCH/$PROJECT_NAME"
-  # TILLER_TMP_BIN="$YOTTAB_TMP/$OS-$ARCH/$TILLER_NAME"
+  mkdir -p "$YOTTAB_TMP"
+  tar xf "$YOTTAB_TMP_FILE" -C "$YOTTAB_TMP"
+  YOTTAB_TMP_BIN="$YOTTAB_TMP/build/$YOTTAB_NAME-$TAG-$OS-$ARCH"
   echo "Preparing to install $PROJECT_NAME into ${YOTTAB_INSTALL_DIR}"
-  runAsRoot chmod +x "$YOTTAB_TMP_FILE"
-  runAsRoot cp "$YOTTAB_TMP_FILE" "$YOTTAB_INSTALL_DIR"
+  runAsRoot chmod +x "$YOTTAB_TMP_BIN"
+  runAsRoot cp "$YOTTAB_TMP_BIN" "$YOTTAB_INSTALL_DIR/yb"
   echo "$PROJECT_NAME installed into $YOTTAB_INSTALL_DIR/$PROJECT_NAME"
 }
 

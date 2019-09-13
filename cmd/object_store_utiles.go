@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"bytes"
+	"crypto/md5"
 	"fmt"
-	"net/http"
+	"io"
 	"os"
 
 	"github.com/minio/minio-go"
-	"github.com/minio/minio-go/pkg/s3signer"
 	"github.com/spf13/viper"
 	"github.com/yottab/cli/config"
 )
@@ -27,6 +27,7 @@ var (
 
 // Initialize minio client object.
 func initializeObjectStore() (minioClient *minio.Client) {
+	s3AccessKeyID := viper.GetString(config.KEY_TOKEN)
 	minioClient, err := minio.New(s3Endpoint, s3AccessKeyID, s3SecretAccessKey, s3UseSSL)
 	uiCheckErr("Initialize s3 client", err)
 
@@ -68,40 +69,51 @@ func zipBufferIO(zipFilePath, objectName string) (bodyBuf *bytes.Buffer, err err
 
 // TODO edit code when backend is minio
 func s3PutObject(minioClient *minio.Client, zipFilePath, bucketName, objectName string) (err error) {
-	/*/
-		TODO: raplace when backend is minio
 
-		n, err := minioClient.FPutObject(bucketName, objectName, zipFilePath, minio.PutObjectOptions{
-			ContentType: "x-www-form-urlencoded",
-		})
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println("Successfully uploaded bytes: ", n)
-	/*/
-
-	// conver Zip to IO.Writer
-	bodyBuf, err := zipBufferIO(zipFilePath, objectName)
+	// TODO: raplace when backend is minio
+	f, err := os.Open(zipFilePath)
 	if err != nil {
-		log.Printf("Err: zipBufferIO() Path:[%s], Err:%v", zipFilePath, err)
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	h := md5.New()
+	if _, err := io.Copy(h, f); err != nil {
+		log.Fatal(err)
+	}
+
+	n, err := minioClient.FPutObject(bucketName, objectName, zipFilePath, minio.PutObjectOptions{
+		ContentType: "application/octet-stream",
+	})
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
-
-	// PUT zip to s3
-	s3ObjectNameURI := fmt.Sprintf(s3UriFormat, s3Endpoint, bucketName, objectName)
-	client := &http.Client{}
-
-	s3Req, err := http.NewRequest(http.MethodPut, s3ObjectNameURI, bodyBuf)
-	if err != nil {
-		log.Printf("Err: http PUT Request URI:[%s] Err:%v", s3ObjectNameURI, err)
-		return
-	}
-	s3Req = s3signer.SignV4(*s3Req, s3AccessKeyID, s3SecretAccessKey, s3DefaultesessionToken, s3DefaulteRegion)
-	s3Req.Header.Set("Content-Type", "application/octet-stream")
-	_, err = client.Do(s3Req)
-	if err != nil {
-		log.Printf("Err: Send file URI:[%s] Err:%v", s3ObjectNameURI, err)
-	}
+	fmt.Println("Successfully uploaded bytes: ", n)
 	return
+	// conver Zip to IO.Writer
+	// minioClient.CopyObject(ghhgfd)
+
+	// bodyBuf, err := zipBufferIO(zipFilePath, objectName)
+	// if err != nil {
+	// 	log.Printf("Err: zipBufferIO() Path:[%s], Err:%v", zipFilePath, err)
+	// 	return
+	// }
+
+	// // PUT zip to s3
+	// s3ObjectNameURI := fmt.Sprintf(s3UriFormat, s3Endpoint, bucketName, objectName)
+	// client := &http.Client{}
+
+	// s3Req, err := http.NewRequest(http.MethodPut, s3ObjectNameURI, bodyBuf)
+	// if err != nil {
+	// 	log.Printf("Err: http PUT Request URI:[%s] Err:%v", s3ObjectNameURI, err)
+	// 	return
+	// }
+	// s3Req = s3signer.SignV4(*s3Req, s3AccessKeyID, s3SecretAccessKey, s3DefaultesessionToken, s3DefaulteRegion)
+	// s3Req.Header.Set("Content-Type", "application/octet-stream")
+	// _, err = client.Do(s3Req)
+	// if err != nil {
+	// 	log.Printf("Err: Send file URI:[%s] Err:%v", s3ObjectNameURI, err)
+	// }
+	// return
 }
