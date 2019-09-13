@@ -17,7 +17,7 @@ import (
 const (
 	imageLogIDFormat  = "%s:%s"                     // imageName:imageTag
 	archiveNameFormat = "repository_%s_archive.zip" //
-	bucketNameFormat  = "yottab-build-bucket-%s"    //
+	bucketNameFormat  = "yottab-bucket-build-%s"    //
 )
 
 func imageBuild(cmd *cobra.Command, args []string) {
@@ -45,7 +45,7 @@ func imageBuild(cmd *cobra.Command, args []string) {
 	uiCheckErr("Could not Build the Repository", err)
 	log.Print("Build started!")
 	log.Print("Waiting for builder log to get ready...")
-	time.Sleep(10 * time.Second)
+	time.Sleep(20 * time.Second)
 	getBuildLog(imageName, imageTag)
 }
 

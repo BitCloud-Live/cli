@@ -49,4 +49,7 @@ func initConfig() {
 	if len(token) == 0 && command != "login" {
 		log.Fatal("You must login first.")
 	}
+
+	// set token for S3.yottab.io
+	setS3AccessKeyID(token)
 }

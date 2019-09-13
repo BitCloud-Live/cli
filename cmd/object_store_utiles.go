@@ -8,8 +8,6 @@ import (
 
 	"github.com/minio/minio-go"
 	"github.com/minio/minio-go/pkg/s3signer"
-	"github.com/spf13/viper"
-	"github.com/yottab/cli/config"
 )
 
 const (
@@ -19,11 +17,15 @@ const (
 )
 
 var (
-	s3Endpoint        = "s3.yottab.io"                    // TODO get by EVar
-	s3AccessKeyID     = viper.GetString(config.KEY_TOKEN) // TODO get by EVar
-	s3SecretAccessKey = " "                               // TODO get by EVar
-	s3UseSSL          = true                              // TODO get by EVar
+	s3Endpoint        = "s3.yottab.io" // TODO get by EVar
+	s3AccessKeyID     string           // TODO get by EVar
+	s3SecretAccessKey = " "            // TODO get by EVar
+	s3UseSSL          = true           // TODO get by EVar
 )
+
+func setS3AccessKeyID(val string) {
+	s3AccessKeyID = val
+}
 
 // Initialize minio client object.
 func initializeObjectStore() (minioClient *minio.Client) {
