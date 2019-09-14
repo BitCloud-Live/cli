@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/minio/minio-go"
@@ -27,7 +29,9 @@ func setS3AccessKeyID(val string) {
 
 // Initialize minio client object.
 func initializeObjectStore() (minioClient *minio.Client) {
+
 	minioClient, err := minio.New(s3Endpoint, s3AccessKeyID, s3SecretAccessKey, s3UseSSL)
+	minioClient.SetCustomTransport(&http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}})
 	uiCheckErr("Initialize s3 client", err)
 
 	return
