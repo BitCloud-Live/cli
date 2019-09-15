@@ -19,6 +19,7 @@ const (
 	imageLogIDFormat  = "%s:%s"                     // imageName:imageTag
 	archiveNameFormat = "repository_%s_archive.zip" //
 	bucketNameFormat  = "yottab-bucket-build-%s"    //
+	formatTempArchive = "YOTTAb.io.*.zip"
 )
 
 var (
@@ -33,6 +34,7 @@ func imageBuild(cmd *cobra.Command, args []string) {
 
 	checkExistDockerfile(baseFolder)
 	zipPath, err := zipFolder(baseFolder, zipName)
+	defer os.Remove(zipPath)
 	uiCheckErr("Could not Archive the Folder", err)
 	log.Printf("archive folder at [%s]", zipPath)
 
@@ -73,7 +75,7 @@ func getBuildLog(imageName, imageTag string) {
 
 func s3SendArchive(zipFilePath, objectName string) (uri string, err error) {
 	var bucketName = fmt.Sprintf(bucketNameFormat, viper.GetString(config.KEY_USER))
-	
+
 	// Initialize minio client object.
 	minioClient := initializeObjectStore()
 
@@ -114,29 +116,24 @@ func checkExistDockerfile(basePath string) {
 
 func zipFolder(baseFolder, archFileName string) (archivePath string, err error) {
 	ignorePatterns := readIgnorePatterns()
-	archivePath = fmt.Sprintf("%s%s", baseFolder, archFileName)
 
-	// Get a Buffer to Write To
-	outFile, err := os.Create(archivePath)
+	// Get a TempFile Buffer
+	//archiveFileName := fmt.Sprintf()
+	outFile, err := ioutil.TempFile("", formatTempArchive)
 	uiCheckErr("Could not create file", err)
-	defer outFile.Close()
+	archivePath = outFile.Name()
+	log.Printf("Successfully create Archive file at [%s]", archivePath)
 
 	// Create a new zip archive.
 	w := zip.NewWriter(outFile)
 
 	// Add some files to the archive.
-	zipAddFiles(w, baseFolder, "", archFileName, ignorePatterns)
-
-	if err != nil {
-		os.Remove(archivePath)
-		log.Fatalf("%v", err)
-	}
+	err = zipAddFiles(w, baseFolder, "", archFileName, ignorePatterns)
+	uiCheckErr("Could not create Archive file", err)
 
 	// Make sure to check the error on Close.
-	if err = w.Close(); err != nil {
-		os.Remove(archivePath)
-		log.Fatalf("%v", err)
-	}
+	err = w.Close()
+	uiCheckErr("Could not Close Archive file", err)
 
 	return
 }
