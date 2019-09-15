@@ -40,6 +40,14 @@ func volumeInfo(cmd *cobra.Command, args []string) {
 	uiCheckErr("Could not get the Volumes", err)
 	uiVolumeStatus(res)
 }
+func volumeSftp(cmd *cobra.Command, args []string) {
+	req := getCliRequestIdentity(args, 0)
+	client := grpcConnect()
+	defer client.Close()
+	res, err := client.V2().VolumeFTPPortforward(client.Context(), req)
+	uiCheckErr("Could not Portforward the Service", err)
+	uiPortforward(res)
+}
 
 // VolumeCreate crate a volume by name and type
 func VolumeCreate(name, volumeType string) (*ybApi.VolumeStatusRes, error) {
