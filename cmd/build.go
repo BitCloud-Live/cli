@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	ignore "github.com/codeskyblue/dockerignore"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/yottab/cli/config"
@@ -18,6 +19,10 @@ const (
 	imageLogIDFormat  = "%s:%s"                     // imageName:imageTag
 	archiveNameFormat = "repository_%s_archive.zip" //
 	bucketNameFormat  = "yottab-bucket-build-%s"    //
+)
+
+var (
+	ignoreFile = ".dockerignore" // TODO get by EnvVar
 )
 
 func imageBuild(cmd *cobra.Command, args []string) {
@@ -54,6 +59,7 @@ func imageBuildLog(cmd *cobra.Command, args []string) {
 	imageName := cmd.Flag("name").Value.String() // Repository name
 	getBuildLog(imageName, imageTag)
 }
+
 func getBuildLog(imageName, imageTag string) {
 	id := getRequestIdentity(
 		fmt.Sprintf(imageLogIDFormat, imageName, imageTag))
@@ -107,6 +113,7 @@ func checkExistDockerfile(basePath string) {
 }
 
 func zipFolder(baseFolder, archFileName string) (archivePath string, err error) {
+	ignorePatterns := readIgnorePatterns()
 	archivePath = fmt.Sprintf("%s%s", baseFolder, archFileName)
 
 	// Get a Buffer to Write To
@@ -118,7 +125,7 @@ func zipFolder(baseFolder, archFileName string) (archivePath string, err error) 
 	w := zip.NewWriter(outFile)
 
 	// Add some files to the archive.
-	zipAddFiles(w, baseFolder, "", archFileName)
+	zipAddFiles(w, baseFolder, "", archFileName, ignorePatterns)
 
 	if err != nil {
 		os.Remove(archivePath)
@@ -134,7 +141,7 @@ func zipFolder(baseFolder, archFileName string) (archivePath string, err error) 
 	return
 }
 
-func zipAddFiles(w *zip.Writer, basePath, baseInZip, archFileName string) (err error) {
+func zipAddFiles(w *zip.Writer, basePath, baseInZip, archFileName string, ignorePatterns []string) (err error) {
 	// Open the Directory
 	files, err := ioutil.ReadDir(basePath)
 	if err != nil {
@@ -143,8 +150,15 @@ func zipAddFiles(w *zip.Writer, basePath, baseInZip, archFileName string) (err e
 	}
 
 	for _, file := range files {
+		// if path in ignorePatterns, Skip path
+		if checkIgnoreMatches(
+			baseInZip+file.Name(), // File path in project
+			ignorePatterns) {
+			continue
+		}
+
 		// archive file created at rootPath, dont add it
-		if len(baseInZip) == 0 && file.Name() == archFileName {
+		if len(baseInZip) == 0 && (file.Name() == archFileName || file.Name() == ignoreFile) {
 			continue
 		}
 
@@ -153,7 +167,7 @@ func zipAddFiles(w *zip.Writer, basePath, baseInZip, archFileName string) (err e
 			newBase := fmt.Sprintf("%s%s%c", basePath, file.Name(), os.PathSeparator)
 			newBaseInZip := fmt.Sprintf("%s%s%c", baseInZip, file.Name(), os.PathSeparator)
 
-			if err = zipAddFiles(w, newBase, newBaseInZip, archFileName); err != nil {
+			if err = zipAddFiles(w, newBase, newBaseInZip, archFileName, ignorePatterns); err != nil {
 				log.Printf("zipAddFiles basePath: %s, file:%s, Err: %v", basePath, file.Name(), err)
 				return err
 			}
@@ -177,5 +191,21 @@ func zipAddFiles(w *zip.Writer, basePath, baseInZip, archFileName string) (err e
 			}
 		}
 	}
+	return
+}
+
+func readIgnorePatterns() (patterns []string) {
+	patterns, err := ignore.ReadIgnoreFile(ignoreFile)
+	if os.IsNotExist(err) {
+		return []string{}
+	}
+	uiCheckErr("Read '.dockerignore' file", err)
+	log.Printf("Successfully reading data from of file [%s]", ignoreFile)
+	return
+}
+
+func checkIgnoreMatches(path string, patterns []string) (isSkip bool) {
+	isSkip, err := ignore.Matches(path, patterns)
+	uiCheckErr("DockerIgnore check for path ["+path+"]", err)
 	return
 }
