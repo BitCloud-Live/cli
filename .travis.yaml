@@ -1,0 +1,14 @@
+sudo: 'required'
+
+services:
+  - 'docker'
+
+script:
+  - 'make docker-build'
+
+
+deploy:
+  provider: script
+  script: docker login hub.yottab.io -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && make docker-push
+  on:
+    tags: true
