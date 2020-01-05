@@ -185,27 +185,6 @@ var (
 		}}
 )
 
-// Worker
-var (
-	workerCmd = &cobra.Command{
-		Use:   "worker [parent name] [worker name]",
-		Short: "list or informaition of accessible Worker",
-		Long: `This subcommand can pageing the Worker.
-  $: yb worker [application_name]               # list of all worker
-  $: yb worker [application_name] [worker_name] # detail of one worker`,
-		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) == 2 {
-				workerInfo(cmd, args)
-			} else if len(args) == 1 {
-				workerList(cmd, args)
-			} else {
-				log.Println(`Syntax of this subcommand:.
-  $: yb worker [application_name]               # list of all worker
-  $: yb worker [application_name] [worker_name] # detail of one worker`)
-			}
-		}}
-)
-
 // Activities
 var (
 	activityCmd = &cobra.Command{
@@ -265,9 +244,6 @@ func init() {
 	prdServiceCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number of products list")
 	prdVolumeSpecListCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number of volume list")
 
-	// Workers
-	workerCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number of Workers list")
-
 	// Activites
 	activityCmd.Flags().Int32VarP(&flagIndex, "index", "i", 0, "page number of Activites list")
 
@@ -278,7 +254,6 @@ func init() {
 		volCmd,
 		imgCmd,
 		prdCmd,
-		workerCmd,
 		activityCmd,
 		logCmd)
 

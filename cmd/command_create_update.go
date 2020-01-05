@@ -48,12 +48,6 @@ var (
   $: yb create domain example.com \
 		--TLS=true`}
 
-	workerCreateCmd = &cobra.Command{
-		Use:   "worker [APP.name]",
-		Short: "Add a new worker to an application",
-		Long:  `This subcommand adds a new worker to an application, be notify that there is a upper limit to worker counts.`,
-		Run:   workerCreate}
-
 	volumeCreateCmd = &cobra.Command{
 		Use:   "volume",
 		Short: "create new volume",
@@ -82,12 +76,6 @@ var (
 		Short: "Update an existing application",
 		Long:  `This subcommand Update an existing application.`,
 		Run:   appUpdate}
-
-	workerUpdateCmd = &cobra.Command{
-		Use:   "worker [APP.name]",
-		Short: "Update an existing worker for an application",
-		Long:  `This subcommand Update an existing worker for an application.`,
-		Run:   workerUpdate}
 
 	planeUpdateCmd = &cobra.Command{
 		Use:   "plan [type]",
@@ -137,26 +125,12 @@ func init() {
 	// domain create:
 	domainCreateCmd.Flags().BoolVar(&flagTLS, "TLS", false, "enable TLS for domain")
 
-	// worker Create flag:
-	workerCreateCmd.Flags().StringP("name", "n", "", "name of worker, a uniquely identifiable name for the worker. No other app can already exist with this name.")
-	workerCreateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
-	workerCreateCmd.Flags().StringP("image", "i", "", "image of application")
-	workerCreateCmd.MarkFlagRequired("image")
-	workerCreateCmd.MarkFlagRequired("port")
-	workerCreateCmd.MarkFlagRequired("name")
-
 	// Application Update
 	appUpdateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
 	appUpdateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
 	appUpdateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 0, "min scale of application")
 	appUpdateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc, default to http")
 	appUpdateCmd.Flags().StringArrayVarP(&flagVariableArray, "routes", "r", nil, "Routes of application")
-
-	// worker Update:
-	workerUpdateCmd.Flags().StringP("name", "n", "", "name of worker, a uniquely identifiable name for the worker. No other app can already exist with this name.")
-	workerUpdateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
-	workerUpdateCmd.Flags().StringP("image", "i", "", "image of application")
-	workerUpdateCmd.MarkFlagRequired("name")
 
 	// volume create:
 	volumeCreateCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the volume.")
@@ -172,12 +146,10 @@ func init() {
 		appCreateCmd,
 		srvCreateCmd,
 		domainCreateCmd,
-		workerCreateCmd,
 		volumeCreateCmd,
 		bucketCreateCmd)
 
 	updateCmd.AddCommand(
-		workerUpdateCmd,
 		appUpdateCmd,
 		planeUpdateCmd)
 

@@ -42,13 +42,6 @@ var (
 		Short: "destroy an image",
 		Long:  `This subcommand destroy an image.`,
 		Run:   imgDelete}
-
-	rmWorkerCmd = &cobra.Command{
-		Use:   "worker [parent_name] [worker_name]",
-		Short: "destroy an worker by [parent_name] and [worker_name]",
-		Long: `This subcommand destroy an worker.
-				$: yb rm worker [parent name] [worker name]`,
-		Run: workerDestroy}
 )
 
 func init() {
@@ -58,6 +51,5 @@ func init() {
 		rmSrvCmd,
 		rmDomCmd,
 		rmVolCmd,
-		rmImgCmd,
-		rmWorkerCmd)
+		rmImgCmd)
 }
