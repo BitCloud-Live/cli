@@ -8,26 +8,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Repository Build
-var repositoryBuildCmd = &cobra.Command{
-	Use:   "build",
-	Run:   imageBuild,
+// Repository Push
+var repositoryPushCmd = &cobra.Command{
+	Use:   "push",
+	Run:   pushRepository,
 	Short: "build a Repository from a Dockerfile",
 	Long:  `This subcommand Build an image from a dockerfile.`,
 	Example: `
-		$: yb build \
+		$: yb push \
 			  --name=my-application \
 			  --tag=0.0.1 \
 			  --path="~/Desktop/my-application/"`,
 }
 
-var repositoryBuildLogCmd = &cobra.Command{
-	Use:   "build-log",
-	Run:   imageBuildLog,
+var repositoryPushLogCmd = &cobra.Command{
+	Use:   "log",
+	Run:   pushLog,
 	Short: "tail builder log",
 	Long:  `This subcommand Tail current builder log.`,
 	Example: `
-		$: yb build-log \
+		$: yb push log \
 			  --name=my-application \
 			  --tag=0.0.1`,
 }
@@ -49,14 +49,13 @@ func defaultRepositoryName() string {
 }
 
 func init() {
-	repositoryBuildLogCmd.Flags().StringP("name", "n", defaultRepositoryName(), "the uniquely identifiable name for the Repository")
-	repositoryBuildLogCmd.Flags().StringP("tag", "T", "latest", "the uniquely identifiable name for the Repository")
+	repositoryPushLogCmd.Flags().StringP("name", "n", defaultRepositoryName(), "the uniquely identifiable name for the Repository")
+	repositoryPushLogCmd.Flags().StringP("tag", "T", "latest", "the uniquely identifiable name for the Repository")
 
-	rootCmd.AddCommand(repositoryBuildLogCmd)
+	repositoryPushCmd.Flags().StringP("name", "n", defaultRepositoryName(), "the uniquely identifiable name for the Repository")
+	repositoryPushCmd.Flags().StringP("tag", "T", "latest", "the uniquely identifiable name for the Repository")
+	repositoryPushCmd.Flags().StringP("path", "p", getPath(), "the uniquely identifiable name for the Repository")
 
-	repositoryBuildCmd.Flags().StringP("name", "n", defaultRepositoryName(), "the uniquely identifiable name for the Repository")
-	repositoryBuildCmd.Flags().StringP("tag", "T", "latest", "the uniquely identifiable name for the Repository")
-	repositoryBuildCmd.Flags().StringP("path", "p", getPath(), "the uniquely identifiable name for the Repository")
-
-	rootCmd.AddCommand(repositoryBuildCmd)
+	repositoryPushCmd.AddCommand(repositoryPushLogCmd)
+	rootCmd.AddCommand(repositoryPushCmd)
 }
