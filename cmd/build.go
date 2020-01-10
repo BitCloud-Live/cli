@@ -18,6 +18,7 @@ import (
 
 const (
 	ybRemoteName    = "io.YOTTAb.git"
+	gitYbPath       = "https://git.yottab.io/%s/%s.git"
 	pushLogIDFormat = "%s:%s" // imageName:imageTa
 )
 
@@ -171,5 +172,5 @@ func addYbRemote(repo *git.Repository, appName, user string) error {
 }
 
 func getRemoteURL(user, app string) string {
-	return fmt.Sprintf("https://git.yottab.io/%s/%s.git", user, app)
+	return fmt.Sprintf(gitYbPath, user, app)
 }
