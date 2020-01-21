@@ -40,3 +40,15 @@ docker-build:
 
 docker-push:
 	docker push hub.yottab.io/yottab-library/cli:$(version)
+
+
+update-deps: download tidy vendor
+
+download:
+	GONOSUMDB="gitlab.com/projectxchange,github.com/btcsuite" HTTPS_PROXY=socks5://127.0.0.1:9150 GO111MODULE=on go mod download
+
+tidy:
+	GONOSUMDB="gitlab.com/projectxchange,github.com/btcsuite" HTTPS_PROXY=socks5://127.0.0.1:9150 GO111MODULE=on go mod tidy -v
+
+vendor:
+	GONOSUMDB="gitlab.com/projectxchange,github.com/btcsuite" HTTPS_PROXY=socks5://127.0.0.1:9150 GO111MODULE=on go mod vendor

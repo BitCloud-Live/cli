@@ -13,8 +13,8 @@ import (
 
 	"google.golang.org/grpc/codes"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/pkg/browser"
+	"github.com/sirupsen/logrus"
 	ybApi "github.com/yottab/proto-api/proto"
 
 	"google.golang.org/grpc/status"
@@ -130,17 +130,17 @@ func uiList(list interface{}) {
 			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
 		}
 		return
-	case *ybApi.WorkerListRes:
-		itemList := list.(*ybApi.WorkerListRes)
-		log.Printf("# Count: %d\t", len(itemList.Services))
-		for _, v := range itemList.Services {
-			log.Printf("- Name: %s", v.Name)
-			log.Printf("  State: %s", v.State.String())
-			log.Printf("  Image: %s", v.Config.Image)
-			log.Printf("  Port: %d", v.Config.Port)
-			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
-		}
-		return
+	// case *ybApi.WorkerListRes:
+	// 	itemList := list.(*ybApi.WorkerListRes)
+	// 	log.Printf("# Count: %d\t", len(itemList.Services))
+	// 	for _, v := range itemList.Services {
+	// 		log.Printf("- Name: %s", v.Name)
+	// 		log.Printf("  State: %s", v.State.String())
+	// 		log.Printf("  Image: %s", v.Config.Image)
+	// 		log.Printf("  Port: %d", v.Config.Port)
+	// 		log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
+	// 	}
+	// 	return
 	default:
 		return
 	}
@@ -347,12 +347,13 @@ func uiApplicationStatus(app *ybApi.AppStatusRes) {
 
 }
 
-func uiWorkerStatus(worker *ybApi.WorkerRes) {
-	log.Printf("Service Name: %s ", worker.Name)
-	log.Printf("State: %v ", worker.State)
-	log.Printf("Config: %v ", worker.Config)
-	log.Printf("Created: %v , Updated: %v ", toTime(worker.Created), toTime(worker.Updated))
-}
+//Deprecated
+// func uiWorkerStatus(worker *ybApi.WorkerRes) {
+// 	log.Printf("Service Name: %s ", worker.Name)
+// 	log.Printf("State: %v ", worker.State)
+// 	log.Printf("Config: %v ", worker.Config)
+// 	log.Printf("Created: %v , Updated: %v ", toTime(worker.Created), toTime(worker.Updated))
+// }
 
 func uiAttachedDomains(domains []*ybApi.AttachedDomainInfo) {
 	if len(domains) == 0 {

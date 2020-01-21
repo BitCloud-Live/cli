@@ -12,7 +12,8 @@ var (
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if cmd.Flag("compose-file").Changed {
-				composeCreate(cmd, args)
+				//NOOP
+				// composeCreate(cmd, args)
 			} else {
 				cmd.Help()
 			}
