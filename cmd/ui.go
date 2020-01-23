@@ -278,16 +278,18 @@ func uiProduct(prd *ybApi.ProductRes) {
 	}
 }
 
-func uiSettingByDetail(set *ybApi.SettingRes) {
-	log.Printf("Setting Name: %s ", set.Name)
-	log.Printf("Application: %s Path: %s", set.App, set.Path)
-	log.Print("Value: ")
-	log.Print(set.File)
-}
+//Deprecated
+// func uiSettingByDetail(set *ybApi.SettingRes) {
+// 	log.Printf("Setting Name: %s ", set.Name)
+// 	log.Printf("Application: %s Path: %s", set.App, set.Path)
+// 	log.Print("Value: ")
+// 	log.Print(set.File)
+// }
 
-func uiSetting(set *ybApi.SettingRes) {
-	log.Println(set.File)
-}
+//Deprecated
+// func uiSetting(set *ybApi.SettingRes) {
+// 	log.Println(set.File)
+// }
 
 func uiApplicationOpen(app *ybApi.AppStatusRes) {
 	if len(app.Config.Routes) == 0 {

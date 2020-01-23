@@ -14,7 +14,7 @@ require (
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.3.2
-	github.com/yottab/proto-api v2.5.0+incompatible
+	github.com/yottab/proto-api v2.5.1+incompatible
 	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/genproto v0.0.0-20191230161307-f3c370f40bfb // indirect
