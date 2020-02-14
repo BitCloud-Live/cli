@@ -43,12 +43,35 @@ func appOpen(cmd *cobra.Command, args []string) {
 }
 
 func appLog(cmd *cobra.Command, args []string) {
-	req := getCliRequestIdentity(args, 0)
+
 	client := grpcConnect()
 	defer client.Close()
+	req := getCliRequestIdentity(args, 0)
 	logClient, err := client.V2().AppLog(context.Background(), req)
 	uiCheckErr("Could not Get Application log", err)
 	uiApplicationLog(logClient)
+	//TODO: Api testing
+	// req := new(ybApi.TailRequest)
+	// req.Name = "app-name"
+	// req.Tail = 1000
+	// output, err := client.V2().AppLogTail(context.Background(), req)
+	// log.Debug(err)
+	// s := string(output.Chunk)
+	// log.Printf("output: %s", s)
+}
+func appRun(cmd *cobra.Command, args []string) {
+	req := new(ybApi.ShellReq)
+	req.Name = getCliRequiredArg(args, 0)
+	if len(args) < 2 {
+		log.Fatal("no command run")
+	}
+	req.Command = args[1:]
+	client := grpcConnect()
+	defer client.Close()
+	output, err := client.V2().AppShell(client.Context(), req)
+	uiCheckErr("Could not Get Application remote command output", err)
+	s := string(output.Chunk)
+	log.Printf("output: %s", s)
 }
 
 // AppStart start the application by name
