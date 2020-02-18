@@ -9,22 +9,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func buildConfigDetails(source types.Dict) types.ConfigDetails {
+func loadConfigFile(fileYmlName string) (*types.Config, error) {
 	workingDir, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
 
-	return types.ConfigDetails{
-		WorkingDir: workingDir,
-		ConfigFiles: []types.ConfigFile{
-			{Filename: "filename.yml", Config: source},
-		},
-		Environment: nil,
-	}
-}
-
-func load(fileYmlName string) (*types.Config, error) {
 	bytes, err := ioutil.ReadFile(fileYmlName)
 	if err != nil {
 		return nil, err
@@ -35,12 +25,18 @@ func load(fileYmlName string) (*types.Config, error) {
 		return nil, err
 	}
 
-	return loader.Load(buildConfigDetails(dict))
+	return loader.Load(types.ConfigDetails{
+		WorkingDir: workingDir,
+		ConfigFiles: []types.ConfigFile{
+			{Filename: "filename.yml", Config: dict},
+		},
+		Environment: nil,
+	})
 }
 
-func getYamlFilePath(cmd *cobra.Command) *types.Config {
+func getDockerComposeObject(cmd *cobra.Command) *types.Config {
 	ymlFile := cmd.Flag("compose-file").Value.String()
-	confObj, err := load(ymlFile)
+	confObj, err := loadConfigFile(ymlFile)
 	if err != nil {
 		log.Fatal("Err load File: ", err)
 	}
@@ -48,7 +44,7 @@ func getYamlFilePath(cmd *cobra.Command) *types.Config {
 }
 
 func composeCreate(cmd *cobra.Command, args []string) {
-	confObj := getYamlFilePath(cmd)
+	confObj := getDockerComposeObject(cmd)
 	log.Println("TODO: Kill Me", confObj)
 	// TODO
 	/*
@@ -56,17 +52,29 @@ func composeCreate(cmd *cobra.Command, args []string) {
 			log.Println("Name", srv.Name)
 
 			log.Println("Volumes", srv.Volumes)
-			log.Println("DomainName", srv.DomainName)
-
-			log.Println("Image", srv.Image)
-			log.Println("Labels", srv.Labels)
-			//log.Println("Deploy", srv.Deploy)
+			log.Println("DomainName", srv.DomainName) // string
+			log.Println("Image", srv.Image) // string
+			log.Println("Labels", srv.Labels) // map[string]string
+			//log.Println("Deploy", srv.Deploy) // DeployConfig
 			log.Println("DependsOn", srv.DependsOn)
 			//log.Println("Ports", srv.Ports)
 
-			log.Println("Environment", srv.Environment)
+			log.Println("Environment", srv.Environment) // map[string]string
 
 			log.Println("Links", srv.Links)
+			// Command         []string
+			// Ports           []string
+			// Restart         string
+			// User            string
+			// Entrypoint      []string
+			// Expose          []string
+			// ExternalLinks   []string
+			// Links           []string
+			// ExtraHosts      map[string]string
+			// Hostname        string
+			// HealthCheck     *HealthCheckConfig
+			// Logging         *LoggingConfig
+			// NetworkMode     string
 		}
 
 		log.Println("-----------------------------------------------")
@@ -88,13 +96,13 @@ func composeCreate(cmd *cobra.Command, args []string) {
 }
 
 func composeStart(cmd *cobra.Command, args []string) {
-	confObj := getYamlFilePath(cmd)
+	confObj := getDockerComposeObject(cmd)
 	log.Println("TODO: Kill Me", confObj)
 	// TODO
 }
 
 func composeStop(cmd *cobra.Command, args []string) {
-	confObj := getYamlFilePath(cmd)
+	confObj := getDockerComposeObject(cmd)
 	log.Println("TODO: Kill Me", confObj)
 	// TODO
 }
