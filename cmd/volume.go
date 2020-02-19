@@ -14,14 +14,15 @@ func volumeSpecList(cmd *cobra.Command, args []string) {
 	uiList(res)
 }
 
-func volumeSpecInfo(cmd *cobra.Command, args []string) {
-	req := getCliRequestIdentity(args, 0)
-	client := grpcConnect()
-	defer client.Close()
-	res, err := client.V2().VolumeSpecInfo(client.Context(), req)
-	uiCheckErr("Could not get the Volumes Spec", err)
-	uiVolumeSpec(res)
-}
+//Deprecated
+// func volumeSpecInfo(cmd *cobra.Command, args []string) {
+// 	req := getCliRequestIdentity(args, 0)
+// 	client := grpcConnect()
+// 	defer client.Close()
+// 	res, err := client.V2().VolumeSpecInfo(client.Context(), req)
+// 	uiCheckErr("Could not get the Volumes Spec", err)
+// 	uiVolumeSpec(res)
+// }
 
 func volumeList(cmd *cobra.Command, args []string) {
 	req := getCliRequestIndexForApp(args, 0, flagIndex)

@@ -177,11 +177,12 @@ var (
 		Long: `This subcommand can pageing the Volume.
 		This subcommand show the information, Size and ... of a Volume.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) == 1 {
-				volumeSpecInfo(cmd, args)
-			} else {
-				volumeSpecList(cmd, args)
-			}
+			//Deprecated
+			// if len(args) == 1 {
+			// 	volumeSpecInfo(cmd, args)
+			// } else {
+			volumeSpecList(cmd, args)
+			// }
 		}}
 )
 

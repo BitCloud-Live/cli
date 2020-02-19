@@ -31,7 +31,7 @@ See [Releases](https://github.com/yottab/cli/releases).
 ## Update
 YOTTAb cli can be updated in place using the following command:  
 ```sh
-$ yb update
+$ yb cli update
 ```  
 # Quickstart
 [![asciicast](https://asciinema.org/a/243119.svg)](https://asciinema.org/a/243119)

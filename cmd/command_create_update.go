@@ -12,7 +12,8 @@ var (
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if cmd.Flag("compose-file").Changed {
-				composeCreate(cmd, args)
+				//NOOP
+				// composeCreate(cmd, args)
 			} else {
 				cmd.Help()
 			}
@@ -67,12 +68,6 @@ var (
 		Use:   "update [APP.name]",
 		Short: "update the config of existing application",
 		Long:  `This subcommand Update an existing application.`,
-		Run:   appUpdate}
-
-	appUpdateCmd = &cobra.Command{
-		Use:   "application [APP.name]",
-		Short: "Update an existing application",
-		Long:  ``,
 		Run:   appUpdate}
 )
 

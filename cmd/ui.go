@@ -13,8 +13,8 @@ import (
 
 	"google.golang.org/grpc/codes"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/pkg/browser"
+	"github.com/sirupsen/logrus"
 	ybApi "github.com/yottab/proto-api/proto"
 
 	"google.golang.org/grpc/status"
@@ -78,6 +78,7 @@ func uiList(list interface{}) {
 		for _, v := range itemList.Services {
 			log.Printf("- Name: %s", v.Name)
 			log.Printf("  State: %s", v.State.String())
+			log.Printf("  Plan: %s", v.Plan)
 			log.Printf("  Service refrence: %s", v.ServiceRefrence)
 			log.Printf("  Updated: %v ", toTime(v.Updated))
 		}
@@ -130,17 +131,17 @@ func uiList(list interface{}) {
 			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
 		}
 		return
-	case *ybApi.WorkerListRes:
-		itemList := list.(*ybApi.WorkerListRes)
-		log.Printf("# Count: %d\t", len(itemList.Services))
-		for _, v := range itemList.Services {
-			log.Printf("- Name: %s", v.Name)
-			log.Printf("  State: %s", v.State.String())
-			log.Printf("  Image: %s", v.Config.Image)
-			log.Printf("  Port: %d", v.Config.Port)
-			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
-		}
-		return
+	// case *ybApi.WorkerListRes:
+	// 	itemList := list.(*ybApi.WorkerListRes)
+	// 	log.Printf("# Count: %d\t", len(itemList.Services))
+	// 	for _, v := range itemList.Services {
+	// 		log.Printf("- Name: %s", v.Name)
+	// 		log.Printf("  State: %s", v.State.String())
+	// 		log.Printf("  Image: %s", v.Config.Image)
+	// 		log.Printf("  Port: %d", v.Config.Port)
+	// 		log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
+	// 	}
+	// 	return
 	default:
 		return
 	}
@@ -156,6 +157,7 @@ func uiServicStatus(srv *ybApi.SrvStatusRes) {
 	log.Printf("Service Name: %s ", srv.Name)
 	log.Printf("Plan Name: %s ", srv.Plan)
 	log.Printf("State: %v ", srv.State.String())
+	log.Printf("Plan: %v ", srv.Plan)
 	log.Printf("Created: %v , Updated: %v ", toTime(srv.Created), toTime(srv.Updated))
 	uiMap(srv.Variable, "Variable")
 	uiStringArray("List of endpoints", srv.Endpoints)
@@ -232,6 +234,7 @@ func uiPlan(plan []*ybApi.Plan) {
 	for _, p := range plan {
 		log.Printf("- Name: %s ", p.Name)
 		log.Printf("  Description: %v ", p.Description)
+		log.Printf("  Extras: %v ", p.Extras)
 	}
 }
 func uiMap(mapVar map[string]string, name string) {
@@ -257,6 +260,7 @@ func uiRoutes(mapVar map[string]string, name string) {
 }
 
 func uiProduct(prd *ybApi.ProductRes) {
+	log.Printf("Product: %v", prd)
 	log.Printf("Product Name: %s ", prd.Name)
 	descLines := strings.Split(strings.Replace(prd.Description, "\r\n", "\n", -1), "\n")
 	log.Print("Description: ")
@@ -278,16 +282,18 @@ func uiProduct(prd *ybApi.ProductRes) {
 	}
 }
 
-func uiSettingByDetail(set *ybApi.SettingRes) {
-	log.Printf("Setting Name: %s ", set.Name)
-	log.Printf("Application: %s Path: %s", set.App, set.Path)
-	log.Print("Value: ")
-	log.Print(set.File)
-}
+//Deprecated
+// func uiSettingByDetail(set *ybApi.SettingRes) {
+// 	log.Printf("Setting Name: %s ", set.Name)
+// 	log.Printf("Application: %s Path: %s", set.App, set.Path)
+// 	log.Print("Value: ")
+// 	log.Print(set.File)
+// }
 
-func uiSetting(set *ybApi.SettingRes) {
-	log.Println(set.File)
-}
+//Deprecated
+// func uiSetting(set *ybApi.SettingRes) {
+// 	log.Println(set.File)
+// }
 
 func uiApplicationOpen(app *ybApi.AppStatusRes) {
 	if len(app.Config.Routes) == 0 {
@@ -316,6 +322,7 @@ func uiApplicationStatus(app *ybApi.AppStatusRes) {
 	log.Printf("Image: %v", app.Config.Image)
 	log.Printf("Internal-port: %v ", app.Config.Port)
 	log.Printf("Minimum-scale: %v", app.Config.MinScale)
+	log.Printf("Plan: %v", app.Plan)
 
 	//Print routes
 	log.Printf("Endpoints(Public URLs):")
@@ -347,12 +354,13 @@ func uiApplicationStatus(app *ybApi.AppStatusRes) {
 
 }
 
-func uiWorkerStatus(worker *ybApi.WorkerRes) {
-	log.Printf("Service Name: %s ", worker.Name)
-	log.Printf("State: %v ", worker.State)
-	log.Printf("Config: %v ", worker.Config)
-	log.Printf("Created: %v , Updated: %v ", toTime(worker.Created), toTime(worker.Updated))
-}
+//Deprecated
+// func uiWorkerStatus(worker *ybApi.WorkerRes) {
+// 	log.Printf("Service Name: %s ", worker.Name)
+// 	log.Printf("State: %v ", worker.State)
+// 	log.Printf("Config: %v ", worker.Config)
+// 	log.Printf("Created: %v , Updated: %v ", toTime(worker.Created), toTime(worker.Updated))
+// }
 
 func uiAttachedDomains(domains []*ybApi.AttachedDomainInfo) {
 	if len(domains) == 0 {
