@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"context"
-
 	"github.com/spf13/cobra"
 	ybApi "github.com/yottab/proto-api/proto"
 )
@@ -43,22 +41,9 @@ func appOpen(cmd *cobra.Command, args []string) {
 }
 
 func appLog(cmd *cobra.Command, args []string) {
-
-	client := grpcConnect()
-	defer client.Close()
-	req := getCliRequestIdentity(args, 0)
-	logClient, err := client.V2().AppLog(context.Background(), req)
-	uiCheckErr("Could not Get Application log", err)
-	uiApplicationLog(logClient)
-	//TODO: Api testing
-	// req := new(ybApi.TailRequest)
-	// req.Name = "app-name"
-	// req.Tail = 1000
-	// output, err := client.V2().AppLogTail(context.Background(), req)
-	// log.Debug(err)
-	// s := string(output.Chunk)
-	// log.Printf("output: %s", s)
+	streamAppLog(args)
 }
+
 func appRun(cmd *cobra.Command, args []string) {
 	req := new(ybApi.ShellReq)
 	req.Name = getCliRequiredArg(args, 0)

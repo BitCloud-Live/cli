@@ -124,7 +124,8 @@ func init() {
 	appCreateCmd.MarkFlagRequired("image")
 
 	// domain create:
-	domainCreateCmd.Flags().BoolVar(&flagTLS, "TLS", false, "enable TLS for domain")
+	domainCreateCmd.Flags().BoolVar(&flagTLS, "TLS", true, "enable TLS for domain")
+	appCreateCmd.MarkFlagRequired("TLS")
 
 	// Application Update
 	appUpdateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")

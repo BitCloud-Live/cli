@@ -374,32 +374,16 @@ func uiAttachedDomains(domains []*ybApi.AttachedDomainInfo) {
 	}
 }
 
-func uiApplicationLog(client ybApi.YB_AppLogClient) {
+func uiStreamLog(client ybApi.YB_AppLogClient) error {
 	var byteRecieved = 0
 	for {
 		c, err := client.Recv()
 		if err != nil {
 			if status.Code(err) == codes.OutOfRange {
 				log.Printf("Transfer of %d bytes done", byteRecieved)
-				return
+				return nil
 			}
-			log.Fatal(err)
-		}
-		byteRecieved += len(c.Chunk)
-		log.Printf(string(c.Chunk))
-	}
-}
-
-func uiImageLog(client ybApi.YB_ImgBuildLogClient) {
-	var byteRecieved = 0
-	for {
-		c, err := client.Recv()
-		if err != nil {
-			if status.Code(err) == codes.OutOfRange {
-				log.Printf("Transfer of %d bytes done", byteRecieved)
-				return
-			}
-			log.Fatal(err)
+			return err
 		}
 		byteRecieved += len(c.Chunk)
 		log.Printf(string(c.Chunk))

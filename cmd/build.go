@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -41,25 +40,15 @@ func pushRepository(cmd *cobra.Command, args []string) {
 	uiCheckErr("Could not Build the Repository", err)
 	log.Print("Build started!\r\nWaiting for builder log to get ready...")
 	time.Sleep(20 * time.Second)
-	getPushLog(imageName, imageTag)
+	streamBuildLog(imageName, imageTag)
 	log.Printf("Enter this command to see more:\r\n$: yb push log --name=%s --tag=%s\r\n", imageName, imageTag)
 }
 
 func pushLog(cmd *cobra.Command, args []string) {
 	imageTag := cmd.Flag("tag").Value.String()   // Repository tag
 	imageName := cmd.Flag("name").Value.String() // Repository name
-	getPushLog(imageName, imageTag)
-}
 
-func getPushLog(appName, appTag string) {
-	id := getRequestIdentity(
-		fmt.Sprintf(pushLogIDFormat, appName, appTag))
-	client := grpcConnect()
-	defer client.Close()
-	logClient, err := client.V2().ImgBuildLog(context.Background(), id)
-	uiCheckErr(fmt.Sprintf("Could not get build log right now!\nTry again in a few soconds using:\n$yb push log --name=%s --tag=%s", appName, appTag), err)
-	uiImageLog(logClient)
-
+	streamBuildLog(imageName, imageTag)
 }
 
 func checkExistDockerfile(basePath string) {
