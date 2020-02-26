@@ -65,44 +65,10 @@ var (
 // Update Command
 var (
 	updateCmd = &cobra.Command{
-		Use:   "update [command] [name]",
-		Short: "update the existing [application|worker|plan]",
-		Long:  ``,
-		Run: func(cmd *cobra.Command, args []string) {
-			cmd.Help()
-		}}
-
-	appUpdateCmd = &cobra.Command{
-		Use:   "application [APP.name]",
-		Short: "Update an existing application",
+		Use:   "update [APP.name]",
+		Short: "update the config of existing application",
 		Long:  `This subcommand Update an existing application.`,
 		Run:   appUpdate}
-
-	planeUpdateCmd = &cobra.Command{
-		Use:   "plan [type]",
-		Short: "change the Plan of [service|application]",
-		Long: `set Plan for an service.
-		This limit isn't applied to each individual pod, 
-		so setting a plan for an service means that 
-		each pod can gets more resourse and overused pay per consume.`}
-
-	srvPlaneUpdateCmd = &cobra.Command{
-		Use:   "service [Srv.name] [Plan.name]",
-		Run:   srvChangePlane,
-		Short: "change the Plan of service",
-		Long: `set Plan for an service.
-			This limit isn't applied to each individual pod, 
-			so setting a plan for an service means that 
-			each pod can gets more resourse and overused pay per consume.`}
-
-	appPlaneUpdateCmd = &cobra.Command{
-		Use:   "application [App.name] [Plan.name]",
-		Run:   appChangePlane,
-		Short: "change the Plan of application",
-		Long: `set Plan for an application.
-				This limit isn't applied to each individual pod, 
-				so setting a plan for an application means that 
-				each pod can gets more resourse and overused pay per consume.`}
 )
 
 func init() {
@@ -127,18 +93,18 @@ func init() {
 	domainCreateCmd.Flags().BoolVar(&flagTLS, "TLS", true, "enable TLS for domain")
 	appCreateCmd.MarkFlagRequired("TLS")
 
-	// Application Update
-	appUpdateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
-	appUpdateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
-	appUpdateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 0, "min scale of application")
-	appUpdateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc, default to http")
-	appUpdateCmd.Flags().StringArrayVarP(&flagVariableArray, "routes", "r", nil, "Routes of application")
-
 	// volume create:
 	volumeCreateCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the volume.")
 	volumeCreateCmd.Flags().StringP("volume-type", "v", "", "the type of volume")
 	volumeCreateCmd.MarkFlagRequired("name")
 	volumeCreateCmd.MarkFlagRequired("volume-type")
+
+	// Application Update
+	updateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
+	updateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
+	updateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 0, "min scale of application")
+	updateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc, default to http")
+	updateCmd.Flags().StringArrayVarP(&flagVariableArray, "routes", "r", nil, "Routes of application")
 
 	rootCmd.AddCommand(
 		createCmd,
@@ -150,12 +116,4 @@ func init() {
 		domainCreateCmd,
 		volumeCreateCmd,
 		bucketCreateCmd)
-
-	updateCmd.AddCommand(
-		appUpdateCmd,
-		planeUpdateCmd)
-
-	planeUpdateCmd.AddCommand(
-		srvPlaneUpdateCmd,
-		appPlaneUpdateCmd)
 }

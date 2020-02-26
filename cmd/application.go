@@ -80,6 +80,7 @@ func AppStop(name string) (*ybApi.AppStatusRes, error) {
 	defer client.Close()
 	return client.V2().AppStop(client.Context(), req)
 }
+
 func appStop(cmd *cobra.Command, args []string) {
 	appName := getCliRequiredArg(args, 0)
 	res, err := AppStop(appName)
@@ -114,6 +115,7 @@ func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale
 	defer client.Close()
 	return client.V2().AppCreate(client.Context(), req)
 }
+
 func appCreate(cmd *cobra.Command, args []string) {
 	res, err := ApplicationCreate(
 		cmd.Flag("name").Value.String(),
@@ -165,6 +167,7 @@ func ApplicationAddEnvironmentVariable(serviceName string, variable map[string]s
 	defer client.Close()
 	return client.V2().AppAddEnvironmentVariable(client.Context(), req)
 }
+
 func appAddEnvironmentVariable(cmd *cobra.Command, args []string) {
 	res, err := ApplicationAddEnvironmentVariable(
 		getCliRequiredArg(args, 0),
@@ -204,6 +207,7 @@ func ApplicationLinkService(applicationName, serviceName string) (*ybApi.AppStat
 	defer client.Close()
 	return client.V2().AppSrvBind(client.Context(), req)
 }
+
 func appSrvBind(cmd *cobra.Command, args []string) {
 	res, err := ApplicationLinkService(
 		cmd.Flag("application").Value.String(),
@@ -234,6 +238,7 @@ func AppAttachVolume(appName, volumeName, path string) (*ybApi.AppStatusRes, err
 	defer client.Close()
 	return client.V2().AppAttachVolume(client.Context(), req)
 }
+
 func appAttachVolume(cmd *cobra.Command, args []string) {
 	res, err := AppAttachVolume(
 		cmd.Flag("application").Value.String(),
@@ -268,6 +273,7 @@ func AppAttachDomain(appName, domainName, path, endpoint string) (*ybApi.AppStat
 	defer client.Close()
 	return client.V2().AppAttachDomain(client.Context(), req)
 }
+
 func appAttachDomain(cmd *cobra.Command, args []string) {
 	var (
 		app  = cmd.Flag("application").Value.String()
