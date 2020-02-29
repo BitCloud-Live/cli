@@ -15,7 +15,7 @@ clean:
 	rm -rf build/*
 
 build: 
-	CGO_ENABLED=0 go build --tags netgo -ldflags '$(LD_FLAGS)' -o build/yb -i main.go
+	CGO_ENABLED=0 go build -a --tags netgo -ldflags '$(LD_FLAGS)' -o build/yb -i main.go
 
 run:
 	./build/yb

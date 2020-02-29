@@ -101,11 +101,13 @@ func streamAppLog(args []string) {
 		err = uiStreamLog(logClient)
 		client.Close()
 		if err != nil {
+			log.Debug(err)
 			if status.Code(err) == codes.ResourceExhausted {
 				break
 			}
 			if strings.Contains(err.Error(), "RST_STREAM") {
 				//Resume log streaming on proto related error
+				log.Fatal("RST_STREAM")
 				continue
 			}
 		} else {
