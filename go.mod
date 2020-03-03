@@ -4,6 +4,9 @@ go 1.13
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
+	github.com/containerd/console v0.0.0-20191219165238-8375c3424e4d // indirect
+	github.com/containerd/containerd v1.3.3
+	github.com/docker/go-units v0.4.0 // indirect
 	github.com/go-ini/ini v1.51.1 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/mitchellh/go-homedir v1.1.0

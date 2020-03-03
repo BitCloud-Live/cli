@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -34,12 +36,20 @@ func pushRepository(cmd *cobra.Command, args []string) {
 
 	checkExistDockerfile(baseFolder)
 
-	confirmF(cmd, "build & push docker image \033[1m%s:%s\033[0m into yottab hub", imageName, imageTag)
-	latestTag, commitHash := push(imageName, imageTag, baseFolder)
-
+	//Let's select and inform build tag
+	user := viper.GetString(cliConfig.KEY_USER)
+	repo := getYbRepo(baseFolder, imageName, user)
+	latestTag := latestTag(repo)
+	if repositoryYbIsClean(repo) == false {
+		log.Fatal("Repository is dirty! please commit your changes and try again!")
+	}
+	commitHash := latestCommit(repo)
 	//Select tag based on user choice
 	imageTag = selectTag(imageTag, flagGitCommitHash, flagGitTag, latestTag, commitHash)
+	confirmF(cmd, "build & push docker image \033[1m%s:%s\033[0m into yottab hub", imageName, imageTag)
 
+	//Push and request build
+	push(repo, user, imageName)
 	client := grpcConnect()
 	defer client.Close()
 	req := new(ybApi.ImgBuildReq)
@@ -63,12 +73,18 @@ func pushLog(cmd *cobra.Command, args []string) {
 
 func selectTag(imageTag string, flagGitCommitHash, flagGitTag bool, latestTag, commitHash string) string {
 	if flagGitCommitHash && flagGitTag {
-		panic("Please set either one of (tag-git, tag-commit) boolean switches!")
+		log.Fatal("Please set either one of (tag-git, tag-commit) boolean switches!")
 	}
 	if flagGitTag {
+		if len(latestTag) == 0 {
+			log.Fatal("latest tag can't be found!")
+		}
 		return latestTag
 	}
 	if flagGitCommitHash {
+		if len(commitHash) == 0 {
+			log.Fatal("no commit hash detected!")
+		}
 		return commitHash
 	}
 	//NOOP short circuit
@@ -88,21 +104,19 @@ func checkExistDockerfile(basePath string) {
 	log.Fatalf("Err: can find Dockerfile at [%s]", basePath)
 }
 
-func push(imageName, imageTag, repoPath string) (commitHash, latestTag string) {
-	user := viper.GetString(cliConfig.KEY_USER)
+func commit(repo *git.Repository) (commitHash string) {
+	if repositoryYbIsClean(repo) == false {
+		commitHash = repositoryYbCommit(repo)
+	}
+	return
+}
+func push(repo *git.Repository, user, appName string) {
 	token := viper.GetString(cliConfig.KEY_TOKEN)
 
-	repo, err := getYbRepo(repoPath, imageName, user)
-	if err != nil {
-		log.Fatal("getYbRepo: ", err)
-	}
-	latestTag = repositoryYbLatestTag(repo)
-	if repositoryYbIsClean(repo) == false {
-		commitHash = repositoryYbCommit(repo, imageTag)
-	}
-
 	fmt.Println("Start PUSH")
-	err = ybPush(repo, user, token)
+	remo := addYbRemote(repo, appName, user)
+	err := ybPush(remo, user, token)
+	cleaRemote(repo)
 	uiCheckErr("push.ybPush", err)
 	return
 }
@@ -116,37 +130,63 @@ func repositoryYbIsClean(repo *git.Repository) bool {
 
 	return s.IsClean()
 }
-func repositoryYbLatestTag(repo *git.Repository) (tag string) {
-	tagrefs, err := repo.Tags()
-	uiCheckErr("repositoryYbLatestTag.Tags", err)
+func latestTag(repo *git.Repository) (tag string) {
+	tagRefs, err := repo.Tags()
+	uiCheckErr("latestTag", err)
 
-	err = tagrefs.ForEach(func(t *plumbing.Reference) error {
-		fmt.Println(t)
-		tag = t.Name().String()
+	var latestTagCommit *object.Commit
+	var latestTagName string
+	err = tagRefs.ForEach(func(tagRef *plumbing.Reference) error {
+		revision := plumbing.Revision(tagRef.Name().String())
+		tagCommitHash, err := repo.ResolveRevision(revision)
+		uiCheckErr("latestTag", err)
+
+		commit, err := repo.CommitObject(*tagCommitHash)
+		uiCheckErr("latestTag", err)
+
+		if latestTagCommit == nil {
+			latestTagCommit = commit
+			latestTagName = tagRef.Name().Short()
+		}
+
+		if commit.Committer.When.After(latestTagCommit.Committer.When) {
+			latestTagCommit = commit
+			latestTagName = tagRef.Name().Short()
+		}
+
 		return nil
 	})
-	uiCheckErr("repositoryYbLatestTag.Tags", err)
-	return
+	uiCheckErr("latestTag", err)
+
+	return latestTagName
 }
 
-func repositoryYbCommit(repo *git.Repository, tag string) string {
+func repositoryYbCommit(repo *git.Repository) string {
 	w, err := repo.Worktree()
 	_, err = w.Add(".")
 	uiCheckErr("repositoryYbCommit.Add", err)
 
-	hash, err := w.Commit(tag, &git.CommitOptions{
+	_, err = w.Commit(fmt.Sprintf("yb @ %s", time.Now().Format(time.RFC822)), &git.CommitOptions{
 		Author: &object.Signature{
 			When: time.Now(),
 		},
 	})
 	uiCheckErr("repositoryYbCommit.Commit", err)
-	return hash.String()[:10]
+	headRef, err := repo.Head()
+	uiCheckErr("repositoryYbCommit.Head", err)
+	return headRef.String()[:10]
+}
+
+func latestCommit(repo *git.Repository) string {
+	headRef, err := repo.Head()
+	uiCheckErr("repositoryYbCommit.Head", err)
+	return headRef.String()[:10]
 }
 
 // getRepo open Repository and
 // if yottab.Remote not exist, add the Remote to Repository
-func getYbRepo(path, appName, user string) (repo *git.Repository, err error) {
-	repo, err = git.PlainOpen(path)
+func getYbRepo(path, appName, user string) (repo *git.Repository) {
+	repo, err := git.PlainOpen(path)
 	if err != nil {
 		if err == git.ErrRepositoryNotExists {
 			fmt.Printf("Repasitory %s Create at %s", appName, path)
@@ -159,41 +199,52 @@ func getYbRepo(path, appName, user string) (repo *git.Repository, err error) {
 		}
 		fmt.Printf("Repasitory %s open at %s", appName, path)
 	}
-
-	err = addYbRemote(repo, appName, user)
 	return
 }
 
-func ybPush(repo *git.Repository, user, pass string) error {
-	remo, err := repo.Remote(ybRemoteName)
-	if err != nil {
-		log.Println("ybPush.Remote: ", err)
-		return err
-	}
+type stdWriter struct {
+	io.Writer
+}
 
-	err = remo.Push(&git.PushOptions{
+func (in *stdWriter) Write(p []byte) (n int, err error) {
+	return os.Stdout.Write(p)
+}
+
+func ybPush(remo *git.Remote, user, pass string) error {
+	// progress := sideband.NewDemuxer(sideband.Sideband, os.Stdout)
+	err := remo.Push(&git.PushOptions{
 		RemoteName: ybRemoteName,
 		Auth: &http.BasicAuth{
 			Username: user,
 			Password: pass,
 		},
+		Progress: os.Stdout,
 	})
-
 	return err
 }
 
 // addRemote Add a new remote, with the default fetch refspec
-func addYbRemote(repo *git.Repository, appName, user string) error {
+func addYbRemote(repo *git.Repository, appName, user string) *git.Remote {
 	// check exist YbRemote
+	// Temproray add remote
 	_, err := repo.Remote(ybRemoteName)
-	if err == git.ErrRemoteNotFound {
-		_, err = repo.CreateRemote(&config.RemoteConfig{
-			Name: ybRemoteName,
-			URLs: []string{
-				getRemoteURL(user, appName)},
-		})
+	if err == nil {
+		err = repo.DeleteRemote(ybRemoteName)
+		uiCheckErr("Delete old remote", err)
 	}
+	remo, err := repo.CreateRemote(&config.RemoteConfig{
+		Name: ybRemoteName,
+		URLs: []string{
+			getRemoteURL(user, appName)},
+	})
+	uiCheckErr("Create remote", err)
+	return remo
+}
 
+func cleaRemote(repo *git.Repository) error {
+	err := repo.DeleteRemote(ybRemoteName)
+	uiCheckErr("Delete old remote", err)
+	uiCheckErr("Create remote", err)
 	return err
 }
 

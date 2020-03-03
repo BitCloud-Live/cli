@@ -68,8 +68,8 @@ func init() {
 
 	repositoryPushCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the Repository")
 	repositoryPushCmd.Flags().StringP("tag", "T", "latest", "docker image tag")
-	repositoryPushCmd.Flags().BoolVar(&flagGitTag, "tag-git", false, "set docker image tag from recent git tag")
-	repositoryPushCmd.Flags().BoolVar(&flagGitCommitHash, "tag-commit", false, "set docker image tag from git commit hash")
+	repositoryPushCmd.Flags().BoolVarP(&flagGitTag, "tag-git", "g", false, "set docker image tag from recent git tag")
+	repositoryPushCmd.Flags().BoolVarP(&flagGitCommitHash, "tag-commit", "m", false, "set docker image tag from git commit hash")
 	repositoryPushCmd.Flags().StringP("path", "p", getPath(), "the uniquely identifiable name for the Repository")
 
 	repositoryPushCmd.AddCommand(repositoryPushLogCmd)
