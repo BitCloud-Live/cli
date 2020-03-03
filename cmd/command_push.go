@@ -1,11 +1,16 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	flagGitCommitHash bool
+	flagGitTag        bool
 )
 
 // Repository Push
@@ -34,26 +39,37 @@ var repositoryPushLogCmd = &cobra.Command{
 
 // return current path
 func getPath() string {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	dir, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
-	return fmt.Sprintf("%s%c", dir, os.PathSeparator)
+	return dir
 }
 
 // return name of current folder
 // the last element of path
-func defaultRepositoryName() string {
-	path := getPath()
-	return filepath.Base(path)
+func defaultRepositoryName(path string) string {
+	var ss []string
+	if runtime.GOOS == "windows" {
+		ss = strings.Split(path, "\\")
+	} else {
+		ss = strings.Split(path, "/")
+	}
+
+	currentDirName := ss[len(ss)-1]
+
+	return currentDirName
+
 }
 
 func init() {
-	repositoryPushLogCmd.Flags().StringP("name", "n", defaultRepositoryName(), "the uniquely identifiable name for the Repository")
+	repositoryPushLogCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the Repository")
 	repositoryPushLogCmd.Flags().StringP("tag", "T", "latest", "the uniquely identifiable name for the Repository")
 
-	repositoryPushCmd.Flags().StringP("name", "n", defaultRepositoryName(), "the uniquely identifiable name for the Repository")
-	repositoryPushCmd.Flags().StringP("tag", "T", "latest", "the uniquely identifiable name for the Repository")
+	repositoryPushCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the Repository")
+	repositoryPushCmd.Flags().StringP("tag", "T", "latest", "docker image tag")
+	repositoryPushCmd.Flags().BoolVar(&flagGitTag, "tag-git", false, "set docker image tag from recent git tag")
+	repositoryPushCmd.Flags().BoolVar(&flagGitCommitHash, "tag-commit", false, "set docker image tag from git commit hash")
 	repositoryPushCmd.Flags().StringP("path", "p", getPath(), "the uniquely identifiable name for the Repository")
 
 	repositoryPushCmd.AddCommand(repositoryPushLogCmd)

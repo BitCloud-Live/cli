@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/yottab/cli/config"
 	ybApi "github.com/yottab/proto-api/proto"
@@ -60,6 +61,17 @@ func readPasswordFromConsole(inputAnswr string) (val string) {
 	return strings.TrimSpace(password)
 }
 
+// v3
+// func grpcConnect() ybApi.Client {
+// 	return ybApi.Connect(
+// 		viper.GetString(config.KEY_HOST),
+// 		ybApi.NewPerRPC(func() string {
+// 			return viper.GetString(config.KEY_TOKEN)
+// 		}, func() string {
+// 			return version
+// 		}, nil))
+// }
+
 func grpcConnect() ybApi.Client {
 	return ybApi.Connect(
 		viper.GetString(config.KEY_HOST),
@@ -101,14 +113,14 @@ func streamAppLog(args []string) {
 		err = uiStreamLog(logClient)
 		client.Close()
 		if err != nil {
-			log.Debug(err)
 			if status.Code(err) == codes.ResourceExhausted {
 				break
 			}
 			if strings.Contains(err.Error(), "RST_STREAM") {
 				//Resume log streaming on proto related error
-				log.Fatal("RST_STREAM")
-				continue
+				log.Info("Timeout streaming log...")
+				// continue
+				return
 			}
 		} else {
 			break
@@ -118,7 +130,7 @@ func streamAppLog(args []string) {
 
 }
 
-func streamBuildLog(appName, appTag string) {
+func streamBuildLog(appName, appTag string, waitToReady bool) {
 	var client ybApi.Client
 	firstTry := true
 	id := getRequestIdentity(
@@ -130,8 +142,16 @@ func streamBuildLog(appName, appTag string) {
 		}
 		client = grpcConnect()
 		logClient, err := client.V2().ImgBuildLog(context.Background(), id)
-		uiCheckErr(fmt.Sprintf("Could not get build log right now!\nTry again in a few soconds using:\n$yb push log --name=%s --tag=%s", appName, appTag), err)
+		if err != nil && waitToReady {
+			if status.Code(err) == codes.NotFound {
+				log.Info("Log not ready yet, we try again in 20 seconds...")
+				time.Sleep(time.Second * 20)
+				continue
+			}
+		}
+		uiCheckErr(fmt.Sprintf("Could not get build log right now!\nTry again in a few soconds using:\n$yb push log"), err)
 		err = uiStreamLog(logClient)
+
 		client.Close()
 		if err != nil {
 			if status.Code(err) == codes.ResourceExhausted {
@@ -139,11 +159,44 @@ func streamBuildLog(appName, appTag string) {
 			}
 			if strings.Contains(err.Error(), "RST_STREAM") {
 				//Resume log streaming on proto related error
-				continue
+				log.Info("Timeout streaming log...")
+				// continue
+				return
 			}
 		} else {
 			break
 		}
 	}
 
+}
+
+//wrapRemove is a middleware for confirm object removes
+func wrapRemove(objectType string, f func(cmd *cobra.Command, args []string)) func(cmd *cobra.Command, args []string) {
+	return func(cmd *cobra.Command, args []string) {
+		objectName := getCliRequiredArg(args, 0)
+		confirmF(cmd, "to remove \033[1m%s\033[0m of type \033[1m%s\033[0m", objectName, objectType)
+		//Run the original func if confirmed
+		f(cmd, args)
+	}
+
+}
+
+//confirmF check for confirmations, exit on no confirmation, otherwise a noop function
+func confirmF(cmd *cobra.Command, format string, args ...interface{}) {
+	if flagConfirm {
+		return
+	}
+	confirmQ := fmt.Sprintf("Do you confrim %s, yes/no(default: no)?", fmt.Sprintf(format, args...))
+	for {
+		val := readFromConsole(confirmQ)
+		lowerAns := strings.ToLower(val)
+		switch lowerAns {
+		case "y", "yes":
+			return
+		case "no", "n", "":
+			os.Exit(1)
+		default:
+			continue
+		}
+	}
 }

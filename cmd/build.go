@@ -11,6 +11,7 @@ import (
 	ybApi "github.com/yottab/proto-api/proto"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 )
@@ -26,9 +27,18 @@ func pushRepository(cmd *cobra.Command, args []string) {
 	imageTag := cmd.Flag("tag").Value.String()    // Repository tag
 	imageName := cmd.Flag("name").Value.String()  // Repository name
 
+	//Set default image name if needed
+	if imageName == "" {
+		imageName = defaultRepositoryName(baseFolder)
+	}
+
 	checkExistDockerfile(baseFolder)
 
-	push(imageName, imageTag, baseFolder)
+	confirmF(cmd, "build & push docker image \033[1m%s:%s\033[0m into yottab hub", imageName, imageTag)
+	latestTag, commitHash := push(imageName, imageTag, baseFolder)
+
+	//Select tag based on user choice
+	imageTag = selectTag(imageTag, flagGitCommitHash, flagGitTag, latestTag, commitHash)
 
 	client := grpcConnect()
 	defer client.Close()
@@ -40,7 +50,7 @@ func pushRepository(cmd *cobra.Command, args []string) {
 	uiCheckErr("Could not Build the Repository", err)
 	log.Print("Build started!\r\nWaiting for builder log to get ready...")
 	time.Sleep(20 * time.Second)
-	streamBuildLog(imageName, imageTag)
+	streamBuildLog(imageName, imageTag, true)
 	log.Printf("Enter this command to see more:\r\n$: yb push log --name=%s --tag=%s\r\n", imageName, imageTag)
 }
 
@@ -48,9 +58,22 @@ func pushLog(cmd *cobra.Command, args []string) {
 	imageTag := cmd.Flag("tag").Value.String()   // Repository tag
 	imageName := cmd.Flag("name").Value.String() // Repository name
 
-	streamBuildLog(imageName, imageTag)
+	streamBuildLog(imageName, imageTag, false)
 }
 
+func selectTag(imageTag string, flagGitCommitHash, flagGitTag bool, latestTag, commitHash string) string {
+	if flagGitCommitHash && flagGitTag {
+		panic("Please set either one of (tag-git, tag-commit) boolean switches!")
+	}
+	if flagGitTag {
+		return latestTag
+	}
+	if flagGitCommitHash {
+		return commitHash
+	}
+	//NOOP short circuit
+	return imageTag
+}
 func checkExistDockerfile(basePath string) {
 	files, err := ioutil.ReadDir(basePath)
 	if err != nil {
@@ -65,7 +88,7 @@ func checkExistDockerfile(basePath string) {
 	log.Fatalf("Err: can find Dockerfile at [%s]", basePath)
 }
 
-func push(imageName, imageTag, repoPath string) {
+func push(imageName, imageTag, repoPath string) (commitHash, latestTag string) {
 	user := viper.GetString(cliConfig.KEY_USER)
 	token := viper.GetString(cliConfig.KEY_TOKEN)
 
@@ -73,14 +96,15 @@ func push(imageName, imageTag, repoPath string) {
 	if err != nil {
 		log.Fatal("getYbRepo: ", err)
 	}
-
+	latestTag = repositoryYbLatestTag(repo)
 	if repositoryYbIsClean(repo) == false {
-		repositoryYbCommit(repo, imageTag)
+		commitHash = repositoryYbCommit(repo, imageTag)
 	}
 
 	fmt.Println("Start PUSH")
 	err = ybPush(repo, user, token)
 	uiCheckErr("push.ybPush", err)
+	return
 }
 
 func repositoryYbIsClean(repo *git.Repository) bool {
@@ -92,18 +116,31 @@ func repositoryYbIsClean(repo *git.Repository) bool {
 
 	return s.IsClean()
 }
+func repositoryYbLatestTag(repo *git.Repository) (tag string) {
+	tagrefs, err := repo.Tags()
+	uiCheckErr("repositoryYbLatestTag.Tags", err)
 
-func repositoryYbCommit(repo *git.Repository, tag string) {
+	err = tagrefs.ForEach(func(t *plumbing.Reference) error {
+		fmt.Println(t)
+		tag = t.Name().String()
+		return nil
+	})
+	uiCheckErr("repositoryYbLatestTag.Tags", err)
+	return
+}
+
+func repositoryYbCommit(repo *git.Repository, tag string) string {
 	w, err := repo.Worktree()
 	_, err = w.Add(".")
 	uiCheckErr("repositoryYbCommit.Add", err)
 
-	_, err = w.Commit(tag, &git.CommitOptions{
+	hash, err := w.Commit(tag, &git.CommitOptions{
 		Author: &object.Signature{
 			When: time.Now(),
 		},
 	})
 	uiCheckErr("repositoryYbCommit.Commit", err)
+	return hash.String()[:10]
 }
 
 // getRepo open Repository and

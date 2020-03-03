@@ -17,31 +17,31 @@ var (
 		Use:   "application [name]",
 		Short: "destroy an application",
 		Long:  `This subcommand destroy an application.`,
-		Run:   appDestroy}
+		Run:   wrapRemove("application", appDestroy)}
 
 	rmSrvCmd = &cobra.Command{
 		Use:   "service [name]",
 		Short: "destroy an service",
 		Long:  `This subcommand destroy an service.`,
-		Run:   srvDestroy}
+		Run:   wrapRemove("service", srvDestroy)}
 
 	rmDomCmd = &cobra.Command{
 		Use:   "domain [name]",
 		Short: "destroy an domain",
 		Long:  `This subcommand destroy an domain.`,
-		Run:   domainDelete}
+		Run:   wrapRemove("domain", domainDelete)}
 
 	rmVolCmd = &cobra.Command{
 		Use:   "volume [name]",
 		Short: "destroy an volume",
 		Long:  `This subcommand destroy an volume.`,
-		Run:   volumeDelete}
+		Run:   wrapRemove("volume", volumeDelete)}
 
 	rmImgCmd = &cobra.Command{
 		Use:   "image [name]",
 		Short: "destroy an image",
 		Long:  `This subcommand destroy an image.`,
-		Run:   imgDelete}
+		Run:   wrapRemove("image", imgDelete)}
 )
 
 func init() {

@@ -10,7 +10,8 @@ import (
 
 // RootCmd represents the base command when called without any subcommands
 var (
-	rootCmd = &cobra.Command{
+	flagConfirm bool
+	rootCmd     = &cobra.Command{
 		Use:     config.APP_NAME,
 		Short:   "YOTTAb cli",
 		Long:    `YOTTAb cli for client side usage`,
@@ -35,6 +36,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&password, config.KEY_PASSWORD, "P", "", "yottab account password")
 	rootCmd.PersistentFlags().StringP(config.KEY_HOST, "l", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI")
 	rootCmd.PersistentFlags().StringP(config.KEY_TOKEN, "t", "", "Manual Send 'TOKEN' for Authentication")
+	rootCmd.PersistentFlags().BoolVar(&flagConfirm, "confirm", false, "Confirm if some command need a confirmation, Useful for non-tty environments such as build pipelines")
 
 	viper.BindPFlag(config.KEY_USER, rootCmd.PersistentFlags().Lookup(config.KEY_USER))
 	viper.BindPFlag(config.KEY_HOST, rootCmd.PersistentFlags().Lookup(config.KEY_HOST))
