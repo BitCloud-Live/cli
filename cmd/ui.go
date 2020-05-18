@@ -77,7 +77,8 @@ func uiList(list interface{}) {
 		log.Printf("# Count: %d\t", len(itemList.Services))
 		for _, v := range itemList.Services {
 			log.Printf("- Name: %s", v.Name)
-			log.Printf("  State: %s", v.State.String())
+			log.Printf("  Condition: %s", v.Condition.GetCondition())
+			log.Printf("             %s", v.Condition.GetReason())
 			log.Printf("  Plan: %s", v.Plan)
 			log.Printf("  Service refrence: %s", v.ServiceRefrence)
 			log.Printf("  Updated: %v ", toTime(v.Updated))
@@ -114,10 +115,9 @@ func uiList(list interface{}) {
 		itemList := list.(*ybApi.VolumeListRes)
 		log.Printf("# Count: %d\t", len(itemList.Volumes))
 		for _, v := range itemList.Volumes {
-			log.Printf("- Name: %s", v.Name)
-			log.Printf("  Spec: %s", v.Spec.Name)
-			log.Printf("  AttachedTo: %s", v.AttachedTo)
-			log.Printf("  MountPath: %s", v.MountPath)
+			log.Printf("- Name: %s", v.GetName())
+			log.Printf("  Spec: %s", v.Spec.GetName())
+			uiVolumeMount(v.Mounts)
 			log.Printf("  Created: %v , Updated: %v ", toTime(v.Created), toTime(v.Updated))
 		}
 		return
@@ -147,19 +147,35 @@ func uiList(list interface{}) {
 	}
 }
 
+func uiVolumeMount(vm []*ybApi.VolumeMount){
+	for _, m := range vm {
+		log.Printf("  AttachedTo: %s", m.GetAttachment())
+		log.Printf("  MountPath: %s", m.GetMountPath())
+	}
+}
+
 func uiImageInfo(res *ybApi.ImgStatusRes) {
 	log.Printf("Name: %s", res.Name)
 	log.Printf("Tags: %s", strings.Join(res.Tags, ","))
 	log.Printf("Created: %v , Updated: %v ", toTime(res.Created), toTime(res.Updated))
 }
 
+func uiConditions(conditions []*ybApi.ServiceCondition){
+	log.Println("Conditions:")
+	for i, c := range conditions {
+		log.Printf(" - index: %d", i)
+		log.Printf("   condition: %s", c.GetCondition())
+		log.Printf("   reason:%s", c.GetReason())
+	}
+}
+
 func uiServicStatus(srv *ybApi.SrvStatusRes) {
 	log.Printf("Service Name: %s ", srv.Name)
 	log.Printf("Plan Name: %s ", srv.Plan)
-	log.Printf("State: %v ", srv.State.String())
+	uiConditions(srv.Conditions)
 	log.Printf("Plan: %v ", srv.Plan)
 	log.Printf("Created: %v , Updated: %v ", toTime(srv.Created), toTime(srv.Updated))
-	uiMap(srv.Variable, "Variable")
+	uiMapGeneralVariable(srv.Variables, "Variable")
 	uiStringArray("List of endpoints", srv.Endpoints)
 	uiAttachedDomains(srv.Domains)
 }
@@ -237,6 +253,17 @@ func uiPlan(plan []*ybApi.Plan) {
 		log.Printf("  Extras: %v ", p.Extras)
 	}
 }
+func uiMapGeneralVariable(mapVar map[string]*ybApi.GeneralVariable, name string) {
+	if len(mapVar) == 0 {
+		log.Printf("%s: None", name)
+		return
+	}
+	log.Printf("%s:", name)
+	for k, v := range mapVar {
+		log.Printf("\t %s: %s ", k, v.GetValue())
+	}
+}
+
 func uiMap(mapVar map[string]string, name string) {
 	if len(mapVar) == 0 {
 		log.Printf("%s: None", name)
@@ -248,14 +275,14 @@ func uiMap(mapVar map[string]string, name string) {
 	}
 }
 
-func uiRoutes(mapVar map[string]string, name string) {
+func uiRoutes(mapVar []*ybApi.DomainAttachedTo, name string) {
 	if len(mapVar) == 0 {
 		log.Printf("%s: None", name)
 		return
 	}
 	log.Printf("%s:", name)
-	for k, v := range mapVar {
-		log.Printf("\t %s -> %s (application/service)", k, v)
+	for _, v := range mapVar {
+		log.Printf("\t %s -> %s (%s)", v.GetName(), v.GetPath(), v.GetEndpoint())
 	}
 }
 
@@ -296,62 +323,41 @@ func uiProduct(prd *ybApi.ProductRes) {
 // }
 
 func uiApplicationOpen(app *ybApi.AppStatusRes) {
-	if len(app.Config.Routes) == 0 {
+	if len(app.Routes) == 0 {
 		print("No endpoint provided by the app!")
 	}
 	//We only recieve one route at this moment!
-	route := app.Config.Routes[0]
-	switch app.Config.EndpointType {
-	//We only handle http endpoint at this moment!
-	case "http":
-		route = fmt.Sprintf("https://%s:443", route)
-		if err := browser.OpenURL(route); err != nil {
-			fmt.Printf("Can't open this endpoint, error: %v!", err)
-		}
-		print("Opened in default browser!")
-		return
-	default:
+	route := app.Routes[0]
+	if !strings.HasPrefix("http", route){
 		print("Can't open this type of endpoints right now!")
-		return
+	}else if err := browser.OpenURL(route); err != nil {
+		fmt.Printf("Can't open this endpoint, error: %v!", err)
+	}else {
+		print("Opened in default browser!")
 	}
-
 }
+
 func uiApplicationStatus(app *ybApi.AppStatusRes) {
 	log.Printf("Service Name: %s ", app.Name)
-	log.Printf("State: %v ", app.State)
-	log.Printf("Image: %v", app.Config.Image)
-	log.Printf("Internal-port: %v ", app.Config.Port)
-	log.Printf("Minimum-scale: %v", app.Config.MinScale)
 	log.Printf("Plan: %v", app.Plan)
-
-	//Print routes
-	log.Printf("Endpoints(Public URLs):")
-	for idx, route := range app.Config.Routes {
-		switch app.Config.EndpointType {
-		case "http":
-			route = fmt.Sprintf("https://%s:443", route)
-			break
-		case "grpc":
-			route = fmt.Sprintf("dns://%s:443", route)
-			break
-		default:
-			break
-		}
-		log.Printf("\t%d. %v -> (%v endpoint type)", idx+1, route, app.Config.EndpointType)
-	}
+	uiMapGeneralVariable(app.Variables, "Variables")
+	uiConditions(app.Conditions)
 	log.Printf("Created: %v , Updated: %v ", toTime(app.Created), toTime(app.Updated))
 	uiMap(app.EnvironmentVariables, "Environment variables")
 	// uiAttachedDomains(app.Domains)
-	if app.VcapServices == "" {
+	uiVCAP(app.VcapServices)
+}
+
+func uiVCAP(vcap string){
+	if vcap == "" {
 		log.Printf("VCAP_SERVICES: None")
 		return
 	}
 	log.Printf("VCAP_SERVICES: ")
-	lines := strings.Split(strings.Replace(jsonPrettyPrint(app.VcapServices), "\r\n", "\n", -1), "\n")
+	lines := strings.Split(strings.Replace(jsonPrettyPrint(vcap), "\r\n", "\n", -1), "\n")
 	for _, line := range lines {
 		log.Print(line)
 	}
-
 }
 
 //Deprecated
@@ -406,8 +412,7 @@ func uiVolumeSpec(vol *ybApi.VolumeSpec) {
 func uiVolumeStatus(vol *ybApi.VolumeStatusRes) {
 	log.Printf("Volume Name: %s ", vol.Name)
 	log.Printf("Created: %v , Updated: %v", toTime(vol.Created), toTime(vol.Updated))
-	log.Printf("AttachedTo: %s ", vol.AttachedTo)
-	log.Printf("MountPath: %s ", vol.MountPath)
+	uiVolumeMount(vol.Mounts)
 	uiVolumeSpec(vol.Spec)
 }
 

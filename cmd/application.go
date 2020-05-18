@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"fmt"
 	ybApi "github.com/yottab/proto-api/proto"
 )
 
@@ -105,11 +106,10 @@ func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale
 	req := new(ybApi.AppCreateReq)
 	req.Name = appName
 	req.Plan = plan
-	req.Config = new(ybApi.AppConfig)
-	req.Config.Port = port
-	req.Config.EndpointType = EndpointType
-	req.Config.MinScale = minScale
-	req.Config.Image = image
+	req.Values = make(map[string]string)
+	req.Values["ports"] = fmt.Sprintf("%d/%d", port, EndpointType)
+	req.Values["minimum-scale"] = fmt.Sprintf("%d", minScale)
+	req.Values["image"] = image
 
 	client := grpcConnect()
 	defer client.Close()
@@ -128,6 +128,7 @@ func appCreate(cmd *cobra.Command, args []string) {
 	uiApplicationStatus(res)
 }
 
+/*
 func appChangePlane(cmd *cobra.Command, args []string) {
 	req := new(ybApi.ChangePlanReq)
 	req.Name = getCliRequiredArg(args, 0)
@@ -138,17 +139,16 @@ func appChangePlane(cmd *cobra.Command, args []string) {
 	res, err := client.V2().AppChangePlan(client.Context(), req)
 	uiCheckErr("Could not Change the Plan", err)
 	uiApplicationStatus(res)
-}
+}*/
 
 func appUpdate(cmd *cobra.Command, args []string) {
-	req := new(ybApi.ConfigSetReq)
+	req := new(ybApi.SrvConfigSetReq)
 	req.Name = getCliRequiredArg(args, 0)
-	req.Config = new(ybApi.AppConfig)
-	req.Config.MinScale = flagVarMinScale
-	req.Config.Port = flagVarPort
-	req.Config.Image = flagVarImage
-	req.Config.Routes = flagVariableArray
-	req.Config.EndpointType = flagVarEndpointType
+	req.Values = make(map[string]string)
+	req.Values["minimum-scale"] = fmt.Sprintf("%d", flagVarMinScale)
+	req.Values["ports"] = fmt.Sprintf("%d/%d", flagVarPort, flagVarEndpointType)
+	req.Values["image"] = flagVarImage
+	// TODO: req.Values["routes"] = flagVariableArray
 	client := grpcConnect()
 	defer client.Close()
 
@@ -229,7 +229,7 @@ func appSrvUnBind(cmd *cobra.Command, args []string) {
 
 // AppAttachVolume link the application and volume
 func AppAttachVolume(appName, volumeName, path string) (*ybApi.AppStatusRes, error) {
-	req := new(ybApi.VolumeAttachReq)
+	req := new(ybApi.VolumeMount)
 	req.Name = appName
 	req.Attachment = volumeName
 	req.MountPath = path

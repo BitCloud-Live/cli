@@ -102,7 +102,7 @@ func init() {
 	// Application Update
 	updateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
 	updateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
-	updateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 0, "min scale of application")
+	updateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 1, "min scale of application")
 	updateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc, default to http")
 	updateCmd.Flags().StringArrayVarP(&flagVariableArray, "routes", "r", nil, "Routes of application")
 

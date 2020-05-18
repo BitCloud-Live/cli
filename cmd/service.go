@@ -72,12 +72,12 @@ func srvDestroy(cmd *cobra.Command, args []string) {
 }
 
 // ServiceCreate create Service by ProductName and PlanName
-func ServiceCreate(productName, serviceName, plan string, variable map[string]string) (*ybApi.SrvStatusRes, error) {
+func ServiceCreate(productName, serviceName, plan string, values map[string]string) (*ybApi.SrvStatusRes, error) {
 	req := new(ybApi.SrvCreateReq)
 	req.Name = serviceName
 	req.ProductName = productName
 	req.Plan = plan
-	req.Variable = variable
+	req.Values = values
 
 	client := grpcConnect()
 	defer client.Close()
@@ -95,10 +95,10 @@ func srvCreate(cmd *cobra.Command, args []string) {
 }
 
 // ServiceEnvironmentSet set Environment {key:value} for service
-func ServiceEnvironmentSet(serviceName string, variable map[string]string) (*ybApi.SrvStatusRes, error) {
+func ServiceEnvironmentSet(serviceName string, values map[string]string) (*ybApi.SrvStatusRes, error) {
 	req := new(ybApi.SrvConfigSetReq)
 	req.Name = serviceName
-	req.Variables = variable
+	req.Values = values
 	client := grpcConnect()
 	defer client.Close()
 
@@ -125,7 +125,7 @@ func srvEnvironmentUnset(cmd *cobra.Command, args []string) {
 	uiServicStatus(res)
 }
 
-func srvChangePlane(cmd *cobra.Command, args []string) {
+/*func srvChangePlane(cmd *cobra.Command, args []string) {
 	req := new(ybApi.ChangePlanReq)
 	req.Name = getCliRequiredArg(args, 0)
 	req.Plan = getCliRequiredArg(args, 1)
@@ -135,7 +135,7 @@ func srvChangePlane(cmd *cobra.Command, args []string) {
 	res, err := client.V2().SrvChangePlan(client.Context(), req)
 	uiCheckErr("Could not Change the Plan", err)
 	uiServicStatus(res)
-}
+}*/
 
 // ServiceLinkDomain like domain to service
 func ServiceLinkDomain(serviceName, domainName, endpoint, path string) (*ybApi.SrvStatusRes, error) {

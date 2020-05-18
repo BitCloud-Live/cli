@@ -61,23 +61,25 @@ func readPasswordFromConsole(inputAnswr string) (val string) {
 	return strings.TrimSpace(password)
 }
 
-// v3
-// func grpcConnect() ybApi.Client {
-// 	return ybApi.Connect(
-// 		viper.GetString(config.KEY_HOST),
-// 		ybApi.NewPerRPC(func() string {
-// 			return viper.GetString(config.KEY_TOKEN)
-// 		}, func() string {
-// 			return version
-// 		}, nil))
-// }
 
+/*
 func grpcConnect() ybApi.Client {
 	return ybApi.Connect(
 		viper.GetString(config.KEY_HOST),
 		ybApi.NewJwtAccess(func() string {
 			return viper.GetString(config.KEY_TOKEN)
 		}))
+}
+*/
+
+func grpcConnect() ybApi.Client {
+	return ybApi.Connect(
+		viper.GetString(config.KEY_HOST),
+		ybApi.NewPerRPC(func() string {
+			return viper.GetString(config.KEY_TOKEN)
+		}, func() string {
+			return version
+		}, nil))
 }
 
 func toTime(t *ybApi.Timestamp) (out string) {
