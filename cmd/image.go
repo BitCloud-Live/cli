@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	ybApi "github.com/yottab/proto-api/proto"
 )
 
 func imgList(cmd *cobra.Command, args []string) {
@@ -23,10 +24,16 @@ func imgInfo(cmd *cobra.Command, args []string) {
 }
 
 func imgDelete(cmd *cobra.Command, args []string) {
-	req := getCliRequestIdentity(args, 0)
+	imageTag := cmd.Flag("tag").Value.String()    // Repository tag
+	imageName := cmd.Flag("name").Value.String()  // Repository name
+
+	req := new(ybApi.ImgBuildReq)
+	req.RepositoryName = imageName
+	req.RepositoryTag = imageTag
+
 	client := grpcConnect()
 	defer client.Close()
 	_, err := client.V2().ImgDelete(client.Context(), req)
 	uiCheckErr("Could not Destroy the Image", err)
-	log.Printf("image %s deleted", req.Name)
+	log.Printf("image %s:%s deleted", req.RepositoryName, req.RepositoryTag)
 }
