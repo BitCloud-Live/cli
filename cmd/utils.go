@@ -62,16 +62,6 @@ func readPasswordFromConsole(inputAnswr string) (val string) {
 }
 
 
-/*
-func grpcConnect() ybApi.Client {
-	return ybApi.Connect(
-		viper.GetString(config.KEY_HOST),
-		ybApi.NewJwtAccess(func() string {
-			return viper.GetString(config.KEY_TOKEN)
-		}))
-}
-*/
-
 func grpcConnect() ybApi.Client {
 	return ybApi.Connect(
 		viper.GetString(config.KEY_HOST),
