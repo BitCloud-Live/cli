@@ -1,0 +1,700 @@
+syntax = "proto3";
+package yb;
+import "google/api/annotations.proto";
+option go_package = ".;yb";
+service YB {
+    // Authentication
+    rpc Login (LoginReq) returns (AuthenticationRes) {
+        option (google.api.http) = {
+            post: "/v2/auth/_login"
+            body: "*" };
+    }
+    rpc Logout (Empty) returns (Empty) {
+        option (google.api.http) = {
+            get: "/v2/auth/_logout" };
+    }
+    rpc AccountInfo (Empty) returns (Account) {
+        option (google.api.http) = {
+            get: "/v2/user" };
+    }
+    rpc AccountUpdate (Account) returns (Account) {
+        option (google.api.http) = {
+            post: "/v2/user"
+            body: "*" };
+    }
+
+
+
+    // Monitoring
+    rpc MonitoringQuota(Empty) returns (ResourcesRes) { 
+        option (google.api.http) = {
+            get: "/v2/monitoring/_quota" };
+    }
+    rpc MonitoringResource(Identity) returns (ResourcesRes) { // (App OR Srv)
+        option (google.api.http) = {
+            get: "/v2/monitoring/{name}" };
+    }
+    rpc MonitoringTraffic(Identity) returns (TrafficRes) { // (only App)
+        option (google.api.http) = {
+            get: "/v2/monitoring/_queries/_traffic/{name}" };
+    }
+    rpc MonitoringLatency(Identity) returns (LatencyRes) { // (only App)
+        option (google.api.http) = {
+            get: "/v2/monitoring/_queries/_latency/{name}" };
+    }
+    rpc ActivityList(ActivityReq) returns (ActivityListRes) {
+        option (google.api.http) = {
+            post: "/v2/monitoring/_activity"
+            body: "*" };
+    }
+
+
+
+    // Domain
+    rpc DomainList (AppListReq) returns (DomainListRes) {
+        option (google.api.http) = {
+            get: "/v2/domain" };
+    }
+    rpc DomainInfo (Identity) returns (DomainStatusRes) {
+        option (google.api.http) = {
+            get: "/v2/domain/{name}" };
+    } 
+    rpc DomainToggleTLS (Identity) returns (DomainStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/domain/_toggle-tls/{name}" };
+    } 
+    rpc DomainCreate (DomainCreateReq) returns (DomainStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/domain"
+            body: "*" };
+    }
+    rpc DomainDelete (Identity) returns (Empty) {
+        option (google.api.http) = {
+            post: "/v2/domain/_delete"
+            body: "*" };
+    }
+    // //Added in v2.3 patch
+    // rpc DomainAddRoute (Identity) returns (DomainStatusRes) { }
+    // rpc DomainRemoveRoute (Identity) returns (DomainStatusRes) { }
+    // //Get all available domain features
+    // rpc DomainFeatureList (Empty) returns (DomainFeatures) { }
+
+
+
+    // Volume
+    rpc VolumeSpecList (ListReq) returns (VolumeSpecListRes) {
+        option (google.api.http) = {
+            get: "/v2/volume-spec" };
+    }
+    rpc VolumeList (AppListReq) returns (VolumeListRes) {
+        option (google.api.http) = {
+            get: "/v2/volume" };
+    }
+    rpc VolumeInfo (Identity) returns (VolumeStatusRes) {
+        option (google.api.http) = {
+            get: "/v2/volume/{name}"  };
+    }
+    rpc VolumeCreate (VolumeCreateReq) returns (VolumeStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/volume"
+            body: "*" };
+    }
+    rpc VolumeDelete (Identity) returns (Empty) {
+        option (google.api.http) = {
+            post: "/v2/volume/_delete"
+            body: "*" };
+    }
+    rpc VolumeFTPPortforward (Identity) returns (PortforwardRes) {}
+
+
+
+    // Image
+    rpc ImgList (AppListReq) returns (ImgListRes) {
+        option (google.api.http) = {
+            get: "/v2/image" };
+    }
+    rpc ImgInfo (Identity) returns (ImgStatusRes) {
+        option (google.api.http) = {
+            get: "/v2/image/_info" };
+    }
+    rpc ImgDelete (ImgBuildReq) returns (Empty) {
+        option (google.api.http) = {
+            post: "/v2/image/_delete"
+            body: "*" };
+    }
+    rpc ImgBuild (ImgBuildReq) returns (Empty) { 
+        option (google.api.http) = {
+            post: "/v2/image/_build"
+            body: "*" };
+    }
+    rpc ImgBuildLog (Identity) returns (stream Chunk) { }
+    rpc ImgBuildLogTail (TailRequest) returns (Chunk) {
+        option (google.api.http) = {
+            get: "/v2/image/_build/_log/_tail" };
+    }
+
+
+
+    // Product
+    rpc PrdList (ListReq) returns (PrdListRes) {
+        option (google.api.http) = {
+            get: "/v2/product" };
+    }
+    rpc PrdInfo (Identity) returns (ProductRes) {
+        option (google.api.http) = {
+            get: "/v2/product/{name}" };
+    }
+
+
+    
+    // Service
+    rpc SrvList (AppListReq) returns (SrvListRes) {
+        option (google.api.http) = {
+            get: "/v2/service" };
+    }
+    rpc SrvInfo (Identity) returns (SrvStatusRes) {
+        option (google.api.http) = {
+            get: "/v2/service/{name}" };
+    }
+    rpc SrvCreate (SrvCreateReq) returns (SrvStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/service"
+            body: "*" };
+    }
+    rpc SrvDestroy (Identity) returns (Empty) {
+        option (google.api.http) = {
+            delete: "/v2/service/{name}" };
+    }
+    rpc SrvStart (Identity) returns (SrvStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/service/_start/{name}" };
+    }
+    rpc SrvStop (Identity) returns (SrvStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/service/_stop/{name}" };
+    }
+    rpc SrvAttachDomain (SrvDomainAttachReq) returns (SrvStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/service/_domain"
+            body: "*" };
+    }
+    rpc SrvDetachDomain (SrvDomainAttachReq) returns (SrvStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/service/_domain/_detach"
+            body: "*" };
+    }
+    rpc SrvOperator (PunchedCard) returns (SrvStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/service/_operator"
+             };
+    }
+    rpc SrvPortforward (Identity) returns (PortforwardRes) {}
+    //Added in v2.1 patch
+    rpc SrvConfigSet (SrvConfigSetReq) returns (SrvStatusRes) {} 
+    rpc SrvConfigUnset (UnsetReq) returns (SrvStatusRes) {} 
+
+
+
+    // Application
+    rpc AppList (ListReq) returns (SrvListRes) {
+        option (google.api.http) = {
+            get: "/v2/application" };
+    }
+    rpc AppInfo (Identity) returns (AppStatusRes) {
+        option (google.api.http) = {
+            get: "/v2/application/{name}" };
+    }
+    rpc AppCreate (AppCreateReq) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application"
+            body: "*" };
+    }
+    rpc AppDestroy (Identity) returns (Empty) {
+        option (google.api.http) = {
+            delete: "/v2/application/{name}"
+             };
+    }
+    rpc AppLog (Identity) returns (stream Chunk) { }
+    rpc AppLogTail (TailRequest) returns (Chunk) {
+        option (google.api.http) = {
+            get: "/v2/application/_log/_tail/{name}" };
+    }
+    rpc AppConfigSet (SrvConfigSetReq) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_config"
+            body: "*" };
+    }
+    rpc AppConfigUnset (UnsetReq) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_config/_unset"
+            body: "*" };
+    } 
+    rpc AppAddEnvironmentVariable (AppAddEnvironmentVariableReq) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_environment-variable"
+            body: "*" };
+    }
+    rpc AppRemoveEnvironmentVariable (UnsetReq) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_environment-variable/_delete"
+            body: "*" };
+    }
+    rpc AppReset (Identity) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_reset/{name}" };
+    }
+    rpc AppStop (Identity) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_stop/{name}" };
+    }
+    rpc AppStart (Identity) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_start/{name}" };
+    }
+    //TTY disable for now
+    rpc AppShell(ShellReq) returns (Chunk) { 
+        option (google.api.http) = {
+            post: "/v2/application/_shell"
+            body: "*" };
+    }
+    rpc AppAttachVolume (VolumeMount) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_volume"
+            body: "*" };
+    }
+    rpc AppDetachVolume (AttachIdentity) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_volume/_detach"
+            body: "*" };
+    }
+    rpc AppAttachDomain (SrvDomainAttachReq) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_domain"
+            body: "*" };
+    }
+    rpc AppDetachDomain (SrvDomainAttachReq) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_domain/_detach"
+            body: "*" };
+    }
+    rpc AppSrvBind (AppSrvBindReq) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_service"
+            body: "*" };
+    }
+    rpc AppSrvUnBind (AppSrvBindReq) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_service/_unbind"
+            body: "*" };
+    }
+}
+
+// Authentication ////////////////////////////////////////////////////////////////////
+
+message LoginReq {
+    string email = 1;
+    string password = 2;
+}
+
+message AuthenticationRes {
+    string token = 1;
+}
+
+message Account {
+    string credits = 1;
+    string username = 2;
+    string email = 3;
+    string plan = 4;
+    string address = 5;
+    string code = 6;    
+    string mobi = 7;
+    //variables will be skipped in a update request
+    map<string, GeneralVariable> variables = 8;
+}
+
+// Genral messages  //////////////////////////////////////////////////////////////////
+
+message Empty { }
+
+// ID for select [service, application, image]
+message Identity {
+    string name = 1;
+}
+
+message Timestamp {
+    // Represents seconds of UTC time since Unix epoch
+    // 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
+    // 9999-12-31T23:59:59Z inclusive.
+    int64 seconds = 1;
+
+    // Non-negative fractions of a second at nanosecond resolution. Negative
+    // second values with fractions must still have non-negative nanos values
+    // that count forward in time. Must be from 0 to 999,999,999
+    // inclusive.
+    int32 nanos = 2;
+}
+
+message GeneralVariable {
+    string name = 1;
+    string value = 2;
+    string defaultValue = 3;
+    bool isRequired = 4;
+    bool updateable = 5;
+    string type = 6;
+    string description = 7;
+    repeated string choices = 8;
+}
+
+message AttachIdentity {
+    string name = 1;
+    string attachment = 2;
+}
+
+message AppListReq {
+    int32 index = 1; // [default = 0]
+    string app = 2; // To get a list of all the applications, dont sent application name
+}
+
+message ListReq {
+    int32 index = 1; // [default = 0]
+}
+
+message ListStatusRes {
+    int32 index = 1; // [default = 0]
+    repeated string names = 2;
+}
+
+message Chunk {
+    bytes chunk = 1;
+}
+
+message PortforwardRes {
+    string svc = 1;
+    repeated string ports = 2;
+    bytes token = 3;
+    string proxyHost = 4;
+}
+
+// Domain ////////////////////////////////////////////////////////////////////////////
+
+message DomainCreateReq {
+    string domain = 1;
+    bool tls = 2;
+}
+
+message DomainAttachedTo {
+    string name = 1;
+    string path = 2;
+    string endpoint = 3;
+}
+
+message DomainStatusRes {
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    string domain = 3;
+    string tls = 4;
+    repeated DomainAttachedTo attachedTo = 5;
+}
+
+message DomainListRes {
+    int32 index = 1; // [default = 0]
+    repeated DomainStatusRes domains = 2;
+}
+
+// //Added in v2.3 patch
+// message DomainRouteReq{
+//     string domain = 1;
+//     string endpoint = 2;
+//     string path = 3;
+//     map<string, string> featureRequests = 4;
+// }
+
+//For embedded response
+//AttachedDomainInfo Deprecated: will be deleted in v3.0
+message AttachedDomainInfo{
+    string domain = 1;
+    string endpoint = 2;
+    string endpointType = 3;
+    //Added in v2.3 patch
+    string path = 4;
+}
+
+// Volume ////////////////////////////////////////////////////////////////////////////
+
+message VolumeCreateReq {
+    string name = 1;
+    string spec = 2;
+}
+
+message VolumeMount{
+    string name = 1;
+    string attachment = 2;
+    string mountPath = 3;
+}
+
+message VolumeSpec {
+    string name = 1;
+    string class = 2;
+    string size = 3;
+}
+
+message VolumeSpecListRes {
+    int32 index = 1; // [default = 0]
+    repeated VolumeSpec volumeSpecs = 2;
+}
+
+message VolumeStatusRes {
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    string name = 3;
+    VolumeSpec spec = 4;
+    repeated VolumeMount mounts = 5;
+}
+
+message VolumeListRes{
+    int32 index = 1; // [default = 0]
+    repeated VolumeStatusRes volumes = 2;
+}
+
+// Repository ////////////////////////////////////////////////////////////////////////
+
+message ImgStatusRes {
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    string name = 3;
+    repeated string tags = 4;
+}
+
+message ImgListRes {
+    int32 index = 1; // [default = 0]
+    repeated ImgStatusRes imgs = 2;
+}
+
+// Img Build /////////////////////////////////////////////////////////////////////////
+
+message ImgBuildReq {
+    string repositoryTag = 1;
+    string repositoryName = 2;
+}
+
+// Service ///////////////////////////////////////////////////////////////////////////
+
+message ServiceCondition{
+    string condition = 1;
+    string reason = 2;
+    Timestamp time = 3;
+}
+
+message ProductRes {
+    string name = 1;
+    string description = 2;
+    repeated Plan plan = 3;
+    map<string, GeneralVariable> variables = 4;
+}
+
+message ProductListRow {
+    string name = 1;
+    string description = 2;
+}
+
+message PrdListRes {
+    int32 index = 1; // [default = 0]
+    repeated ProductListRow rows = 2;
+}
+
+//TODO reset Variable 
+message SrvConfigSetReq{
+    string name = 1;
+    map<string, string> values = 2;
+}
+
+message Plan {
+    string name = 1;
+    string description = 2;
+    uint64 price = 3;
+    uint64 off = 4;
+    map<string, string> extras = 5;
+}
+
+message SrvStatusRes {
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    repeated ServiceCondition conditions = 3;
+    string name = 4;
+    string plan = 5;
+    string vcapServices = 6;
+    repeated AttachedDomainInfo domains = 7;
+    repeated string endpoints = 8;
+
+    //Added in v2.1 patch
+    string serviceRefrence = 9;
+    //Name(s) of the peer(s) that this service instance bounded to
+    repeated string boundTo = 10;
+    map<string, GeneralVariable> variables = 11;
+}
+
+message PunchedCard {
+    string name = 1;
+    string oprator = 2;
+    map<string, string> values = 3;
+}
+
+//For embedded response
+message ServiceRes {
+    Timestamp updated = 1;
+    string name = 2;
+    //Added in v2.1 patch
+    string serviceRefrence = 3;
+    string plan = 4;
+    //Latest condition
+    ServiceCondition condition = 5;
+}
+
+message SrvListRes {
+    int32 index = 1; // [default = 0]
+    repeated ServiceRes services = 2;
+}
+
+message SrvDomainAttachReq{
+    AttachIdentity attachIdentity = 1;
+    string endpoint = 2;
+    //Added in v2.3 patch
+    string path = 3;
+}
+
+message SrvCreateReq {
+    string productName = 1;
+    string name = 2;
+    string plan = 3;
+    map<string, string> values = 4;
+}
+
+// Application  //////////////////////////////////////////////////////////////////////
+
+message AppStatusRes {
+    Timestamp created = 1;
+    Timestamp updated = 2;
+    string name = 3;
+    string plan = 4;
+    string vcapServices = 5;
+    map<string, GeneralVariable> variables = 6;
+    map<string, string> environmentVariables = 7;
+    repeated Instance instances = 8;
+    repeated ServiceCondition conditions = 9;
+    repeated string routes = 10;
+}
+
+message Instance {
+    Timestamp created = 1;
+    string name = 2;
+    string ram = 3;
+    string cpu = 4;
+}
+
+message AppCreateReq {
+    string name = 1;
+    string plan = 2;
+    map<string, string> values = 3;
+}
+
+// name for select [application, image]
+message TailRequest {
+    string name = 1;
+    //The length of time (like 5s, 2m, or 3h, higher than zero), default to 0s.
+    string since = 2; 
+    uint64 tail = 3;
+}
+
+// Execute commands inside an existing application
+message ShellReq {
+    string name = 1;
+    repeated string command = 2;
+}
+
+message UnsetReq {
+    string name = 1;
+    repeated string variables = 2;
+}
+
+message AppAddEnvironmentVariableReq {
+    string name = 1;
+    map<string, string> variables = 2;
+}
+
+message AppSrvBindReq {
+    string name = 1;
+    string service = 2;
+}
+
+// Monitoring ////////////////////////////////////////////////////////////////////////
+
+message ResourcesRes {
+    Timestamp start = 1; // time of the beginning
+    uint64 stepPerod = 2; // time interval
+    string name = 3;
+    repeated uint64 core = 4;
+    repeated uint64 ram = 5;
+}
+
+message Hit {
+    string path = 1; // path or domain of queries
+    repeated uint64 hit = 2; // QPS
+}
+
+message TrafficRes {
+    Timestamp start = 1; // time of the beginning
+    uint64 stepPerod = 2; // time interval
+    string name = 3; // application name
+    repeated Hit hits = 4;
+}
+
+message Latency {
+    string path = 1; // path or domain of queries
+    repeated uint64 latency = 2; // average latency in one-step of the time interval
+}
+
+message LatencyRes {
+    Timestamp start = 1; // time of the beginning
+    uint64 stepPerod = 2; // time interval
+    string name = 3; // application name
+    repeated Latency latencies = 4;
+}
+
+enum ActivityTag {
+    None = 0; //No tag
+    User = 1; // User_Authentication, User_Setting, ...
+    Payment = 2;
+    Application = 3;
+    Domain = 4;
+    Service = 5;
+    Image = 6;
+    ObjectStorage = 7;
+    BlockStorage = 8;
+
+    // Bindings
+    AppSrvBinding = 9;
+    AppDomBinding = 10;
+    AppVolBinding = 11;
+    SrvDomBinding = 12;
+}
+
+message Activity {
+    Timestamp time = 1;
+    ActivityTag tag = 2;
+    string name = 3;
+    string attachment = 4; //When tag is binding, otherwise empty
+    string type = 5;
+    string email = 6;
+    string description = 7;
+}
+
+message ActivityReq {
+    int32 index = 1; // [default = 0]
+    ActivityTag tag = 2;//tag for filter
+    string name = 3; //name for filter
+}
+
+message ActivityListRes {
+    int32 index = 1; // [default = 0]
+    repeated Activity activities = 2;
+}
