@@ -1,6 +1,8 @@
 # yb-cli
 YOTTAb cli 
 
+![yottab.io PaaS - YOTTAb Client](https://user-images.githubusercontent.com/2523528/82640218-72abc380-9c1f-11ea-9bb7-7333a0a0cac1.png)
+
 # How to build using make
 ```sh
 $ make clean
