@@ -2,6 +2,7 @@ package cmd
 
 // import (
 // 	"io/ioutil"
+//	"log"
 // 	"os"
 
 // 	"github.com/aanand/compose-file/loader"

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -32,10 +33,10 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&config.ConfigManualAddress, "config", "", "Config file (default is $HOME/.yb/config.json)")
-	rootCmd.PersistentFlags().StringP(config.KEY_USER, "u", "", "yottab account username")
-	rootCmd.PersistentFlags().StringVarP(&password, config.KEY_PASSWORD, "P", "", "yottab account password")
-	rootCmd.PersistentFlags().StringP(config.KEY_HOST, "l", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI")
-	rootCmd.PersistentFlags().StringP(config.KEY_TOKEN, "t", "", "Manual Send 'TOKEN' for Authentication")
+	rootCmd.PersistentFlags().StringP(config.KEY_USER, "", "", "yottab account username")
+	rootCmd.PersistentFlags().StringVarP(&password, config.KEY_PASSWORD, "", "", "yottab account password")
+	rootCmd.PersistentFlags().StringP(config.KEY_HOST, "", config.DEFAULTE_CONTOROLLER, "Address of Controller. a fully-qualified controller URI")
+	rootCmd.PersistentFlags().StringP(config.KEY_TOKEN, "", "", "Manual Send 'TOKEN' for Authentication")
 	rootCmd.PersistentFlags().BoolVar(&flagConfirm, "confirm", false, "Confirm if some command need a confirmation, Useful for non-tty environments such as build pipelines")
 
 	viper.BindPFlag(config.KEY_USER, rootCmd.PersistentFlags().Lookup(config.KEY_USER))

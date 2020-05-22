@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -110,7 +111,7 @@ func streamAppLog(args []string) {
 			}
 			if strings.Contains(err.Error(), "RST_STREAM") {
 				//Resume log streaming on proto related error
-				log.Info("Timeout streaming log...")
+				log.Println("Timeout streaming log...")
 				// continue
 				return
 			}
@@ -136,7 +137,7 @@ func streamBuildLog(appName, appTag string, waitToReady bool) {
 		logClient, err := client.V2().ImgBuildLog(context.Background(), id)
 		if err != nil && waitToReady {
 			if status.Code(err) == codes.NotFound {
-				log.Info("Log not ready yet, we try again in 20 seconds...")
+				log.Println("Log not ready yet, we try again in 20 seconds...")
 				time.Sleep(time.Second * 20)
 				continue
 			}
@@ -151,7 +152,7 @@ func streamBuildLog(appName, appTag string, waitToReady bool) {
 			}
 			if strings.Contains(err.Error(), "RST_STREAM") {
 				//Resume log streaming on proto related error
-				log.Info("Timeout streaming log...")
+				log.Println("Timeout streaming log...")
 				// continue
 				return
 			}

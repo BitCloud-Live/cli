@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"log"
 	"os"
 	"runtime"
 	"strings"

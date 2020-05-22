@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/yottab/cli/config"
@@ -34,7 +35,7 @@ func login(cmd *cobra.Command, args []string) {
 	}
 
 	if len(password) != 0 {
-		log.Warn("WARNING! Using --password via the CLI is insecure. use it in the case of need, for example: a secured build pipeline")
+		log.Println("WARNING! Using --password via the CLI is insecure. use it in the case of need, for example: a secured build pipeline")
 	} else {
 		password = readPasswordFromConsole("Password: ")
 	}

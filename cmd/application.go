@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"fmt"
+	"log"
+	"github.com/spf13/cobra"
 	ybApi "github.com/yottab/proto-api/proto"
 )
 

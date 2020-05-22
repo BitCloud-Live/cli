@@ -81,12 +81,13 @@ func init() {
 	srvCreateCmd.MarkFlagRequired("name")
 
 	// application Create flag:
-	appCreateCmd.Flags().StringP("plan", "s", "", "name of plan")
+	appCreateCmd.Flags().StringP("plan", "", "default", "name of plan")
 	appCreateCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
 	appCreateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
 	appCreateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
-	appCreateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc, default to http")
+	appCreateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc|private")
 	appCreateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 1, "min scale of application")
+	appCreateCmd.MarkFlagRequired("name")
 	appCreateCmd.MarkFlagRequired("image")
 
 	// domain create:

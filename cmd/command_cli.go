@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
@@ -88,12 +89,12 @@ func SelfUpdate(latestAvailable *selfupdate.Release) {
 	fmt.Print("Do you want to update? [Y/n]: ")
 	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {
-		log.Error("Error while reading from stdin!")
+		log.Println("Error while reading from stdin!")
 		return
 	}
 	input = strings.ToLower(strings.TrimSpace(input))
 	if input != "y" && input != "" {
-		log.Print("Update canceled!")
+		log.Println("Update canceled!")
 		return
 	}
 
