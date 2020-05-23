@@ -3,8 +3,8 @@ package cmd
 import (
 	"bytes"
 	"crypto/tls"
-	"log"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 

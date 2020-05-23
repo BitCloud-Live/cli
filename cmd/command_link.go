@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +15,7 @@ var (
 		[Application <-> Volume]
 		[Application <-> Domain]
 		[Service     <-> Domain]`,
-		Example: `
+		Example: ` 
   $: yb link set \
         --service="my-wordpress" \
         --domain="example.com"`,

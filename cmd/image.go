@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+
 	"github.com/spf13/cobra"
 	ybApi "github.com/yottab/proto-api/proto"
 )
@@ -25,8 +26,8 @@ func imgInfo(cmd *cobra.Command, args []string) {
 }
 
 func imgDelete(cmd *cobra.Command, args []string) {
-	imageTag := cmd.Flag("tag").Value.String()    // Repository tag
-	imageName := cmd.Flag("name").Value.String()  // Repository name
+	imageTag := cmd.Flag("tag").Value.String()   // Repository tag
+	imageName := cmd.Flag("name").Value.String() // Repository name
 
 	req := new(ybApi.ImgBuildReq)
 	req.RepositoryName = imageName

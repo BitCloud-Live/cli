@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+
 	"github.com/spf13/cobra"
 	ybApi "github.com/yottab/proto-api/proto"
 )
@@ -108,7 +109,7 @@ func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale
 	req.Name = appName
 	req.Plan = plan
 	req.Values = make(map[string]string)
-	req.Values["ports"] = fmt.Sprintf("%d/%d", port, EndpointType)
+	req.Values["ports"] = fmt.Sprintf("%d/%s", port, EndpointType)
 	req.Values["minimum-scale"] = fmt.Sprintf("%d", minScale)
 	req.Values["image"] = image
 
@@ -146,10 +147,15 @@ func appUpdate(cmd *cobra.Command, args []string) {
 	req := new(ybApi.SrvConfigSetReq)
 	req.Name = getCliRequiredArg(args, 0)
 	req.Values = make(map[string]string)
-	req.Values["minimum-scale"] = fmt.Sprintf("%d", flagVarMinScale)
-	req.Values["ports"] = fmt.Sprintf("%d/%d", flagVarPort, flagVarEndpointType)
-	req.Values["image"] = flagVarImage
-	// TODO: req.Values["routes"] = flagVariableArray
+	if flagVarMinScale != 0 {
+		req.Values["minimum-scale"] = fmt.Sprintf("%d", flagVarMinScale)
+	}
+	if flagVarPort != 0 {
+		req.Values["ports"] = fmt.Sprintf("%d/%s", flagVarPort, flagVarEndpointType)
+	}
+	if flagVarImage != "" {
+		req.Values["image"] = flagVarImage
+	}
 	client := grpcConnect()
 	defer client.Close()
 

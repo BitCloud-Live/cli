@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"time"
 

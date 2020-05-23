@@ -8,23 +8,30 @@ import (
 var (
 	createCmd = &cobra.Command{
 		Use:   "create [command]",
-		Short: "creates new [service|application|domain|volume|worker|config]",
+		Short: "creates new [service|application|domain|volume]",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
-			if cmd.Flag("compose-file").Changed {
-				//NOOP
-				// composeCreate(cmd, args)
-			} else {
-				cmd.Help()
-			}
+			cmd.Help()
 		}}
 
 	appCreateCmd = &cobra.Command{
 		Use:   "application",
+		Run:   appCreate,
 		Short: "creates a new application",
-		Long: `Creates a new application.
-			if no <name> is provided, one will be generated automatically.`,
-		Run: appCreate}
+		Long:  `Creates a new application.`,
+		Example: `
+  $: yb create application \
+        --image="hub.yottab.io/test/dotnetcore:aspnetapp" \
+        --name="myaspnetapp" \
+		--port=80
+		
+
+  $: yb create application \
+        --image="hub.yottab.io/test/myworker:v1.2.3" \
+		--name="myaspnetapp" \
+		--min-scale=4 \
+        --port=8080 \
+        --endpoint-type=private`}
 
 	srvCreateCmd = &cobra.Command{
 		Use:   "service [PRODUCT.name]",
@@ -33,9 +40,11 @@ var (
 		Long: `Creates a new servive.
   if no 'name' is provided, one will be generated automatically.`,
 		Example: `
-  $: yb product
+  ## Get a list of Service Plan and Required Variables
+  $: yb product service mysql
+
   $: yb create service mysql \
-        --name=db \
+        --name=mydb \
         --plan=starter \
         --variable="Database.password=DaRHEm@DaX" \
 	    --variable="Database.user=root"`}
@@ -51,24 +60,40 @@ var (
 
 	volumeCreateCmd = &cobra.Command{
 		Use:   "volume",
+		Run:   volumeCreate,
 		Short: "create new volume",
 		Long:  `create new volume`,
-		Run:   volumeCreate}
+		Example: `
+  ## Get a list of Volume Plans 
+  $: yb product volume
+
+  $: yb create volume \
+		--name="my-volume" \
+		--volume-type="persistant-2Gi"`}
 
 	bucketCreateCmd = &cobra.Command{
 		Use:   "bucket [name]",
+		Run:   bucketCreate,
 		Short: "create an Object Storage bucket over the YOTTAb",
-		Long:  `create an Object Storage bucket over the YOTTAb`,
-		Run:   bucketCreate}
+		Long:  `create an Object Storage bucket over the YOTTAb`}
 )
 
 // Update Command
 var (
 	updateCmd = &cobra.Command{
 		Use:   "update [APP.name]",
+		Run:   appUpdate,
 		Short: "update the config of existing application",
 		Long:  `This subcommand Update an existing application.`,
-		Run:   appUpdate}
+		Example: `
+  ## The Application Version is updated
+  $: yb update myadmin \
+        --image="hub.yottab.io/test/myadmin:v1.2.3"
+		
+
+  ## The Application Scale is updated
+  $: yb update myadmin \
+		--min-scale=4`}
 )
 
 func init() {
@@ -103,9 +128,8 @@ func init() {
 	// Application Update
 	updateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
 	updateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
-	updateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 1, "min scale of application")
-	updateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc, default to http")
-	updateCmd.Flags().StringArrayVarP(&flagVariableArray, "routes", "r", nil, "Routes of application")
+	updateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 0, "min scale of application")
+	updateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc|private")
 
 	rootCmd.AddCommand(
 		createCmd,

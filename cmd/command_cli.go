@@ -9,7 +9,7 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
-	"github.com/spf13/cobra"
+	"github.com/spf13/cobra" 
 )
 
 //version parameter parsing from compiler ldflags

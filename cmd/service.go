@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+
 	"github.com/spf13/cobra"
 	ybApi "github.com/yottab/proto-api/proto"
 )
@@ -94,49 +95,6 @@ func srvCreate(cmd *cobra.Command, args []string) {
 	uiCheckErr("Could not Create the Service", err)
 	uiServicStatus(res)
 }
-
-// ServiceEnvironmentSet set Environment {key:value} for service
-func ServiceEnvironmentSet(serviceName string, values map[string]string) (*ybApi.SrvStatusRes, error) {
-	req := new(ybApi.SrvConfigSetReq)
-	req.Name = serviceName
-	req.Values = values
-	client := grpcConnect()
-	defer client.Close()
-
-	return client.V2().SrvConfigSet(client.Context(), req)
-}
-func srvEnvironmentSet(cmd *cobra.Command, args []string) {
-	res, err := ServiceEnvironmentSet(
-		getCliRequiredArg(args, 0),
-		arrayFlagToMap(flagVariableArray))
-
-	uiCheckErr("Could not Set the Config for Service", err)
-	uiServicStatus(res)
-}
-
-func srvEnvironmentUnset(cmd *cobra.Command, args []string) {
-	req := new(ybApi.UnsetReq)
-	req.Name = getCliRequiredArg(args, 0)
-	req.Variables = flagVariableArray
-
-	client := grpcConnect()
-	defer client.Close()
-	res, err := client.V2().SrvConfigUnset(client.Context(), req)
-	uiCheckErr("Could not Unset the Config for Service", err)
-	uiServicStatus(res)
-}
-
-/*func srvChangePlane(cmd *cobra.Command, args []string) {
-	req := new(ybApi.ChangePlanReq)
-	req.Name = getCliRequiredArg(args, 0)
-	req.Plan = getCliRequiredArg(args, 1)
-
-	client := grpcConnect()
-	defer client.Close()
-	res, err := client.V2().SrvChangePlan(client.Context(), req)
-	uiCheckErr("Could not Change the Plan", err)
-	uiServicStatus(res)
-}*/
 
 // ServiceLinkDomain like domain to service
 func ServiceLinkDomain(serviceName, domainName, endpoint, path string) (*ybApi.SrvStatusRes, error) {
