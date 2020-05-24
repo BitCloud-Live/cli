@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"strings"
 
-	"google.golang.org/grpc/codes"
 	"github.com/pkg/browser"
 	ybApi "github.com/yottab/proto-api/proto"
+	"google.golang.org/grpc/codes"
 
 	"google.golang.org/grpc/status"
 	"k8s.io/client-go/rest"
@@ -23,7 +23,7 @@ import (
 	//For windows support
 )
 
-func printCount(size int){
+func printCount(size int) {
 	fmt.Println(secTxtColor("# Count: %d ", size))
 }
 
@@ -84,7 +84,7 @@ func uiList(list interface{}) {
 	case *ybApi.VolumeListRes:
 		itemList := list.(*ybApi.VolumeListRes)
 		printCount(len(itemList.Volumes))
-		for _, v := range itemList.Volumes {	
+		for _, v := range itemList.Volumes {
 			uiVolumeStatus(v)
 		}
 		return
@@ -100,12 +100,14 @@ func uiList(list interface{}) {
 	}
 }
 
-func uiVolumeMount(space string, vm []*ybApi.VolumeMount){
-	if len(vm) == 0 { return }
+func uiVolumeMount(space string, vm []*ybApi.VolumeMount) {
+	if len(vm) == 0 {
+		return
+	}
 	printKeyVal(space, "Mount", "")
 	for _, m := range vm {
-		printKeyVal(space + whiteSpaceDash, "To", m.GetAttachment())
-		printKeyVal(space + whiteSpace, "Path", m.GetMountPath())
+		printKeyVal(space+whiteSpaceDash, "To", m.GetAttachment())
+		printKeyVal(space+whiteSpace, "Path", m.GetMountPath())
 	}
 }
 
@@ -116,8 +118,10 @@ func uiImageInfo(res *ybApi.ImgStatusRes) {
 	printKeyVal(whiteSpace, "Updated", toTime(res.Updated))
 }
 
-func uiConditions(space string, conditions []*ybApi.ServiceCondition){
-	if len(conditions) == 0 { return }
+func uiConditions(space string, conditions []*ybApi.ServiceCondition) {
+	if len(conditions) == 0 {
+		return
+	}
 	if len(conditions) == 1 {
 		c := conditions[0]
 		cond := fmt.Sprintf("%s (%s)", c.GetCondition(), c.GetReason())
@@ -126,14 +130,16 @@ func uiConditions(space string, conditions []*ybApi.ServiceCondition){
 	}
 	for i, c := range conditions {
 		cond := fmt.Sprintf("%s (%s)", c.GetCondition(), c.GetReason())
-		printKeyVal(space + whiteSpaceDash, "Index", strconv.Itoa(i))
-		printKeyVal(space + whiteSpace, "Condition", cond)
+		printKeyVal(space+whiteSpaceDash, "Index", strconv.Itoa(i))
+		printKeyVal(space+whiteSpace, "Condition", cond)
 	}
 }
 
 func uiStringArray(space, title string, arr []string) {
-	if len(arr) == 0 { return }
-	
+	if len(arr) == 0 {
+		return
+	}
+
 	tags := fmt.Sprintf("[%s]", strings.Join(arr, ","))
 	printKeyVal(space, title, tags)
 }
@@ -147,11 +153,6 @@ func uiServicStatus(srv *ybApi.SrvStatusRes) {
 	uiAttachedDomains(whiteSpace, srv.Domains)
 	printKeyVal(whiteSpace, "Created", toTime(srv.Created))
 	printKeyVal(whiteSpace, "Updated", toTime(srv.Updated))
-}
-
-func uiNFSMount(in *ybApi.PortforwardRes) {
-	log.Printf("FTP portforwarding is ready @ localhost:21")
-	log.Printf("Now you can connect using your favorite ftp client, e.g. filezilla...")
 }
 
 func uiPortforward(in *ybApi.PortforwardRes) {
@@ -190,7 +191,7 @@ func uiPortforward(in *ybApi.PortforwardRes) {
 		colorfulPrintln(whiteSpace)
 		colorfulPrintln(whiteSpace)
 		colorfulPrintln(whiteSpace)
-		colorfulPrintln(whiteSpace , mainTxtSprint("  Now local ports are accessible from localhost: "))
+		colorfulPrintln(whiteSpace, mainTxtSprint("  Now local ports are accessible from localhost: "))
 		for _, p := range localPorts {
 			fports := strings.Split(p, ":")
 			colorfulPrint(whiteSpace)
@@ -203,7 +204,9 @@ func uiPortforward(in *ybApi.PortforwardRes) {
 
 		<-signals
 		fmt.Print(secTitleColor("    Closing ports... "))
-		if done != nil { close(done) }
+		if done != nil {
+			close(done)
+		}
 		fmt.Println(secTitleBlink(" done  "))
 		os.Exit(1)
 
@@ -220,54 +223,64 @@ func uiPortforward(in *ybApi.PortforwardRes) {
 }
 
 func uiPlan(space string, plan []*ybApi.Plan) {
-	if len(plan) == 0 { return }
+	if len(plan) == 0 {
+		return
+	}
 
 	printKeyVal(space, "Plan", "")
 	for _, p := range plan {
-		printKeyVal(space + whiteSpaceDash, "Name", p.Name)
-		printKeyVal(space + whiteSpace, "Description", p.Description)
-		uiMapStrStr(space + whiteSpace, "Extras", p.Extras)
+		printKeyVal(space+whiteSpaceDash, "Name", p.Name)
+		printKeyVal(space+whiteSpace, "Description", p.Description)
+		uiMapStrStr(space+whiteSpace, "Extras", p.Extras)
 	}
 }
 
 func uiMapGeneralVariable(space string, mapVar map[string]*ybApi.GeneralVariable) {
-	if len(mapVar) == 0 { return }
+	if len(mapVar) == 0 {
+		return
+	}
 
 	printKeyVal(space, "General_Variables", "")
 	for k, v := range mapVar {
-		printKeyVal(space + whiteSpace, k, v.GetValue())
+		printKeyVal(space+whiteSpace, k, v.GetValue())
 	}
 }
 
 func uiMapStrStr(space, name string, mapVar map[string]string) {
-	if len(mapVar) == 0 { return }
+	if len(mapVar) == 0 {
+		return
+	}
 
 	printKeyVal(space, name, "")
 	for k, v := range mapVar {
-		printKeyVal(space + whiteSpace, k, v)
+		printKeyVal(space+whiteSpace, k, v)
 	}
 }
 
 func uiRoutes(space string, mapVar []*ybApi.DomainAttachedTo) {
-	if len(mapVar) == 0 { return }
+	if len(mapVar) == 0 {
+		return
+	}
 
 	printKeyVal(space, "Variables", "")
 	for _, v := range mapVar {
-		printKeyVal(space + whiteSpaceDash, "To", v.GetName())
-		printKeyVal(space + whiteSpace, "Path", v.GetPath())
-		printKeyVal(space + whiteSpace, "EndPoint", v.GetEndpoint())
+		printKeyVal(space+whiteSpaceDash, "To", v.GetName())
+		printKeyVal(space+whiteSpace, "Path", v.GetPath())
+		printKeyVal(space+whiteSpace, "EndPoint", v.GetEndpoint())
 		mainTxtPrintln(space + whiteSpace)
 	}
 }
 
-func uiYamlMultiLineStr(space, name, val string){
-	if val == "" { return }
+func uiYamlMultiLineStr(space, name, val string) {
+	if val == "" {
+		return
+	}
 
 	printKeyVal(space, name, "|")
 	lines := strings.Split(strings.Replace(val, "\r\n", "\n", -1), "\n")
 	for _, line := range lines {
 		fmt.Println(
-			space + whiteSpace,
+			space+whiteSpace,
 			secTxtColor(line))
 	}
 }
@@ -286,11 +299,11 @@ func uiPrdVar(space string, variables map[string]*ybApi.GeneralVariable) {
 	} else {
 		printKeyVal(space, "Variables", "")
 		for _, v := range variables {
-			printKeyVal(space + whiteSpaceDash, "Name", v.Name)
-			printKeyVal(space + whiteSpace, "Required", strconv.FormatBool(v.IsRequired))
-			printKeyVal(space + whiteSpace, "Type", v.Type)
-			printKeyVal(space + whiteSpace, "Default", v.DefaultValue)
-			printKeyVal(space + whiteSpace, "Description", v.Description)
+			printKeyVal(space+whiteSpaceDash, "Name", v.Name)
+			printKeyVal(space+whiteSpace, "Required", strconv.FormatBool(v.IsRequired))
+			printKeyVal(space+whiteSpace, "Type", v.Type)
+			printKeyVal(space+whiteSpace, "Default", v.DefaultValue)
+			printKeyVal(space+whiteSpace, "Description", v.Description)
 			mainTxtPrintln(space + whiteSpace)
 		}
 	}
@@ -302,7 +315,7 @@ func uiApplicationOpen(app *ybApi.AppStatusRes) {
 	}
 	//We only recieve one route at this moment!
 	route := app.Routes[0]
-	if !strings.HasPrefix("http", route){
+	if !strings.HasPrefix("http", route) {
 		println(secTitleColor("Can't open this type of endpoints right now!"))
 	} else if err := browser.OpenURL(route); err != nil {
 		fmt.Printf("Can't open this endpoint, error: %v!", err)
@@ -311,15 +324,17 @@ func uiApplicationOpen(app *ybApi.AppStatusRes) {
 	}
 }
 
-func uiAppInstances(space string, instances []*ybApi.Instance){
-	if len(instances) == 0 { return }
+func uiAppInstances(space string, instances []*ybApi.Instance) {
+	if len(instances) == 0 {
+		return
+	}
 
 	printKeyVal(space, "Instances", "")
 	for _, v := range instances {
-		printKeyVal(space + whiteSpaceDash, "ID", v.Name)
-		printKeyVal(space + whiteSpace, "CPU", v.Cpu)
-		printKeyVal(space + whiteSpace, "RAM", v.Ram)
-		printKeyVal(space + whiteSpace, "Created", toTime(v.Created))
+		printKeyVal(space+whiteSpaceDash, "ID", v.Name)
+		printKeyVal(space+whiteSpace, "CPU", v.Cpu)
+		printKeyVal(space+whiteSpace, "RAM", v.Ram)
+		printKeyVal(space+whiteSpace, "Created", toTime(v.Created))
 		mainTxtPrintln(space + whiteSpace)
 	}
 }
@@ -347,13 +362,15 @@ func jsonPrettyPrint(in string) string {
 }
 
 func uiAttachedDomains(space string, domains []*ybApi.AttachedDomainInfo) {
-	if len(domains) == 0 { return }
+	if len(domains) == 0 {
+		return
+	}
 
 	printKeyVal(space, "Attached_Domains", "")
 	for _, v := range domains {
-		printKeyVal(space + whiteSpaceDash, "Domain", v.Domain)
-		printKeyVal(space + whiteSpace, "Endpoint", v.Endpoint)
-		printKeyVal(space + whiteSpace, "Type", v.EndpointType)
+		printKeyVal(space+whiteSpaceDash, "Domain", v.Domain)
+		printKeyVal(space+whiteSpace, "Endpoint", v.Endpoint)
+		printKeyVal(space+whiteSpace, "Type", v.EndpointType)
 		mainTxtPrintln(space + whiteSpace)
 	}
 }
@@ -384,9 +401,9 @@ func uiDomainStatus(v *ybApi.DomainStatusRes) {
 }
 
 func uiVolumeSpec(space string, vol *ybApi.VolumeSpec) {
-	printKeyVal(space + whiteSpaceDash, "Name", vol.Name)
-	printKeyVal(space + whiteSpace, "Class", vol.Class)
-	printKeyVal(space + whiteSpace, "Size", vol.Size)
+	printKeyVal(space+whiteSpaceDash, "Name", vol.Name)
+	printKeyVal(space+whiteSpace, "Class", vol.Class)
+	printKeyVal(space+whiteSpace, "Size", vol.Size)
 }
 
 func uiVolumeStatus(v *ybApi.VolumeStatusRes) {
