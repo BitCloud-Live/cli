@@ -5,8 +5,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 	"syscall"
@@ -41,6 +41,14 @@ func arrayFlagToMap(flags []string) map[string]string {
 	return varMap
 }
 
+func forceFlagGetStrValue(cmd *cobra.Command, flagName, inputAnswr string) (val string) {
+	val = cmd.Flag(flagName).Value.String()
+	if val == "" {
+		val = readFromConsole(inputAnswr)
+	}
+	return
+}
+
 func readFromConsole(inputAnswr string) (val string) {
 	fmt.Print(inputAnswr)
 	reader := bufio.NewReader(os.Stdin)
@@ -61,7 +69,6 @@ func readPasswordFromConsole(inputAnswr string) (val string) {
 	password := string(bytePassword)
 	return strings.TrimSpace(password)
 }
-
 
 func grpcConnect() ybApi.Client {
 	return ybApi.Connect(

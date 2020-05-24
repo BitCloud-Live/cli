@@ -283,21 +283,11 @@ func AppAttachDomain(appName, domainName, path, endpoint string) (*ybApi.AppStat
 
 func appAttachDomain(cmd *cobra.Command, args []string) {
 	var (
-		app  = cmd.Flag("application").Value.String()
-		dom  = cmd.Flag("domain").Value.String()
-		path = cmd.Flag("path").Value.String()
-		ep   = cmd.Flag("endpoint").Value.String()
+		app  = forceFlagGetStrValue(cmd, "application", "Enter Application Name:")
+		dom  = forceFlagGetStrValue(cmd, "domain", "Enter Domain:")
+		path = forceFlagGetStrValue(cmd, "path", "Enter Path:")
+		ep   = forceFlagGetStrValue(cmd, "endpoint", "Enter Endpoint [ format: 8080/http ]:")
 	)
-
-	if app == "" {
-		app = readFromConsole("Enter Application Name:")
-	}
-	if dom == "" {
-		dom = readFromConsole("Enter Domain:")
-	}
-	if path == "" {
-		dom = readFromConsole("Enter Path:")
-	}
 
 	res, err := AppAttachDomain(app, dom, path, ep)
 
@@ -306,11 +296,19 @@ func appAttachDomain(cmd *cobra.Command, args []string) {
 }
 
 func appDetachDomain(cmd *cobra.Command, args []string) {
+	var (
+		app  = forceFlagGetStrValue(cmd, "application", "Enter Application Name:")
+		dom  = forceFlagGetStrValue(cmd, "domain", "Enter Domain:")
+		path = forceFlagGetStrValue(cmd, "path", "Enter Path:")
+		ep   = forceFlagGetStrValue(cmd, "endpoint", "Enter Endpoint [ format: 8080/http ]:")
+	)
+
 	req := new(ybApi.SrvDomainAttachReq)
 	req.AttachIdentity = new(ybApi.AttachIdentity)
-	req.AttachIdentity.Name = cmd.Flag("application").Value.String()
-	req.AttachIdentity.Attachment = cmd.Flag("domain").Value.String()
-	req.Path = cmd.Flag("path").Value.String()
+	req.AttachIdentity.Name = app
+	req.AttachIdentity.Attachment = dom
+	req.Path = path
+	req.Endpoint = ep
 
 	client := grpcConnect()
 	defer client.Close()
