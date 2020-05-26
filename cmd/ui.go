@@ -155,7 +155,7 @@ func uiServicStatus(srv *ybApi.SrvStatusRes) {
 	printKeyVal(whiteSpace, "Updated", toTime(srv.Updated))
 }
 
-func uiPortforward(in *ybApi.PortforwardRes) {
+func uiPortforward(srvName string, extraVar map[string]string, in *ybApi.PortforwardRes) {
 	bearer := string(in.Token)
 	localPorts := []string{}
 	for _, p := range in.Ports {
@@ -193,13 +193,17 @@ func uiPortforward(in *ybApi.PortforwardRes) {
 		colorfulPrintln(whiteSpace)
 		colorfulPrintln(whiteSpace, mainTxtSprint("  Now local ports are accessible from localhost: "))
 		for _, p := range localPorts {
-			fports := strings.Split(p, ":")
 			colorfulPrint(whiteSpace)
+			fports := strings.Split(p, ":")
 			fmt.Printf("%s%s%s%s\r\n",
 				mainTxtColor("  Forwarding from "),
 				secTxtColor(" 127.0.0.1:%s ", fports[0]),
 				mainTxtBlink(" ~> "),
-				secTxtColor(" %s ", fports[1]))
+				secTxtColor(" %s:%s ", srvName, fports[1]))
+		}
+
+		for k, v := range extraVar {
+			printKeyVal(whiteSpace, k, v)
 		}
 
 		<-signals
@@ -207,7 +211,7 @@ func uiPortforward(in *ybApi.PortforwardRes) {
 		if done != nil {
 			close(done)
 		}
-		fmt.Println(secTitleBlink(" done  "))
+		fmt.Println(secTitleColor(" done  "))
 		os.Exit(1)
 
 	}()

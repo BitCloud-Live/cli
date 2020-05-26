@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+
 	"github.com/spf13/cobra"
 	ybApi "github.com/yottab/proto-api/proto"
 )
@@ -42,13 +43,16 @@ func volumeInfo(cmd *cobra.Command, args []string) {
 	uiCheckErr("Could not get the Volumes", err)
 	uiVolumeStatus(res)
 }
+
 func volumeSftp(cmd *cobra.Command, args []string) {
+	volumeName := getCliRequiredArg(args, 0)
+	volumeUserPass := map[string]string{" User": "root", " Password": "root"}
 	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
 	res, err := client.V2().VolumeFTPPortforward(client.Context(), req)
 	uiCheckErr("Could not Portforward the Service", err)
-	uiPortforward(res)
+	uiPortforward(volumeName, volumeUserPass, res)
 }
 
 // VolumeCreate crate a volume by name and type

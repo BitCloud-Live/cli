@@ -104,7 +104,7 @@ func init() {
 	setLinkCmd.Flags().StringP("path", "p", "", "http subpath to route traffic")
 
 	// srv/app </- Domain
-	setLinkCmd.Flags().StringP("endpoint", "e", "", "name of the service endpoint")
+	setLinkCmd.Flags().StringP("endpoint", "e", "", "name of the service or applications endpoint")
 	unsetLinkCmd.Flags().StringP("path", "p", "", "http subpath to route traffic")
 
 	// unset:

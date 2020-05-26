@@ -26,6 +26,7 @@ func srvInfo(cmd *cobra.Command, args []string) {
 }
 
 func srvPortforward(cmd *cobra.Command, args []string) {
+	srvName := getCliRequiredArg(args, 0)
 	req := getCliRequestIdentity(args, 0)
 	client := grpcConnect()
 	defer client.Close()
@@ -33,7 +34,7 @@ func srvPortforward(cmd *cobra.Command, args []string) {
 	res, err := client.V2().SrvPortforward(client.Context(), req)
 	uiCheckErr("Could not Portforward the Service", err)
 	uiServicStatus(info)
-	uiPortforward(res)
+	uiPortforward(srvName, nil, res)
 }
 
 // ServiceStart start service by name
