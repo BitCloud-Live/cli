@@ -30,6 +30,7 @@ var (
         --image="hub.yottab.io/test/myworker:v1.2.3" \
 		--name="myaspnetapp" \
 		--min-scale=4 \
+		--debug=true \
         --port=8080 \
         --endpoint-type=private`}
 
@@ -112,6 +113,7 @@ func init() {
 	appCreateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
 	appCreateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc|private")
 	appCreateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 1, "min scale of application")
+	appCreateCmd.Flags().BoolVarP(&flagVarDebug, "debug", "d", false, "Debug mode; To configure the restart policy for the Application and do not automatically restart.")
 	appCreateCmd.MarkFlagRequired("name")
 	appCreateCmd.MarkFlagRequired("image")
 
