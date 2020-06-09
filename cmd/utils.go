@@ -49,6 +49,14 @@ func forceFlagGetStrValue(cmd *cobra.Command, flagName, inputAnswr string) (val 
 	return
 }
 
+func forceArgGetStrValue(args []string, index int, inputAnswr string) (val string) {
+	val = getCliRequiredArg(args, index)
+	if val == "" {
+		val = readFromConsole(inputAnswr)
+	}
+	return
+}
+
 func readFromConsole(inputAnswr string) (val string) {
 	fmt.Print(inputAnswr)
 	reader := bufio.NewReader(os.Stdin)
@@ -89,12 +97,10 @@ func toTime(t *ybApi.Timestamp) (out string) {
 
 func endpointTypeValid(etype string) error {
 	switch etype {
-	case "http":
-		return nil
-	case "grpc":
+	case "http", "grpc", "private":
 		return nil
 	default:
-		return errors.New("Endpoint type is invalid, valid values are http, grpc")
+		return errors.New("Endpoint type is invalid, valid values are http, grpc and private")
 	}
 }
 
@@ -167,7 +173,6 @@ func streamBuildLog(appName, appTag string, waitToReady bool) {
 			break
 		}
 	}
-
 }
 
 //wrapRemove is a middleware for confirm object removes
@@ -178,7 +183,6 @@ func wrapRemove(objectType string, f func(cmd *cobra.Command, args []string)) fu
 		//Run the original func if confirmed
 		f(cmd, args)
 	}
-
 }
 
 //confirmF check for confirmations, exit on no confirmation, otherwise a noop function

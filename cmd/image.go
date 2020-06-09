@@ -26,8 +26,8 @@ func imgInfo(cmd *cobra.Command, args []string) {
 }
 
 func imgDelete(cmd *cobra.Command, args []string) {
-	imageTag := cmd.Flag("tag").Value.String()   // Repository tag
-	imageName := cmd.Flag("name").Value.String() // Repository name
+	imageName := forceArgGetStrValue(args, 0, "Enter Image Name [Format: hub.yottab.io/<user>/<name> ]") // Repository name
+	imageTag := forceArgGetStrValue(args, 1, "Enter Tag:")                                               // Repository tag
 
 	req := new(ybApi.ImgBuildReq)
 	req.RepositoryName = imageName

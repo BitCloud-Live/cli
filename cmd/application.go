@@ -113,7 +113,7 @@ func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale
 	req.Values["ports"] = fmt.Sprintf("%d/%s", port, EndpointType)
 	req.Values["minimum-scale"] = fmt.Sprintf("%d", minScale)
 	req.Values["image"] = image
-	req.Values["debug"] = fmt.Sprintf("%b", debugMode)
+	req.Values["debug"] = fmt.Sprintf("%t", debugMode)
 
 	client := grpcConnect()
 	defer client.Close()
