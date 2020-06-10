@@ -106,6 +106,9 @@ func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale
 	if err := endpointTypeValid(EndpointType); err != nil {
 		log.Panic(err)
 	}
+	if minScale == 0 {
+		minScale = 1
+	}
 	req := new(ybApi.AppCreateReq)
 	req.Name = appName
 	req.Plan = plan
@@ -150,7 +153,7 @@ func appUpdate(cmd *cobra.Command, args []string) {
 	req := new(ybApi.SrvConfigSetReq)
 	req.Name = getCliRequiredArg(args, 0)
 	req.Values = make(map[string]string)
-	if flagVarMinScale != 0 {
+	if flagVarMinScale > 0 {
 		req.Values["minimum-scale"] = fmt.Sprintf("%d", flagVarMinScale)
 	}
 	if flagVarPort != 0 {
