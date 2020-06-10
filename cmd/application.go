@@ -14,7 +14,6 @@ var (
 	minScale            uint64
 	flagVarImage        string
 	flagVarEndpointType string
-	flagVarDebug        bool
 )
 
 func appList(cmd *cobra.Command, args []string) {
@@ -102,7 +101,7 @@ func appDestroy(cmd *cobra.Command, args []string) {
 }
 
 // ApplicationCreate create application by link of docker image
-func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale uint64, debugMode bool) (*ybApi.AppStatusRes, error) {
+func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale uint64) (*ybApi.AppStatusRes, error) {
 	if err := endpointTypeValid(EndpointType); err != nil {
 		log.Panic(err)
 	}
@@ -116,7 +115,6 @@ func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale
 	req.Values["ports"] = fmt.Sprintf("%d/%s", port, EndpointType)
 	req.Values["minimum-scale"] = fmt.Sprintf("%d", minScale)
 	req.Values["image"] = image
-	req.Values["debug"] = fmt.Sprintf("%t", debugMode)
 
 	client := grpcConnect()
 	defer client.Close()
@@ -130,8 +128,7 @@ func appCreate(cmd *cobra.Command, args []string) {
 		cmd.Flag("plan").Value.String(),
 		flagVarEndpointType,
 		flagVarPort,
-		flagVarMinScale,
-		flagVarDebug)
+		flagVarMinScale)
 	uiCheckErr("Could not Create the Application", err)
 	uiApplicationStatus(res)
 }
