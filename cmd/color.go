@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fatih/color"
 )
@@ -34,7 +35,7 @@ func printKeyVal(space, k, v string) {
 }
 
 func printTitleByStatus(space, title, status string) {
-	if status == "Unreachable" {
+	if strings.ToLower(status) == "down" {
 		fmt.Printf("%s%s:%s\r\n",
 			space,
 			secTitleColor(" %s ", title),
