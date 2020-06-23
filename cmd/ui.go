@@ -343,6 +343,11 @@ func uiAppInstances(space string, instances []*ybApi.Instance) {
 	}
 }
 
+func uiAccountInfo(account *ybApi.Account) {
+	printTitle("", "Account info")
+	printKeyVal(whiteSpace, "Plan", account.Plan)
+	uiMapGeneralVariable(whiteSpace, account.Variables)
+}
 func uiApplicationStatus(app *ybApi.AppStatusRes) {
 	printTitle("", app.Name)
 	printKeyVal(whiteSpace, "Plan", app.Plan)
