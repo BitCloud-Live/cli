@@ -8,10 +8,10 @@ import (
 var (
 	sftpCmd = &cobra.Command{
 		Use:   "sftp [volume-name]",
-		Short: "Connect to a sftp agent running in a cluster",
-		Long: `Connect to a sftp agent running in a cluster.
+		Short: "Connect to an application sftp agent running in a cluster",
+		Long: `Connect to an application sftp agent running in a cluster.
 		This type of connection can be useful for volume mounting`,
-		Run: volumeSftp,
+		Run: appSftp,
 	}
 )
 
