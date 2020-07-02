@@ -43,6 +43,17 @@ func appOpen(cmd *cobra.Command, args []string) {
 	uiApplicationOpen(res)
 }
 
+func appSftp(cmd *cobra.Command, args []string) {
+	volumeName := getCliRequiredArg(args, 0)
+	volumeUserPass := map[string]string{" User": "root", " Password": "root"}
+	req := getCliRequestIdentity(args, 0)
+	client := grpcConnect()
+	defer client.Close()
+	res, err := client.V2().AppFTPPortforward(client.Context(), req)
+	uiCheckErr("Could not Portforward the Application", err)
+	uiPortforward(volumeName, volumeUserPass, res)
+}
+
 func appLog(cmd *cobra.Command, args []string) {
 	streamAppLog(args)
 }
