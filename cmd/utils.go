@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/yottab/cli/config"
@@ -25,8 +26,18 @@ var (
 	flagVariableArray = make([]string, 0, 8)
 	flagIndex         int32
 	flagAppName       string
+	flagFile          string
+	clientTimeout     time.Duration = 10 * time.Second
 )
 
+func parseDotEnvFile(filename string) map[string]string {
+	var myEnv map[string]string
+	myEnv, err := godotenv.Read(filename)
+	if err != nil {
+		panic(err)
+	}
+	return myEnv
+}
 func arrayFlagToMap(flags []string) map[string]string {
 	varMap := make(map[string]string, len(flags))
 	for _, v := range flags {
@@ -85,7 +96,7 @@ func grpcConnect() ybApi.Client {
 			return viper.GetString(config.KEY_TOKEN)
 		}, func() string {
 			return version
-		}, nil))
+		}, nil), clientTimeout)
 }
 
 func toTime(t *ybApi.Timestamp) (out string) {
