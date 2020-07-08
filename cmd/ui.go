@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -255,9 +256,16 @@ func uiMapStrStr(space, name string, mapVar map[string]string) {
 		return
 	}
 
+	// sort map
+	keys := make([]string, 0, len(mapVar))
+	for k := range mapVar {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
 	printKeyVal(space, name, "")
-	for k, v := range mapVar {
-		printKeyVal(space+whiteSpace, k, v)
+	for _, k := range keys {
+		printKeyVal(space+whiteSpace, k, mapVar[k])
 	}
 }
 
