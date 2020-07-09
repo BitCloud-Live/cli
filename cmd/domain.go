@@ -21,12 +21,18 @@ func domainList(cmd *cobra.Command, args []string) {
 }
 
 func domainInfo(cmd *cobra.Command, args []string) {
-	req := getCliRequestIdentity(args, 0)
-	client := grpcConnect()
-	defer client.Close()
-	res, err := client.V2().DomainInfo(client.Context(), req)
+	res, err := DomainInfo(
+		getCliRequiredArg(args, 0))
 	uiCheckErr("Could not get the Domains", err)
 	uiDomainStatus(res)
+}
+
+// DomainInfo get domain informatin
+func DomainInfo(name string) (*ybApi.DomainStatusRes, error) {
+	req := getRequestIdentity(name)
+	client := grpcConnect()
+	defer client.Close()
+	return client.V2().DomainInfo(client.Context(), req)
 }
 
 // DomainCreate create domain

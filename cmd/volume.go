@@ -36,12 +36,18 @@ func volumeList(cmd *cobra.Command, args []string) {
 }
 
 func volumeInfo(cmd *cobra.Command, args []string) {
-	req := getCliRequestIdentity(args, 0)
-	client := grpcConnect()
-	defer client.Close()
-	res, err := client.V2().VolumeInfo(client.Context(), req)
+	res, err := VolumeInfo(
+		getCliRequiredArg(args, 0))
 	uiCheckErr("Could not get the Volumes", err)
 	uiVolumeStatus(res)
+}
+
+// VolumeInfo get detail of volume
+func VolumeInfo(name string) (*ybApi.VolumeStatusRes, error) {
+	req := getRequestIdentity(name)
+	client := grpcConnect()
+	defer client.Close()
+	return client.V2().VolumeInfo(client.Context(), req)
 }
 
 func volumeSftp(cmd *cobra.Command, args []string) {

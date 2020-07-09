@@ -26,12 +26,18 @@ func appList(cmd *cobra.Command, args []string) {
 }
 
 func appInfo(cmd *cobra.Command, args []string) {
-	req := getCliRequestIdentity(args, 0)
-	client := grpcConnect()
-	defer client.Close()
-	res, err := client.V2().AppInfo(client.Context(), req)
+	res, err := AppInfo(
+		getCliRequiredArg(args, 0))
 	uiCheckErr("Could not Get Application", err)
 	uiApplicationStatus(res)
+}
+
+// AppInfo .
+func AppInfo(name string) (*ybApi.AppStatusRes, error) {
+	req := getRequestIdentity(name)
+	client := grpcConnect()
+	defer client.Close()
+	return client.V2().AppInfo(client.Context(), req)
 }
 
 func appOpen(cmd *cobra.Command, args []string) {

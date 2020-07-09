@@ -16,11 +16,17 @@ func srvList(cmd *cobra.Command, args []string) {
 	uiList(res)
 }
 
-func srvInfo(cmd *cobra.Command, args []string) {
-	req := getCliRequestIdentity(args, 0)
+// ServiceInfo get information of Service
+func ServiceInfo(name string) (*ybApi.SrvStatusRes, error) {
+	req := getRequestIdentity(name)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().SrvInfo(client.Context(), req)
+	return client.V2().SrvInfo(client.Context(), req)
+}
+
+func srvInfo(cmd *cobra.Command, args []string) {
+	res, err := ServiceInfo(
+		getCliRequiredArg(args, 0))
 	uiCheckErr("Could not Get Service", err)
 	uiServicStatus(res)
 }
