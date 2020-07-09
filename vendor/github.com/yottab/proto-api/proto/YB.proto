@@ -104,7 +104,9 @@ service YB {
             post: "/v2/volume/_delete"
             body: "*" };
     }
+    //Deprecated
     rpc VolumeFTPPortforward (Identity) returns (PortforwardRes) {}
+
 
 
 
@@ -183,7 +185,7 @@ service YB {
             post: "/v2/service/_domain/_detach"
             body: "*" };
     }
-    rpc SrvOperator (PunchedCard) returns (SrvStatusRes) {
+    rpc SrvOperator (PunchedCard) returns (OperatorRes) {
         option (google.api.http) = {
             post: "/v2/service/_operator"
              };
@@ -213,6 +215,11 @@ service YB {
         option (google.api.http) = {
             delete: "/v2/application/{name}"
              };
+    }
+    rpc AppChangePlan (ChangePlanReq) returns (AppStatusRes) {
+        option (google.api.http) = {
+            post: "/v2/application/_plan"
+            body: "*" };
     }
     rpc AppLog (Identity) returns (stream Chunk) { }
     rpc AppLogTail (TailRequest) returns (Chunk) {
@@ -287,6 +294,8 @@ service YB {
             post: "/v2/application/_service/_unbind"
             body: "*" };
     }
+
+    rpc AppFTPPortforward (Identity) returns (PortforwardRes) {}
 }
 
 // Authentication ////////////////////////////////////////////////////////////////////
@@ -539,6 +548,10 @@ message PunchedCard {
     map<string, string> values = 3;
 }
 
+message OperatorRes {
+    string body = 1;
+}
+
 //For embedded response
 message ServiceRes {
     Timestamp updated = 1;
@@ -595,6 +608,11 @@ message AppCreateReq {
     string name = 1;
     string plan = 2;
     map<string, string> values = 3;
+}
+
+message ChangePlanReq {
+    string name = 1;
+    string plan = 2;
 }
 
 // name for select [application, image]

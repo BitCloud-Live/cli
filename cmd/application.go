@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/spf13/cobra"
 	ybApi "github.com/yottab/proto-api/proto"
@@ -14,6 +15,7 @@ var (
 	minScale            uint64
 	flagVarImage        string
 	flagVarEndpointType string
+	flagVarExtra        map[string]string
 )
 
 func appList(cmd *cobra.Command, args []string) {
@@ -49,6 +51,17 @@ func appOpen(cmd *cobra.Command, args []string) {
 	uiApplicationOpen(res)
 }
 
+func appSftp(cmd *cobra.Command, args []string) {
+	volumeName := getCliRequiredArg(args, 0)
+	volumeUserPass := map[string]string{" User": "root", " Password": "root"}
+	req := getCliRequestIdentity(args, 0)
+	client := grpcConnect()
+	defer client.Close()
+	res, err := client.V2().AppFTPPortforward(client.Context(), req)
+	uiCheckErr("Could not Portforward the Application", err)
+	uiPortforward(volumeName, volumeUserPass, res)
+}
+
 func appLog(cmd *cobra.Command, args []string) {
 	streamAppLog(args)
 }
@@ -60,6 +73,8 @@ func appRun(cmd *cobra.Command, args []string) {
 		log.Fatal("no command run")
 	}
 	req.Command = args[1:]
+	//TODO: will be replaced by an interactive aproach
+	clientTimeout = 60 * time.Minute
 	client := grpcConnect()
 	defer client.Close()
 	output, err := client.V2().AppShell(client.Context(), req)
@@ -107,7 +122,7 @@ func appDestroy(cmd *cobra.Command, args []string) {
 }
 
 // ApplicationCreate create application by link of docker image
-func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale uint64) (*ybApi.AppStatusRes, error) {
+func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale uint64, otherValues map[string]string) (*ybApi.AppStatusRes, error) {
 	if err := endpointTypeValid(EndpointType); err != nil {
 		log.Panic(err)
 	}
@@ -122,6 +137,11 @@ func ApplicationCreate(appName, image, plan, EndpointType string, port, minScale
 	req.Values["minimum-scale"] = fmt.Sprintf("%d", minScale)
 	req.Values["image"] = image
 
+	//Fill other values
+	for key, val := range otherValues {
+		req.Values[key] = val
+	}
+
 	client := grpcConnect()
 	defer client.Close()
 	return client.V2().AppCreate(client.Context(), req)
@@ -134,7 +154,8 @@ func appCreate(cmd *cobra.Command, args []string) {
 		cmd.Flag("plan").Value.String(),
 		flagVarEndpointType,
 		flagVarPort,
-		flagVarMinScale)
+		flagVarMinScale,
+		flagVarExtra)
 	uiCheckErr("Could not Create the Application", err)
 	uiApplicationStatus(res)
 }
@@ -168,6 +189,13 @@ func appUpdate(cmd *cobra.Command, args []string) {
 	client := grpcConnect()
 	defer client.Close()
 
+	//Fill other values
+	for key, val := range flagVarExtra {
+		if val != "" {
+			req.Values[key] = val
+		}
+	}
+
 	res, err := client.V2().AppConfigSet(client.Context(), req)
 	uiCheckErr("Could not Set the Config for Application", err)
 	uiApplicationStatus(res)
@@ -190,6 +218,15 @@ func appAddEnvironmentVariable(cmd *cobra.Command, args []string) {
 		arrayFlagToMap(flagVariableArray))
 
 	uiCheckErr("Could not Add the Environment Variable for Application", err)
+	uiApplicationStatus(res)
+}
+
+func appAddEnvironmentFromDotEnv(cmd *cobra.Command, args []string) {
+	res, err := ApplicationAddEnvironmentVariable(
+		getCliRequiredArg(args, 0),
+		parseDotEnvFile(flagFile))
+
+	uiCheckErr("Could not Add the Environment Variable for Application (Dot env file)", err)
 	uiApplicationStatus(res)
 }
 

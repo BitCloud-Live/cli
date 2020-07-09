@@ -38,7 +38,7 @@ func (client *grpcClient) Context() context.Context {
 }
 
 //Connect init a connection to grpc server
-func Connect(host string, perRPC credentials.PerRPCCredentials) Client {
+func Connect(host string, perRPC credentials.PerRPCCredentials, timeout time.Duration) Client {
 	client := new(grpcClient)
 
 	client.Controller = host
@@ -59,6 +59,6 @@ func Connect(host string, perRPC credentials.PerRPCCredentials) Client {
 
 	client.Conn = conn
 	client.YB = NewYBClient(client.Conn)
-	client.Ctx, client.Cancel = context.WithTimeout(context.Background(), 10*time.Second)
+	client.Ctx, client.Cancel = context.WithTimeout(context.Background(), timeout)
 	return client
 }

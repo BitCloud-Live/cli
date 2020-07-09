@@ -23,7 +23,8 @@ var (
   $: yb create application \
         --image="hub.yottab.io/test/dotnetcore:aspnetapp" \
         --name="myaspnetapp" \
-		--port=80
+		--port=80 \
+		--extra "key1=val1,key2=va..."
 		
 
   $: yb create application \
@@ -32,6 +33,7 @@ var (
 		--min-scale=4 \
 		--debug=true \
         --port=8080 \
+		--extra "key1=val1,key2=va..." \
         --endpoint-type=private`}
 
 	srvCreateCmd = &cobra.Command{
@@ -89,12 +91,14 @@ var (
 		Example: `
   ## The Application Version is updated
   $: yb update myadmin \
-        --image="hub.yottab.io/test/myadmin:v1.2.3"
+        --image="hub.yottab.io/test/myadmin:v1.2.3" \
+		--extra "debug=false,..."
 		
 
   ## The Application Scale is updated
   $: yb update myadmin \
-		--min-scale=4`}
+		--min-scale=4 \
+		--extra "debug=false,..."`}
 )
 
 func init() {
@@ -109,6 +113,7 @@ func init() {
 	// application Create flag:
 	appCreateCmd.Flags().StringP("plan", "", "default", "name of plan")
 	appCreateCmd.Flags().StringP("name", "n", "", "a uniquely identifiable name for the application. No other app can already exist with this name.")
+	appCreateCmd.Flags().StringToStringVarP(&flagVarExtra, "extra", "x", map[string]string{}, "Set extra values that are available for app")
 	appCreateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
 	appCreateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
 	appCreateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc|private")
@@ -130,6 +135,7 @@ func init() {
 	updateCmd.Flags().Uint64VarP(&flagVarPort, "port", "p", 0, "port of application")
 	updateCmd.Flags().StringVarP(&flagVarImage, "image", "i", "", "image of application")
 	updateCmd.Flags().Uint64VarP(&flagVarMinScale, "min-scale", "m", 0, "min scale of application")
+	updateCmd.Flags().StringToStringP("extra", "x", map[string]string{}, "Set extra values that are available for app")
 	updateCmd.Flags().StringVarP(&flagVarEndpointType, "endpoint-type", "e", "http", "Accepted values: http|grpc|private")
 
 	rootCmd.AddCommand(
