@@ -65,14 +65,6 @@ var (
 		Short: "reset the running application",
 		Long:  `Destroys an application instance and create a new instance of application.`,
 		Run:   appReset}
-
-	/*
-		resetSrvCmd = &cobra.Command{
-			Use:   "service [name]",
-			Short: "reset the running service",
-			Long:  `reset the running Service.`,
-			Run:   srvReset}
-	*/
 )
 
 func init() {
@@ -82,6 +74,7 @@ func init() {
 		resetCmd)
 
 	startCmd.AddCommand(
+		composeCreateCmd,
 		startAppCmd,
 		startSrvCmd)
 
