@@ -9,7 +9,7 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
-	"github.com/spf13/cobra" 
+	"github.com/spf13/cobra"
 )
 
 //version parameter parsing from compiler ldflags
@@ -33,18 +33,17 @@ var (
 	cliCompletionCmd = &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
-		Long: `To load completion run
-			
-			. <(yb completion)
-			
-			To configure your bash shell to load completions for each session add to your bashrc
-			
-			# ~/.bashrc or ~/.profile
-			. <(yb completion)
-			`,
+		Long: `
+    To load completion run
+      $: . <(yb cli completion)
+
+    To configure your bash shell to load completions for each session add to your bashrc
+      $: vim ~/.bashrc
+	     . <(yb cli completion)
+	OR
+	  $: echo -e "echo . <(yb cli completion)" >> ~/.bashrc`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// TODO
-
 			rootCmd.GenBashCompletion(os.Stdout)
 		}}
 )

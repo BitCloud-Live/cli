@@ -16,7 +16,7 @@ var (
 
 	composeCreateCmd = &cobra.Command{
 		Use:   "compose",
-		Run:   domainCreate,
+		Run:   composeStart,
 		Short: "Running multi-container Docker applications",
 		Long: `
 Compose is a tool for defining and running multi-container Docker applications.
@@ -105,7 +105,6 @@ var (
   $: yb update myadmin \
         --image="hub.yottab.io/test/myadmin:v1.2.3" \
 		--extra "debug=false,..."
-		
 
   ## The Application Scale is updated
   $: yb update myadmin \
@@ -115,13 +114,13 @@ var (
 
 func init() {
 	// compose create:
-	composeCreateCmd.Flags().StringArrayVarP(&flagVariableArray, "file", "f", nil, "The path of compose file")
+	composeCreateCmd.Flags().StringArrayVarP(&flagComposeFilesArray, "file", "f", nil, "The path of compose file")
 	composeCreateCmd.MarkFlagRequired("file")
 
 	// service Create flag:
 	srvCreateCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service")
 	srvCreateCmd.Flags().StringP("plan", "", "starter", "the plan of sell")
-	srvCreateCmd.Flags().StringArrayVarP(&flagComposeFilesArray, "variable", "v", nil, "variable of service")
+	srvCreateCmd.Flags().StringArrayVarP(&flagVariableArray, "variable", "v", nil, "variable of service")
 	srvCreateCmd.MarkFlagRequired("name")
 
 	// application Create flag:

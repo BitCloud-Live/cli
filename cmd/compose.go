@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
@@ -10,6 +9,8 @@ import (
 	"github.com/kubernetes/kompose/pkg/loader"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // TODO: run command and arg
@@ -32,7 +33,6 @@ support keyword:
 const (
 	composeProductName    = "io.yottab.product"
 	composeServicePlan    = "io.yottab.plan"
-	composeServiceValues  = "io.yottab.values"
 	composeDomainName     = "io.yottab.domain.name"
 	composeDomainPath     = "io.yottab.domain.path"     // default is '/'
 	composeDomainProtocol = "io.yottab.domain.protocol" // default is http
@@ -48,42 +48,38 @@ var (
 	ErrPortNotExist = errors.New("Docker Compose Err: Port Not Exist")
 	// ErrVolumeBadFormat .
 	ErrVolumeBadFormat = errors.New("Docker Compose Err: only support external volume")
+	// ErrSrviceNotExist .
+	ErrSrviceNotExist = errors.New("Docker Compose Err: Service Not Exist")
+	// ErrDomainNotExist .
+	ErrDomainNotExist = errors.New("Docker Compose Err: Domain Not Exist")
 )
 
 func composeLoader(files []string) (ServiceConfigs map[string]kobject.ServiceConfig) {
 	l, err := loader.GetLoader("compose")
-	if err != nil {
-		log.Fatal(err)
-	}
+	uiCheckErr("Compose Loader Object Err", err)
 
 	komposeObject := kobject.KomposeObject{
 		ServiceConfigs: make(map[string]kobject.ServiceConfig),
 	}
 
 	komposeObject, err = l.LoadFile(files)
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
+	uiCheckErr("Compose LoadFiles Err", err)
 
 	return komposeObject.ServiceConfigs
 }
 
 func checkComposeFormat(serviceConfigs map[string]kobject.ServiceConfig) {
-	if err := applicationCheckExistPort(serviceConfigs); err != nil {
-		log.Fatalf(err.Error())
-	}
+	err := applicationCheckExistPort(serviceConfigs)
+	uiCheckErr("application Check Exist Port ", err)
 
-	if err := volumeCheck(serviceConfigs); err != nil {
-		log.Fatalf(err.Error())
-	}
+	err = volumeCheck(serviceConfigs)
+	uiCheckErr("volume Check", err)
 
-	if err := domainCheckExist(serviceConfigs); err != nil {
-		log.Fatalf(err.Error())
-	}
+	err = appCheckExistDomain(serviceConfigs)
+	uiCheckErr("domain Check", err)
 
-	if err := composeProductCheck(serviceConfigs); err != nil {
-		log.Fatalf(err.Error())
-	}
+	err = composeProductCheck(serviceConfigs)
+	uiCheckErr("product Check", err)
 }
 
 // TODO: check product exist at Yb.product.list
@@ -113,38 +109,82 @@ func volumeCheck(configs map[string]kobject.ServiceConfig) error {
 	for srv, conf := range configs {
 		// if image not null => srv.type is Application
 		for _, v := range conf.Volumes {
+			log.Printf("Volume Check at service %s", srv)
 			if v.VolumeName == "." ||
 				strings.Contains(v.VolumeName, "/") ||
 				strings.Contains(v.VolumeName, "\\") {
 				log.Printf("Only support Volume, Err at [%s]", srv)
 				return ErrVolumeBadFormat
+
+			} else if !volumeCheckExist(v.VolumeName) {
+				log.Printf("Volume '%s' Not Exist", v.VolumeName)
+				return ErrVolumeNotExist
 			}
-			volumeCheckExist(srv, v.VolumeName)
+
+			log.Printf("Volume %s is OK", v.VolumeName)
 		}
 	}
 	return nil
 }
-func volumeCheckExist(srv, name string) {
+func volumeCheckExist(name string) bool {
 	_, err := VolumeInfo(name)
-	uiCheckErr("Volume not OK at Service "+srv, err)
+	return !errIsGrpcNotFound(name, err)
 }
 
-func domainCheckExist(configs map[string]kobject.ServiceConfig) error {
-	for srv, conf := range configs {
+func serviceIsExist(name string) bool {
+	_, err := ServiceInfo(name)
+	return !errIsGrpcNotFound(name, err)
+}
+
+func appIsExist(name string) bool {
+	_, err := AppInfo(name)
+	return !errIsGrpcNotFound(name, err)
+}
+
+// if have domain, check exist
+func appCheckExistDomain(configs map[string]kobject.ServiceConfig) error {
+	for _, conf := range configs {
 		if composeConfigIsApplication(conf) {
 			if domain, ok := conf.Labels[composeDomainName]; ok {
 				_, err := DomainInfo(domain)
-				uiCheckErr("Domain not OK at Service "+srv, err)
+				if errIsGrpcNotFound(domain, err) {
+					return ErrDomainNotExist
+				}
 			}
 		}
 	}
 	return nil
 }
 
-// TODO: panic if( Err != notFind )
-func serviceIsExist(name string) bool {
-	_, err := ServiceInfo(name)
-	return err != nil
+func checkExistLinkVolume(app, volume string) bool {
+	List, err := VolumeList(app, 0)
+	uiCheckErr("Err At check Linked The Volume to Applicaation", err)
+	for _, v := range List.Volumes {
+		if volume == v.Name {
+			return true
+		}
+	}
+	return false
+}
+
+func checkExistLinkDomain(app, domain string) bool {
+	List, err := DomainList(app, 0)
+	uiCheckErr("Err At check Linked The Domain to Applicaation", err)
+	for _, d := range List.Domains {
+		if domain == d.Domain {
+			return true
+		}
+	}
+	return false
+}
+
+func errIsGrpcNotFound(name string, err error) bool {
+	errStatus, isOK := status.FromError(err)
+	if !isOK {
+		log.Fatalf("Check '%s' is not OK, Err: %v", name, err)
+	}
+
+	return errStatus.Code() == codes.NotFound
 }
 
 func getComposeProductName(conf kobject.ServiceConfig) string {
@@ -153,21 +193,6 @@ func getComposeProductName(conf kobject.ServiceConfig) string {
 	}
 
 	return ""
-}
-
-func getComposeServiceValues(conf kobject.ServiceConfig) (val map[string]string) {
-	val = make(map[string]string)
-	if conf.Labels != nil {
-		jsonVal, ok := conf.Labels[composeServiceValues]
-		if ok {
-			byteVal := []byte(jsonVal)
-			if err := json.Unmarshal(byteVal, &val); err != nil {
-				log.Fatalf(err.Error())
-			}
-		}
-	}
-
-	return
 }
 
 func getComposeProductPlan(conf kobject.ServiceConfig) string {
@@ -201,8 +226,11 @@ func getEndPoint(conf kobject.ServiceConfig) (endPoint string) {
 }
 
 func getDomainVariable(conf kobject.ServiceConfig) (domain, path string) {
-	domain = conf.Labels[composeDomainName]
-	path, OK := conf.Labels[composeDomainPath]
+	domain, OK := conf.Labels[composeDomainName]
+	if !OK {
+		return
+	}
+	path, OK = conf.Labels[composeDomainPath]
 	if !OK {
 		path = "/"
 	}
@@ -213,9 +241,17 @@ func composeAppLinkDomain(configs map[string]kobject.ServiceConfig) {
 	for srv, conf := range configs {
 		if composeConfigIsApplication(conf) {
 			domain, path := getDomainVariable(conf)
-			endpoint := getEndPoint(conf)
-			_, err := AppAttachDomain(srv, domain, path, endpoint)
-			uiCheckErr("Could not Add the Domain for Application", err)
+			if domain != "" {
+				endpoint := getEndPoint(conf)
+				if !checkExistLinkDomain(srv, domain) {
+					_, err := AppAttachDomain(srv, domain, path, endpoint)
+					if err != nil {
+						log.Fatalf("Could not Link the Domain '%s' at '%s' and path '%s', to Application '%s': %v",
+							domain, path, endpoint, srv, err)
+					}
+				}
+				log.Printf("Domain '%s' at '%s' and path '%s', Linked to Application '%s'", domain, path, endpoint, srv)
+			}
 		}
 	}
 }
@@ -224,8 +260,15 @@ func composeAppLinkVolume(configs map[string]kobject.ServiceConfig) {
 	for srv, conf := range configs {
 		if composeConfigIsApplication(conf) {
 			for _, vol := range conf.Volumes {
-				_, err := AppAttachVolume(srv, vol.VolumeName, vol.MountPath)
-				uiCheckErr("Could not Add the Volume for Application", err)
+				mountPath := vol.MountPath[1:]
+				if !checkExistLinkVolume(srv, vol.VolumeName) {
+					_, err := AppAttachVolume(srv, vol.VolumeName, mountPath)
+					if err != nil {
+						log.Fatalf("Could not Link the Volume '%s' at '%s' to Application '%s': %v",
+							vol.VolumeName, mountPath, srv, err)
+					}
+				}
+				log.Printf("Volume '%s' at '%s' Linked to Application '%s'", vol.VolumeName, mountPath, srv)
 			}
 		}
 	}
@@ -265,12 +308,22 @@ func composeAppLinkEnv(configs map[string]kobject.ServiceConfig) {
 // if not exist, create service
 func composeCreateService(configs map[string]kobject.ServiceConfig) error {
 	for srv, conf := range configs {
-		if !composeConfigIsApplication(conf) && !serviceIsExist(srv) {
+		log.Printf("chech CreateService %s, isSrv:%v", srv, !composeConfigIsApplication(conf))
+		if !composeConfigIsApplication(conf) {
+			if serviceIsExist(srv) {
+				log.Printf("Service '%s' is Exist", srv)
+				continue
+			}
+
 			product := getComposeProductName(conf)
 			plan := getComposeProductPlan(conf)
-			val := getComposeServiceValues(conf)
-			res, err := ServiceCreate(product, srv, plan, val)
-			uiCheckErr("Could not Create the Service", err)
+			variables := convConfigEnvVarToMap(conf)
+			log.Printf("Service %s, product=%s, plan=%s, var=%v", srv, product, plan, variables)
+			res, err := ServiceCreate(product, srv, plan, variables)
+			if err != nil {
+				log.Printf("Service '%s' Could not Create, Err: %v", srv, err)
+				return err
+			}
 			uiServicStatus(res)
 		}
 	}
@@ -288,27 +341,34 @@ func getReplicas(conf kobject.ServiceConfig) uint64 {
 // if not exist, Create Application
 func composeAppCreate(configs map[string]kobject.ServiceConfig) error {
 	for srv, conf := range configs {
+		log.Printf("chech CreateApplication %s, isApp:%v", srv, composeConfigIsApplication(conf))
 		if composeConfigIsApplication(conf) {
-			// TODO check err == not exist
-			if _, err := AppInfo(srv); err != nil {
-				plan := getComposeProductPlan(conf)
-				endpointProtocol := getEndPointProtocol(conf)
-				port := uint64(conf.Port[0].ContainerPort)
-				minScale := getReplicas(conf)
-
-				// TODO set otherValues
-				res, err := ApplicationCreate(srv, conf.Image, plan, endpointProtocol, port, minScale, nil)
-				uiCheckErr("Could not Create the Application", err)
-				uiApplicationStatus(res)
-			} else {
+			if appIsExist(srv) {
 				log.Printf("Application %s is exist", srv)
+				continue
 			}
+
+			plan := getComposeProductPlan(conf)
+			endpointProtocol := getEndPointProtocol(conf)
+			port := uint64(conf.Port[0].ContainerPort)
+			minScale := getReplicas(conf)
+			log.Printf("Application %s: img=%s, endpointProtocol=%s, plan=%s, minScale=%d", srv, conf.Image, endpointProtocol, plan, minScale)
+
+			// TODO set otherValues
+			res, err := ApplicationCreate(srv, conf.Image, plan, endpointProtocol, port, minScale, nil)
+			if err != nil {
+				log.Printf("Application '%s' Could not Create, Err: %v", srv, err)
+				return err
+			}
+			uiApplicationStatus(res)
 		}
 	}
 	return nil
 }
 
 func composeStart(cmd *cobra.Command, args []string) {
+	log.Printf("Compose Files: %v", flagComposeFilesArray)
+
 	configs := composeLoader(flagComposeFilesArray)
 
 	// check metadata befor start
@@ -316,11 +376,11 @@ func composeStart(cmd *cobra.Command, args []string) {
 
 	// first create Service
 	err := composeCreateService(configs)
-	uiCheckErr("Could not Link Volume", err)
+	uiCheckErr("Could not Create Service", err)
 
 	// then create Application, add Link the (Volumes, Domains and Env)
 	err = composeAppCreate(configs)
-	uiCheckErr("Could not Link Volume", err)
+	uiCheckErr("Could not Create App", err)
 	composeAppLinkVolume(configs)
 	composeAppLinkDomain(configs)
 	composeAppLinkEnv(configs)

@@ -26,11 +26,16 @@ func volumeSpecList(cmd *cobra.Command, args []string) {
 // 	uiVolumeSpec(res)
 // }
 
-func volumeList(cmd *cobra.Command, args []string) {
-	req := getCliRequestIndexForApp(args, 0, flagIndex)
+// VolumeList .
+func VolumeList(appName string, flagIndex int32) (*ybApi.VolumeListRes, error) {
+	req := getRequestIndexForApp(appName, flagIndex)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().VolumeList(client.Context(), req)
+	return client.V2().VolumeList(client.Context(), req)
+}
+func volumeList(cmd *cobra.Command, args []string) {
+	appName := getCliArg(args, 0, "")
+	res, err := VolumeList(appName, flagIndex)
 	uiCheckErr("Could not List the volume", err)
 	uiList(res)
 }

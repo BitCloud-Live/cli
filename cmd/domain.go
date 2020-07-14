@@ -11,11 +11,16 @@ var (
 	flagTLS bool
 )
 
-func domainList(cmd *cobra.Command, args []string) {
-	req := getCliRequestIndexForApp(args, 0, flagIndex)
+// DomainList .
+func DomainList(appName string, index int32) (*ybApi.DomainListRes, error) {
+	req := getRequestIndexForApp(appName, index)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().DomainList(client.Context(), req)
+	return client.V2().DomainList(client.Context(), req)
+}
+func domainList(cmd *cobra.Command, args []string) {
+	appName := getCliArg(args, 0, "")
+	res, err := DomainList(appName, flagIndex)
 	uiCheckErr("Could not List the domain", err)
 	uiList(res)
 }

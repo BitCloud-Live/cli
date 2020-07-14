@@ -149,7 +149,7 @@ func streamAppLog(args []string) {
 			}
 			if strings.Contains(err.Error(), "RST_STREAM") {
 				//Resume log streaming on proto related error
-				log.Println("Timeout streaming log...")
+				fmt.Println("Timeout streaming log...")
 				// continue
 				return
 			}
