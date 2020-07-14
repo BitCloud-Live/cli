@@ -8,11 +8,23 @@ import (
 var (
 	createCmd = &cobra.Command{
 		Use:   "create [command]",
-		Short: "creates new [service|application|domain|volume]",
+		Short: "creates new [compose|service|application|domain|volume]",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		}}
+
+	composeCreateCmd = &cobra.Command{
+		Use:   "compose",
+		Run:   composeStart,
+		Short: "Running multi-container Docker applications",
+		Long: `
+Compose is a tool for defining and running multi-container Docker applications.
+With Compose, you use a YAML file to configure your application's services.`,
+		Example: `
+  $: yb create compose \
+	     --file=core.yml \
+	     --file=service.yml`}
 
 	appCreateCmd = &cobra.Command{
 		Use:   "application",
@@ -93,7 +105,6 @@ var (
   $: yb update myadmin \
         --image="hub.yottab.io/test/myadmin:v1.2.3" \
 		--extra "debug=false,..."
-		
 
   ## The Application Scale is updated
   $: yb update myadmin \
@@ -102,7 +113,9 @@ var (
 )
 
 func init() {
-	createCmd.Flags().StringP("compose-file", "f", "", "the path of compose file")
+	// compose create:
+	composeCreateCmd.Flags().StringArrayVarP(&flagComposeFilesArray, "file", "f", nil, "The path of compose file")
+	composeCreateCmd.MarkFlagRequired("file")
 
 	// service Create flag:
 	srvCreateCmd.Flags().StringP("name", "n", "", "the uniquely identifiable name for the service")
@@ -143,6 +156,7 @@ func init() {
 		updateCmd)
 
 	createCmd.AddCommand(
+		composeCreateCmd,
 		appCreateCmd,
 		srvCreateCmd,
 		domainCreateCmd,

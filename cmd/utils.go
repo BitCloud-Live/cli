@@ -38,6 +38,20 @@ func parseDotEnvFile(filename string) map[string]string {
 	}
 	return myEnv
 }
+
+func mapMerge(a, b map[string]string) map[string]string {
+	c := make(map[string]string, len(a)+len(b))
+
+	for k, v := range a {
+		c[k] = v
+	}
+	for k, v := range b {
+		c[k] = v
+	}
+
+	return c
+}
+
 func arrayFlagToMap(flags []string) map[string]string {
 	varMap := make(map[string]string, len(flags))
 	for _, v := range flags {
@@ -135,7 +149,7 @@ func streamAppLog(args []string) {
 			}
 			if strings.Contains(err.Error(), "RST_STREAM") {
 				//Resume log streaming on proto related error
-				log.Println("Timeout streaming log...")
+				fmt.Println("Timeout streaming log...")
 				// continue
 				return
 			}

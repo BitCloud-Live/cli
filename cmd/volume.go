@@ -26,11 +26,16 @@ func volumeSpecList(cmd *cobra.Command, args []string) {
 // 	uiVolumeSpec(res)
 // }
 
-func volumeList(cmd *cobra.Command, args []string) {
-	req := getCliRequestIndexForApp(args, 0, flagIndex)
+// VolumeList .
+func VolumeList(appName string, flagIndex int32) (*ybApi.VolumeListRes, error) {
+	req := getRequestIndexForApp(appName, flagIndex)
 	client := grpcConnect()
 	defer client.Close()
-	res, err := client.V2().VolumeList(client.Context(), req)
+	return client.V2().VolumeList(client.Context(), req)
+}
+func volumeList(cmd *cobra.Command, args []string) {
+	appName := getCliArg(args, 0, "")
+	res, err := VolumeList(appName, flagIndex)
 	uiCheckErr("Could not List the volume", err)
 	uiList(res)
 }
@@ -42,7 +47,6 @@ func volumeInfo(cmd *cobra.Command, args []string) {
 	uiVolumeStatus(res)
 }
 
-<<<<<<< HEAD
 // VolumeInfo get detail of volume
 func VolumeInfo(name string) (*ybApi.VolumeStatusRes, error) {
 	req := getRequestIdentity(name)
@@ -61,9 +65,7 @@ func volumeSftp(cmd *cobra.Command, args []string) {
 	uiCheckErr("Could not Portforward the Service", err)
 	uiPortforward(volumeName, volumeUserPass, res)
 }
- 
-======= 
->>>>>>> a9630ec2dabef6488b61ed59369783584f58f073
+
 // VolumeCreate crate a volume by name and type
 func VolumeCreate(name, volumeType string) (*ybApi.VolumeStatusRes, error) {
 	req := new(ybApi.VolumeCreateReq)

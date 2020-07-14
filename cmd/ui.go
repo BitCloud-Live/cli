@@ -399,13 +399,13 @@ func uiStreamLog(client ybApi.YB_AppLogClient) error {
 		c, err := client.Recv()
 		if err != nil {
 			if status.Code(err) == codes.OutOfRange {
-				log.Printf("Transfer of %d bytes done", byteRecieved)
+				fmt.Printf("Transfer of %d bytes done", byteRecieved)
 				return nil
 			}
 			return err
 		}
 		byteRecieved += len(c.Chunk)
-		log.Printf(string(c.Chunk))
+		fmt.Printf(string(c.Chunk))
 	}
 }
 
