@@ -34,14 +34,19 @@ var (
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
 		Long: `
-    To load completion run
-      $: . <(yb cli completion)
+# BASH
+  - setup autocomplete in bash into the current shell, bash-completion package should be installed first.
+	$: source <(yb cli completion)
+	
+  - add autocomplete permanently to your bash shell.
+	$: echo "source <(yb cli completion)" >> ~/.bashrc 
 
-    To configure your bash shell to load completions for each session add to your bashrc
-      $: vim ~/.bashrc
-	     . <(yb cli completion)
-	OR
-	  $: echo -e "echo . <(yb cli completion)" >> ~/.bashrc`,
+# ZSH
+  - setup autocomplete in zsh into the current shell
+    $: source <(yb cli completion)
+
+  - add autocomplete permanently to your zsh shell
+    $: echo "[[ $commands[yb] ]] && source <(yb cli completion)" >> ~/.zshrc`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// TODO
 			rootCmd.GenBashCompletion(os.Stdout)
